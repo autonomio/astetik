@@ -2,9 +2,13 @@
 
 Pretty is a python library for producing publication quality descriptive statistics tables from a Pandas DataFrame. It uses very simple and extremely easy to edit html code to produce the result. 
 
-Basically it does one thing, and does it really well: 
+Basically it does one thing (display publication quality descriptive stat tables), and does it really well: 
 
 [![Screen Shot 2016-11-04 at 18.37.44.png](https://s14.postimg.org/hnoexoujl/Screen_Shot_2016_11_04_at_18_37_44.png)](https://postimg.org/image/70uls9me5/)
+
+You can see / try pretty in a live Jupyter notebook: 
+
+https://nbviewer.jupyter.org/github/mikkokotila/pretty/blob/master/pretty.ipynb
 
 ### What dependencies pretty has? 
 
@@ -18,7 +22,8 @@ You need to have Pandas and IPython/Jupyter. That's it.
 
 3) Open a IPython / Notebook in your browser and: 
 
-    import pretty as pretty 
+    import pretty as pretty
+    import pandas as pd
     
 ### How pretty works? 
 
