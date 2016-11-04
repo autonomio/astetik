@@ -1,14 +1,25 @@
 # pretty
-Pretty is a python library for producing publication quality descriptive statistics tables from a Pandas DataFrame. It is made specifically to be used with IPython / Jupyter notebooks and is the only such library currently available. It uses very simple and extremely easy to edit html code to produce the visualization. 
+
+Pretty is a python library for producing publication quality descriptive statistics tables from a Pandas DataFrame. It uses very simple and extremely easy to edit html code to produce the result. 
 
 Basically it does one thing, and does it really well: 
 
 [![Screen Shot 2016-11-04 at 18.37.44.png](https://s14.postimg.org/hnoexoujl/Screen_Shot_2016_11_04_at_18_37_44.png)](https://postimg.org/image/70uls9me5/)
 
+### What dependencies pretty has? 
+
 You need to have Pandas and IPython/Jupyter. That's it. 
 
-    import pretty as pretty 
+### Getting started with pretty
 
+1) copy the file pretty.py from this repo
+
+2) save it in the folder where your notebooks reside / where you now how to call it
+
+3) Open a IPython / Notebook in your browser and: 
+
+    import pretty as pretty 
+    
 ### How pretty works? 
 
 The first function is a data prep function:
@@ -59,4 +70,4 @@ And then just call:
     
 ### Why just mean / median / std and total?
 
-Because once you look at the code, you can realise that it will take seconds for you to change the math functions to whatever you like.
+Because that's what I realised that most projects need, and also once you look at the code, you can realise that it will take seconds for you to change the math functions to whatever you like.
