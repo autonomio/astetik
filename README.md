@@ -38,7 +38,7 @@ or
 
     pretty.data(pretty.table(df))
 
-### Why support only 3 features per table (not more, not less)?
+### Why support only 3 features/variables per table (not more, not less)?
 
 - It's sufficient for most use cases 
 - It allowed keeping both the python code and html very simple
@@ -56,3 +56,7 @@ Then if you were repeatedly using various combinations from the same or similar 
 And then just call: 
 
     pretty.table(pretty.data(df,metrics))
+    
+### Why just mean / median / std and total?
+
+Because once you look at the code, you can realise that it will take seconds for you to change the math functions to whatever you like.
