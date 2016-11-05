@@ -2,7 +2,7 @@
 
 Pretty is a python library for producing publication quality descriptive statistics tables from a Pandas DataFrame. It uses very simple and extremely easy to edit html code to produce the result. 
 
-Basically it does one thing (display publication quality descriptive stat tables), and does it really well: 
+Basically it does one thing (display publication quality descriptive stat tables for three features at a time), and does it really well: 
 
 [![Screen Shot 2016-11-04 at 18.37.44.png](https://s14.postimg.org/hnoexoujl/Screen_Shot_2016_11_04_at_18_37_44.png)](https://postimg.org/image/70uls9me5/)
 
