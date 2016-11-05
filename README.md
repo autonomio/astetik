@@ -27,6 +27,8 @@ You need to have Pandas and IPython/Jupyter. That's it.
     
 ### How pretty works? 
 
+There are just two functions, and an html "template". It's all in pretty.py file. 
+
 The first function is a data prep function:
 
     pretty.data(df)
