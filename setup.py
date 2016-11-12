@@ -1,109 +1,100 @@
-"""A setuptools based setup module.
-See:
-https://packaging.python.org/en/latest/distributing.html
-https://github.com/pypa/sampleproject
+#! /usr/bin/env python
+#
+import os
+# temporarily redirect config directory to prevent matplotlib importing
+# testing that for writeable directory which results in sandbox error in
+# certain easy_install versions
+os.environ["MPLCONFIGDIR"] = "."
+
+DESCRIPTION = "Somecode Twitter Science and Research Platform"
+LONG_DESCRIPTION = """\
+
+SOMECODE is a research platform for serious observation and analysis 
+of Twitter data. SOMECODE brings together 9 years of unbroken continuity 
+in developing social media research tools. Previous tools and processes 
+developed by the contributor team are in daily use by many FORTUNE100 
+companies and major advertising agencies. SOMECODE is the solution we 
+always wanted to build, but due to the kinds of restraints commercial 
+entities have, never got to.
+
 """
 
-# Always prefer setuptools over distutils
-from setuptools import setup, find_packages
-# To use a consistent encoding
-from codecs import open
-from os import path
+DISTNAME = 'somecode'
+MAINTAINER = 'Mikko Kotila'
+MAINTAINER_EMAIL = 'mailme@mikkokotila.com'
+URL = 'http://botlab.io'
+LICENSE = 'MIT'
+DOWNLOAD_URL = 'https://github.com/S0MEC0DE/'
+VERSION = '1.0.1'
 
-here = path.abspath(path.dirname(__file__))
+try:
+    from setuptools import setup
+    _has_setuptools = True
+except ImportError:
+    from distutils.core import setup
 
-# Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+def check_dependencies():
+    install_requires = []
 
-setup(
-    name='sample',
+    # Just make sure dependencies exist, I haven't rigorously
+    # tested what the minimal versions that will work are
+    # (help on that would be awesome)
+    try:
+        import numpy
+    except ImportError:
+        install_requires.append('numpy')
+    try:
+        import seaborn
+    except ImportError:
+        install_requires.append('seaborn')
+    try:
+        import matplotlib
+    except ImportError:
+        install_requires.append('matplotlib')
+    try:
+        import pandas
+    except ImportError:
+        install_requires.append('pandas')
+    try:
+        import nltk
+    except ImportError:
+        install_requires.append('nltk')
+    try:
+        import tweepy
+    except ImportError:
+        install_requires.append('tweepy')
+    try:
+        import twython
+    except ImportError:
+        install_requires.append('twython')
+    try:
+        import IPython
+    except ImportError:
+        install_requires.append('IPython')
 
-    # Versions should comply with PEP440.  For a discussion on single-sourcing
-    # the version across setup.py and the project code, see
-    # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.1',
+    return install_requires
 
-    description='A sample Python project',
-    long_description=long_description,
+if __name__ == "__main__":
 
-    # The project's main homepage.
-    url='https://github.com/mikkokotila/pretty',
+    install_requires = check_dependencies()
 
-    # Author details
-    author='Mikko Kotila',
-    author_email='mailme@mikkokotila.com',
-
-    # Choose your license
-    license='MIT',
-
-    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
-    classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        'Development Status :: 4 - Alpha',
-
-        # Indicate who your project is intended for
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-
-        # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: MIT License',
-
-        # Specify the Python versions you support here. In particular, ensure
-        # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-    ],
-
-    # What does your project relate to?
-    keywords='descriptive statistics table visualization',
-
-    # You can just specify the packages manually here if your project is
-    # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-
-    # Alternatively, if you want to distribute just a my_module.py, uncomment
-    # this:
-    py_modules=["my_module"],
-
-    # List run-time dependencies here.  These will be installed by pip when
-    # your project is installed. For an analysis of "install_requires" vs pip's
-    # requirements files see:
-    # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['pandas'],
-
-    # List additional groups of dependencies here (e.g. development
-    # dependencies). You can install these using the following syntax,
-    # for example:
-    # $ pip install -e .[dev,test]
-    extras_require={
-        'dev': ['check-manifest'],
-        'test': ['coverage'],
-    },
-
-    # If there are data files included in your packages that need to be
-    # installed, specify them here.  If using Python 2.6 or less, then these
-    # have to be included in MANIFEST.in as well.
-    package_data={
-        'sample': ['package_data.dat'],
-    },
-
-    # Although 'package_data' is the preferred approach, in some case you may
-    # need to place data files outside of your packages. See:
-    # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
-    # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    data_files=[('my_data', ['data/data_file'])],
-
-    # To provide executable scripts, use entry points in preference to the
-    # "scripts" keyword. Entry points provide cross-platform support and allow
-    # pip to create the appropriate form of executable for the target platform.
-    entry_points={
-        'console_scripts': [
-            'sample=sample:main',
-        ],
-    },
-)
+    setup(name=DISTNAME,
+        author=MAINTAINER,
+        author_email=MAINTAINER_EMAIL,
+        maintainer=MAINTAINER,
+        maintainer_email=MAINTAINER_EMAIL,
+        description=DESCRIPTION,
+        long_description=LONG_DESCRIPTION,
+        license=LICENSE,
+        url=URL,
+        version=VERSION,
+        download_url=DOWNLOAD_URL,
+        install_requires=install_requires,
+        packages=['somecode'],
+        classifiers=[
+                     'Intended Audience :: Science/Research',
+                     'Programming Language :: Python :: 2.7',
+                     'Operating System :: POSIX',
+                     'Operating System :: Unix',
+                     'Operating System :: MacOS'],
+          )
