@@ -1,3 +1,7 @@
+import pandas as pd
+
+from IPython.core.display import display, HTML
+
 def ols(data,iv,dv1,dv2,dv3,title='OLS Summary',table_title=''):
     
     if len(table_title) == 0:

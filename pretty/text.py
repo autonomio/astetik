@@ -1,3 +1,7 @@
+import pandas as pd
+
+from IPython.core.display import display, HTML
+
 def text(data,column,rows=6, sort_by='',contains=''):
     
     if sort_by != '':
