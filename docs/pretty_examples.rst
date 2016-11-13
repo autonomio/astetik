@@ -2,10 +2,10 @@
 .. code:: python
 
     %matplotlib inline
-    import pretty as pretty
+    import astetik as astetik
     import pandas as pd
 
-1. Overview of Pretty's functionality
+1. Overview of astetik's functionality
 =====================================
 
 First let's get some data (in this case 1000 tweets about Donald Trump.
@@ -42,7 +42,7 @@ pandas dataframe from Twitter API
 -------------------------------
 
 Because generally the user is required to spend much time to figure out
-basic configuration, such as titles, scales etc, Pretty is focused on
+basic configuration, such as titles, scales etc, astetik is focused on
 making frequently repeated operations as intuitive accessible as
 possible.
 
@@ -53,13 +53,13 @@ Example paramaters:
 -  xscale / for setting the scale of x axis ("linear","symlog","log")
 -  yscale / see above line
 -  color / for changing a single color
--  palette / for changing a palette of colors (Pretty is using Seaborn
+-  palette / for changing a palette of colors (astetik is using Seaborn
    palettes but you could use any)
 
 2. Examples of text and table presentation
 ==========================================
 
-The below examples highlight Pretty's functionality when used at the
+The below examples highlight astetik's functionality when used at the
 most basic level.
 
 2.1. Tweets with most retweets
@@ -67,7 +67,7 @@ most basic level.
 
 .. code:: python
 
-    pretty.text(df,'text',5,sort_by='retweet_count')
+    astetik.text(df,'text',5,sort_by='retweet_count')
 
 
 
@@ -114,7 +114,7 @@ most basic level.
 
 .. code:: python
 
-    pretty.text(df[df.neg > 0.2],'text',"Negative tweets with many retweets",5,sort_by='retweet_count')
+    astetik.text(df[df.neg > 0.2],'text',"Negative tweets with many retweets",5,sort_by='retweet_count')
 
 
 
@@ -162,7 +162,7 @@ Descritive statistics in a table
 
 .. code:: python
 
-    pretty.descriptive(df,['neg','neu','pos'],"Sentiment")
+    astetik.descriptive(df,['neg','neu','pos'],"Sentiment")
 
 
 
@@ -176,7 +176,7 @@ OLS Regression Test
 
 .. code:: python
 
-    pretty.ols(df,'retweet_count','neg','neu','pos')
+    astetik.ols(df,'retweet_count','neg','neu','pos')
 
 
 
@@ -193,7 +193,7 @@ OLS Regression Test
 
 .. code:: python
 
-    pretty.histogram(df,['quality_score','neu'])
+    astetik.histogram(df,['quality_score','neu'])
 
 
 
@@ -205,7 +205,7 @@ OLS Regression Test
 
 .. code:: python
 
-    pretty.bars(df.location)
+    astetik.bars(df.location)
 
 
 
@@ -217,7 +217,7 @@ OLS Regression Test
 
 .. code:: python
 
-    pretty.bubble(df,'influence_score','reach_score','egg_account','retweet_count',xscale='symlog', yscale='symlog')
+    astetik.bubble(df,'influence_score','reach_score','egg_account','retweet_count',xscale='symlog', yscale='symlog')
 
 
 
@@ -229,7 +229,7 @@ OLS Regression Test
 
 .. code:: python
 
-    pretty.correlationt(df)
+    astetik.correlationt(df)
 
 
 
@@ -241,7 +241,7 @@ OLS Regression Test
 
 .. code:: python
 
-    pretty.kde(df.influence_score,df.retweet_count,xscale="symlog",yscale="symlog")
+    astetik.kde(df.influence_score,df.retweet_count,xscale="symlog",yscale="symlog")
 
 
 
@@ -253,7 +253,7 @@ OLS Regression Test
 
 .. code:: python
 
-    pretty.swarm(df,'neg','retweet_count',yscale="symlog")
+    astetik.swarm(df,'neg','retweet_count',yscale="symlog")
 
 
 
@@ -268,7 +268,7 @@ OLS Regression Test
 
 .. code:: python
 
-    pretty.toggle()
+    astetik.toggle()
 
 
 
@@ -293,11 +293,11 @@ OLS Regression Test
 
 .. code:: python
 
-    pretty.warning()
+    astetik.warning()
 
-5. Using Pretty in your next research project
+5. Using astetik in your next research project
 =============================================
 
 ::
 
-    pip install pretty
+    pip install astetik
