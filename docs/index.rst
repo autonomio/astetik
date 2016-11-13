@@ -1,10 +1,3 @@
-
-.. code:: python
-
-    %matplotlib inline
-    import astetik as astetik
-    import pandas as pd
-
 1. Overview of astetik's functionality
 =====================================
 
