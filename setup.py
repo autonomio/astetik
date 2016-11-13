@@ -6,26 +6,25 @@ import os
 # certain easy_install versions
 os.environ["MPLCONFIGDIR"] = "."
 
-DESCRIPTION = "Somecode Twitter Science and Research Platform"
+DESCRIPTION = "Pretty data visualization and reporting library"
 LONG_DESCRIPTION = """\
 
-SOMECODE is a research platform for serious observation and analysis 
-of Twitter data. SOMECODE brings together 9 years of unbroken continuity 
-in developing social media research tools. Previous tools and processes 
-developed by the contributor team are in daily use by many FORTUNE100 
-companies and major advertising agencies. SOMECODE is the solution we 
-always wanted to build, but due to the kinds of restraints commercial 
-entities have, never got to.
+Pretty provides a very high level overlay on Seaborn and matplotlib.
+It is a data visualization library for data exploration, and for 
+telling captivating stories with data. Unlike any other visualization
+library, Pretty is specifically made for day-to-day use by data 
+scientists and reduces learning curve compared to similar solutions 
+significantly. 
 
 """
 
-DISTNAME = 'somecode'
+DISTNAME = 'pretty'
 MAINTAINER = 'Mikko Kotila'
 MAINTAINER_EMAIL = 'mailme@mikkokotila.com'
-URL = 'http://botlab.io'
+URL = 'http://mikkokotila.com'
 LICENSE = 'MIT'
-DOWNLOAD_URL = 'https://github.com/S0MEC0DE/'
-VERSION = '1.0.1'
+DOWNLOAD_URL = 'https://github.com/mikkokotila/pretty'
+VERSION = '0.9.2'
 
 try:
     from setuptools import setup
@@ -36,9 +35,6 @@ except ImportError:
 def check_dependencies():
     install_requires = []
 
-    # Just make sure dependencies exist, I haven't rigorously
-    # tested what the minimal versions that will work are
-    # (help on that would be awesome)
     try:
         import numpy
     except ImportError:
@@ -56,21 +52,17 @@ def check_dependencies():
     except ImportError:
         install_requires.append('pandas')
     try:
-        import nltk
-    except ImportError:
-        install_requires.append('nltk')
-    try:
-        import tweepy
-    except ImportError:
-        install_requires.append('tweepy')
-    try:
-        import twython
-    except ImportError:
-        install_requires.append('twython')
-    try:
         import IPython
     except ImportError:
         install_requires.append('IPython')
+    try:
+        import statsmodels
+    except ImportError:
+        install_requires.append('statsmodels')
+    try:
+        import patsy
+    except ImportError:
+        install_requires.append('patsy')
 
     return install_requires
 
@@ -90,7 +82,7 @@ if __name__ == "__main__":
         version=VERSION,
         download_url=DOWNLOAD_URL,
         install_requires=install_requires,
-        packages=['somecode'],
+        packages=['pretty'],
         classifiers=[
                      'Intended Audience :: Science/Research',
                      'Programming Language :: Python :: 2.7',

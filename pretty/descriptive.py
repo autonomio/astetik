@@ -1,5 +1,8 @@
 import pandas as pd
 
+from prep import prep
+from table import table
+
 def descriptive(data,columns='',title="Descriptive Stats",table_title=""):
     
     """

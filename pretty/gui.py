@@ -15,10 +15,9 @@ def toggle():
     } 
     $( document ).ready(code_toggle);
     </script>
-    The raw code for this IPython notebook is by default hidden for easier reading.
-    To toggle on/off the raw code, click <a href="javascript:code_toggle()">here</a>.''')
+    <a href="javascript:code_toggle()">toggle code cells</a>''')
     return html
 
-def warnings():
+def warning():
     
     warnings.filterwarnings('ignore')

@@ -1,6 +1,6 @@
 import pandas as pd
 
-def data(data,columns=''):
+def prep(data,columns=''):
     
     """
       Data processor for desc_table() function.

@@ -1,5 +1,6 @@
 import pandas as pd
-
+import statsmodels.api as sm
+from patsy import dmatrices
 from IPython.core.display import display, HTML
 
 def ols(data,iv,dv1,dv2,dv3,title='OLS Summary',table_title=''):
@@ -9,7 +10,7 @@ def ols(data,iv,dv1,dv2,dv3,title='OLS Summary',table_title=''):
         table_title = "Independent Variable : " + str(iv)
     
     features = str(iv + ' ~ ' + dv1 + ' + ' + dv2 + ' + ' + dv3)
-    y, X = dmatrices(features, data=df, return_type='dataframe')
+    y, X = dmatrices(features, data=data, return_type='dataframe')
     mod = sm.OLS(y, X)
     res = mod.fit()
     result = pd.DataFrame.transpose(pd.DataFrame([res.params,res.tvalues,res.pvalues,res.bse]))
