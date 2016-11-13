@@ -6,10 +6,10 @@ import os
 # certain easy_install versions
 os.environ["MPLCONFIGDIR"] = "."
 
-DESCRIPTION = "Pretty data visualization and reporting library"
+DESCRIPTION = "Astetik data visualization and reporting library"
 LONG_DESCRIPTION = """\
 
-Pretty provides a very high level overlay on Seaborn and matplotlib.
+Astetik provides a very high level overlay on Seaborn and matplotlib.
 It is a data visualization library for data exploration, and for 
 telling captivating stories with data. Unlike any other visualization
 library, Pretty is specifically made for day-to-day use by data 
@@ -18,13 +18,13 @@ significantly.
 
 """
 
-DISTNAME = 'pretty'
+DISTNAME = 'astetik'
 MAINTAINER = 'Mikko Kotila'
 MAINTAINER_EMAIL = 'mailme@mikkokotila.com'
 URL = 'http://mikkokotila.com'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/mikkokotila/pretty'
-VERSION = '0.9.2'
+VERSION = '0.9.3'
 
 try:
     from setuptools import setup
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         version=VERSION,
         download_url=DOWNLOAD_URL,
         install_requires=install_requires,
-        packages=['pretty'],
+        packages=['astetik'],
         classifiers=[
                      'Intended Audience :: Science/Research',
                      'Programming Language :: Python :: 2.7',
