@@ -9,10 +9,10 @@ os.environ["MPLCONFIGDIR"] = "."
 DESCRIPTION = "Astetik data visualization and reporting library"
 LONG_DESCRIPTION = """\
 
-Astetik provides a very high level overlay on Seaborn and matplotlib.
+astetik provides a very high level overlay on Seaborn and matplotlib.
 It is a data visualization library for data exploration, and for 
 telling captivating stories with data. Unlike any other visualization
-library, Pretty is specifically made for day-to-day use by data 
+library, astetik is specifically made for day-to-day use by data 
 scientists and reduces learning curve compared to similar solutions 
 significantly. 
 
