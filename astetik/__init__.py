@@ -1,15 +1,14 @@
-from bars import *
-from bubble import *
-from correlation import *
-from prep import *
-from descriptive import *
-from gui import *
-from histogram import *
-from kde import *
-from ols import *
-from regression import *
-from swarm import *
-from table import *
-from text import *
+from .bars import *
+from .bubble import *
+from .corr import corr
+from .gui import toggle
+from .histogram import *
+from .kde import *
+from .ols import *
+from .swarm import *
+from .table import *
+from .text import *
+from .color_picker import *
+from .utils import *
 
-__version__ = "0.9"
+__version__ = "1.1"
