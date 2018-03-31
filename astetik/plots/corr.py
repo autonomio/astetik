@@ -1,7 +1,11 @@
 import numpy as np
-import seaborn as sns
+
+import matplotlib
+matplotlib.use('Agg')  # this needs to be here exceptionslly
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
+
+import seaborn as sns
 
 from ..style.color_picker import color_picker, color_blind, _label_to_hex
 
