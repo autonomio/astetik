@@ -10,11 +10,11 @@ DESCRIPTION = "Astetik data visualization and reporting library"
 LONG_DESCRIPTION = """\
 
 astetik provides a very high level overlay on Seaborn and matplotlib.
-It is a data visualization library for data exploration, and for 
+It is a data visualization library for data exploration, and for
 telling captivating stories with data. Unlike any other visualization
-library, astetik is specifically made for day-to-day use by data 
-scientists and reduces learning curve compared to similar solutions 
-significantly. 
+library, astetik is specifically made for day-to-day use by data
+scientists and reduces learning curve compared to similar solutions
+significantly.
 
 """
 
@@ -24,7 +24,7 @@ MAINTAINER_EMAIL = 'mailme@mikkokotila.com'
 URL = 'http://mikkokotila.com'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/mikkokotila/pretty'
-VERSION = '0.9.3'
+VERSION = '1.09'
 
 try:
     from setuptools import setup
@@ -82,11 +82,18 @@ if __name__ == "__main__":
         version=VERSION,
         download_url=DOWNLOAD_URL,
         install_requires=install_requires,
-        packages=['astetik'],
+        packages=['astetik',
+                  'astetik.utils',
+                  'astetik.tables',
+                  'astetik.style',
+                  'astetik.plots'],
         classifiers=[
                      'Intended Audience :: Science/Research',
                      'Programming Language :: Python :: 2.7',
+                     'Programming Language :: Python :: 3.5',
+                     'Programming Language :: Python :: 3.6',
                      'Operating System :: POSIX',
                      'Operating System :: Unix',
+                     'Operating System :: Windows',
                      'Operating System :: MacOS'],
           )
