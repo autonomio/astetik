@@ -1,17 +1,30 @@
+import warnings
+
+# ASTETIK IMPORTS START >>
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import rcParams
+from .color_picker import color_picker, color_blind, _label_to_hex
+from .utils import _title_handling
+# << ASTETIK IMPORTS END
 
 
-def dist(data, x,
-         color='red',
+def hist(data,
+         x,
+         palette='default',
          bins=True,
          title=None,
+         sub_title=None,
+         footnote=None,
+         samplenote=None,
          xlabel=None,
          dropna=False,
          auto_xlim=True,
          kde=False,
          rug=False,
-         vertical=False):
+         vertical=False,
+         style='astetik',
+         dpi=72):
 
     '''Distribution Plot
 
@@ -25,6 +38,11 @@ def dist(data, x,
 
     '''
 
+    warnings.simplefilter("ignore")
+
+    if bins == True:
+        bins = int(len(data[x].unique()) / 10)
+
     if dropna is True:
         data = data[x].dropna()
     else:
@@ -33,37 +51,67 @@ def dist(data, x,
     if bins is True:
         bins = len(data) / 10
 
-    sns.set_context("notebook", font_scale=1.2, rc={"lines.linewidth": 2})
-    plt.figure(figsize=(12, 6))
+    # ASTETIK HEADER STARTS >>
+    if style != 'astetik':
+        plt.style.use(style)
 
-    g = sns.distplot(data, bins=bins, norm_hist=False, color=color, kde=kde, rug=rug, vertical=vertical)
+    try:
+        if y == None:
+            n = 1
+        else:
+            n = 2
+    except:
+        try:
+            n = data.shape[1]
+        except IndexError:
+            n = 1
+
+    if palette == 'colorblind':
+        palette = color_blind()
+    else:
+        try:
+
+            palette = color_picker(palette=palette, n=n)
+        except UnboundLocalError:
+            palette = _label_to_hex(palette, n=n)
+
+    sns.set_context("notebook", font_scale=1.2, rc={"lines.linewidth": 2})
+    plt.figure(figsize=(12, 8))
+
+    rcParams['font.family'] = 'Verdana'
+    rcParams['figure.dpi'] = dpi
+    # << ASTETIK HEADER ENDS
+
+    p = sns.distplot(data.dropna(),
+                     bins=bins,
+                     norm_hist=False,
+                     color=palette,
+                     kde=kde,
+                     rug=rug,
+                     vertical=vertical,
+                     hist_kws=dict(alpha=1))
 
     if auto_xlim is True:
-        g.set(xlim=(data.min(), None))
+        p.set(xlim=(data.min(), None))
     if type(auto_xlim) is int:
-        g.set(xlim=(auto_xlim, None))
+        p.set(xlim=(auto_xlim, None))
     elif type(auto_xlim) is list:
-        g.set(xlim=(auto_xlim[0], auto_xlim[1]))
+        p.set(xlim=(auto_xlim[0], auto_xlim[1]))
 
     plt.tick_params(axis='both', which='major', pad=10)
 
-    # handling title
-    if title is not None:
-        plt.title(title, fontsize=22, y=1.12,  x=0.48, color="gray")
-
     # show samplesize as subtitle
-    plt.suptitle("n = " + str(len(data)), verticalalignment='top', fontsize=18, y=.95, x=0.48, color="gray")
+    _title_handling(p, data, title, sub_title, samplenote, footnote)
 
     # handling x_labels
     if xlabel is not None:
         x = xlabel
-    plt.xlabel(x, fontsize=15, labelpad=20, color="gray")
+    plt.xlabel("", fontsize=15, labelpad=20, color="gray")
 
-    plt.ylabel('Frequency', fontsize=15, labelpad=20, color="gray")
+    plt.tick_params(axis='both', which='major', labelsize=16, pad=25)
+    plt.axhline(y=0, color='black', linewidth=1.3, alpha=.7)
+    plt.axvline(x=0, color='black', linewidth=1.3, alpha=.7)
 
-    plt.tick_params(axis='both', which='major', pad=25)
-
-    plt.axhline(linewidth=2.5, color="black")
-    plt.axvline(linewidth=2.5, color="black")
+    plt.tight_layout()
 
     sns.despine()

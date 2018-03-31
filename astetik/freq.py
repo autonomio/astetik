@@ -1,10 +1,14 @@
 import pandas as pd
+
+# ASTETIK IMPORTS START >>
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import rcParams
+from .color_picker import color_picker, color_blind, _label_to_hex
 
-from .color_picker import color_picker
+# << ASTETIK IMPORTS END
+
 from .utils import _highlight_color
-
 
 def freq(data,
          color='default',
@@ -13,7 +17,8 @@ def freq(data,
          dropna=True,
          highlight_mode='!=',
          highlight_value=25,
-         limit_values=30):
+         limit_values=30,
+         dpi=72):
 
     '''Frequency Bar
     Works best for max 30 unique values in the column, where
@@ -72,20 +77,24 @@ def freq(data,
                               highlight_mode,
                               highlight_value)
 
-    # create the plot
-    sns.set_context("notebook", font_scale=1.5, rc={"lines.linewidth": 0})
-    sns.set_style('white')
+    sns.set_context("notebook", font_scale=1.2, rc={"lines.linewidth": 2})
+    f, ax = plt.subplots(figsize=(12, 8))
 
-    f, ax = plt.subplots(figsize=(18, 6))
+    rcParams['font.family'] = 'Verdana'
+    rcParams['figure.dpi'] = dpi
 
     sns.barplot(x='x', y='y', data=data,
                 palette=colors, order=order,
                 saturation=1, ax=ax)
 
-    plt.title(title, fontsize=18, y=1, color="gray")
     plt.xlabel("", fontsize=15, labelpad=30, color="gray")
     plt.ylabel("", fontsize=15, labelpad=30, color="gray")
-    ax.tick_params(axis='both', which='major', pad=15)
 
     ax.set_xticklabels(data['x'], rotation=45, ha="right")
+
+    # ASTETIK FOOTER STARTS >>
+    plt.xlabel("", fontsize=15, labelpad=20, color="gray")
+    plt.tick_params(axis='both', which='major', labelsize=16, pad=25)
+    plt.tight_layout()
     sns.despine()
+    #  << ASTETIK FOOTER ENDS

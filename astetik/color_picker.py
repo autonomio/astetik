@@ -1,4 +1,5 @@
 import seaborn as sns
+from matplotlib.colorbar import cm
 
 
 def color_picker(palette, center='light', n=10, show=False):
@@ -62,3 +63,52 @@ def color_picker(palette, center='light', n=10, show=False):
         sns.palplot(out)
 
     return out
+
+
+def color_blind():
+
+    '''COLOR BLIND COLORS
+
+    Provides a color palette that is colorblind friendly.
+    '''
+
+    colors = [[0, 0, 0],
+              [230/255, 159/255, 0],
+              [86/255, 180/255, 233/255],
+              [0, 158/255, 115/255],
+              [213/255, 94/255, 0],
+              [0, 114/255, 178/255]]
+
+    return colors
+
+
+def cmaps(cmap):
+
+    if cmap == 'paired':
+        cmap = cm.Paired
+    elif cmap == 'jet':
+        cmap = cm.jet
+    elif cmap == 'prism':
+        cmap = cm.prism
+    elif cmap == 'RdYlGn':
+        cmap = cm.RdYlGn
+    elif cmap == 'seismic':
+        cmap = cm.seismic
+    elif cmap == 'coolwarm':
+        cmap = cm.coolwarm
+    elif cmap == 'inferno':
+        cmap = cm.inferno
+    elif cmap == 'plasma':
+        cmap = cm.plasma
+    elif cmap == 'OrRd':
+        cmap = cm.OrRd
+    elif cmap == 'tab20c':
+        cmap = cm.tab20c
+
+    return cmap
+
+
+def _label_to_hex(label, n):
+
+    hex = sns.color_palette(label, n)
+    return hex.as_hex()

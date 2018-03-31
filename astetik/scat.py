@@ -11,19 +11,20 @@ import seaborn as sns
 
 from .cmaps import cmaps
 
+
 def scat(data,
-            x,
-            y,
-            color,
-            labels=None,
-            x_scale=False,
-            y_scale=False,
-            outlier=False,
-            title='',
-            suptitle=0,
-            cmap=cm.rainbow,
-            legend_loc=1,
-            alpha=0.9):
+         x,
+         y,
+         color,
+         labels=None,
+         x_scale=False,
+         y_scale=False,
+         outlier=False,
+         title='',
+         suptitle=0,
+         cmap=cm.rainbow,
+         legend_loc=1,
+         alpha=0.9):
 
     # handling legend labels
 
