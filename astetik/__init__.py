@@ -1,17 +1,19 @@
-from .timeline import timeline
-from .freq import *
-from .bubble import *
-from .corr import corr
-from .gui import toggle
-from .hist import hist
-from .kde import *
-from .ols import *
-from .swarm import *
-from .table import *
-from .text import *
-from .color_picker import *
-from .utils import *
-from .template import _header, _footer
-from .pie import pie
+#PLOTS
+from .plots.corr import corr
+from .plots.freq import freq
+from .plots.hist import hist
+from .plots.kde import kde
+from .plots.pie import pie
+from .plots.swarm import swarm
+from .plots.timeline import timeline
+from .plots.vbar import vbar
+# from .plots.words import words
+# from .plots.line import line
+
+# TABLES
+from .tables.ols import ols
+from .tables.table import table
+from .tables.text import text
+# from .tables.timeseries import timeseries
 
 __version__ = "1.1"

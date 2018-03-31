@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from .template import _header, _footer
+from ..style.template import _header, _footer
 
 
 def pie(data,

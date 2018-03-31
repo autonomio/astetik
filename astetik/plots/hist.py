@@ -4,8 +4,8 @@ import warnings
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
-from .color_picker import color_picker, color_blind, _label_to_hex
-from .utils import _title_handling
+from ..style.color_picker import color_picker, color_blind, _label_to_hex
+from ..utils.utils import _title_handling
 # << ASTETIK IMPORTS END
 
 

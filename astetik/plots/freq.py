@@ -4,11 +4,11 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
-from .color_picker import color_picker, color_blind, _label_to_hex
+from ..style.color_picker import color_picker, color_blind, _label_to_hex
 
 # << ASTETIK IMPORTS END
 
-from .utils import _highlight_color
+from ..utils.utils import _highlight_color
 
 def freq(data,
          color='default',

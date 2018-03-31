@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import warnings
-from astetik.color_picker import _label_to_hex, color_blind, color_picker
+from ..style.color_picker import _label_to_hex, color_blind, color_picker
 
 
 def timeline(data, x,

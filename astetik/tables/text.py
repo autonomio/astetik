@@ -1,6 +1,6 @@
 from IPython.core.display import display, HTML
 
-from .utils import _sort_strings
+from ..utils.utils import _sort_strings
 
 
 def text(data,

@@ -1,7 +1,7 @@
 import pandas as pd
 from IPython.core.display import display, HTML
 
-from .utils import table_prep
+from ..utils.utils import table_prep
 
 
 def table(data, title="Descriptive Stats", table_title=""):

@@ -1,7 +1,7 @@
 import seaborn as sns
 
-from .template import _footer, _header
-from .utils import _limiter, _scaler
+from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
 
 
 def swarm(data,

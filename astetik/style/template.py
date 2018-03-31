@@ -1,8 +1,8 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
-from .color_picker import color_picker, color_blind, _label_to_hex
-from .utils import _n_decider
+from ..style.color_picker import color_picker, color_blind, _label_to_hex
+from ..utils.utils import _n_decider
 
 
 def _header(palette, style, y, dpi):
