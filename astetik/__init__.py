@@ -12,5 +12,6 @@ from .text import *
 from .color_picker import *
 from .utils import *
 from .template import _header, _footer
+from .pie import pie
 
 __version__ = "1.1"

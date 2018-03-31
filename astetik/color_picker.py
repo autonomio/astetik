@@ -1,3 +1,4 @@
+import numpy as np
 import seaborn as sns
 from matplotlib.colorbar import cm
 
@@ -61,6 +62,9 @@ def color_picker(palette, center='light', n=10, show=False):
 
     if show == True:
         sns.palplot(out)
+
+    if np.ndim(out) == 1:
+        out = [out]
 
     return out
 

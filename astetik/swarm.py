@@ -1,6 +1,5 @@
 import seaborn as sns
 
-#from .color_picker import color_picker, color_blind, _label_to_hex
 from .template import _footer, _header
 from .utils import _limiter, _scaler
 
@@ -44,8 +43,15 @@ def swarm(data,
 
     '''
 
+    # PLOT SPECIFIC START >>>
+    if hue != None:
+        n = len(data[hue].unique())
+    else:
+        n = 1
+    # <<< PLOT SPECIFIC ENDS
+
     # HEADER STARTS >>>
-    palette = _header(palette, style, y, dpi)
+    palette = _header(palette, style, y=n, dpi=dpi)  # NOTE: y exception
     # <<< HEADER ENDS
 
     # # # # # # PLOT CODE STARTS # # # # # #

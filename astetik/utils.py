@@ -1,6 +1,14 @@
+import numpy as np
+import pandas as pd
+
 import matplotlib.pyplot as plt
 
-def _highlight_color(data, color, highlight_color, highlight_mode,  highlight_value):
+
+def _highlight_color(data,
+                     color,
+                     highlight_color,
+                     highlight_mode,
+                     highlight_value):
 
     '''Highlight Generator
 
@@ -167,3 +175,38 @@ def _limiter(x, y, x_limit, y_limit):
             plt.ylim(y_limit,)
     else:
         plt.ylim(y.min(), y.max() * 1.1)
+
+
+def _n_decider(y):
+
+    '''PRODUCE N-VALUE FOR _HEADER
+
+    Takes in 'y' and based on the format
+    returns the 'n' value that is used
+    by the color picker.
+
+    '''
+
+    # no input value
+    if type(y) == type(None):
+        n = 10
+
+    # equal to uniques
+    elif type(y) == type(1):
+        n = y
+
+    # is a list or series
+    elif type(y) == type(pd.Series()):
+        n = 1
+
+    elif type(y) == type([]) or type(y) == type(np.array(0)):
+        n = len(y)
+
+    elif type(y) == type(''):
+        n = 1
+
+    # equal to input value
+    else:
+        n = n
+
+    return n
