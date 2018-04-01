@@ -10,6 +10,11 @@ from .plots.vbar import vbar
 from .plots.scat import scat
 from .plots.line import line
 from .plots.grid import grid
+from .plots.box import box
+from .plots.violin import violin
+from .plots.strip import strip
+from .plots.count import count
+from .plots.bars import bars
 # from .plots.words import words
 # from .plots.line import line
 

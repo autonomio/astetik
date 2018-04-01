@@ -5,6 +5,7 @@ from ..style.color_picker import color_picker, color_blind, _label_to_hex
 from ..utils.utils import _n_decider
 from ..style.style import styles, default_colors
 
+
 def _header(palette,
             style,
             n_colors,
@@ -25,8 +26,6 @@ def _header(palette,
         except UnboundLocalError:
             palette = _label_to_hex(palette, n_colors=n)
 
-    sns.set_context("notebook")
-
     if fig_height != None and fig_width != None:
         plt.figure(figsize=(fig_width, fig_height))
 
@@ -36,7 +35,6 @@ def _header(palette,
         rcParams['savefig.facecolor'] = 'white'
 
     style_dic = styles(dpi)
-
     for key in style_dic.keys():
         rcParams[key] = style_dic[key]
 
