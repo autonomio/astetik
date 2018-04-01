@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
-
+from .exceptions import MissingParameter
 
 def _highlight_color(data,
                      color,
@@ -17,16 +17,17 @@ def _highlight_color(data,
     to be used in a seaborn or matplotlib plot.
 
     '''
-
-    if highlight_mode == '>=':
-        colors = [highlight_color if _y >= highlight_value else color for _y in data]
-    elif highlight_mode == '==':
-        colors = [highlight_color if _y == highlight_value else color for _y in data]
-    elif highlight_mode == '<=':
-        colors = [highlight_color if _y <= highlight_value else color for _y in data]
-    elif highlight_mode == '!=':
-        colors = [highlight_color if _y != highlight_value else color for _y in data]
-
+    try:
+        if highlight_mode == '>=':
+            colors = [highlight_color if _y >= highlight_value else color for _y in data]
+        elif highlight_mode == '==':
+            colors = [highlight_color if _y == highlight_value else color for _y in data]
+        elif highlight_mode == '<=':
+            colors = [highlight_color if _y <= highlight_value else color for _y in data]
+        elif highlight_mode == '!=':
+            colors = [highlight_color if _y != highlight_value else color for _y in data]
+    except TypeError:
+        raise MissingParameter("When highlight_mode is other than none you need to provide a highlight_value")
     return colors
 
 
@@ -153,8 +154,10 @@ def _title_handling(p, data, title, sub_title, footnote, samplenote):
 
 def _scaler(p, x_scale, y_scale):
 
-    p.set(xscale=x_scale)
-    p.set(yscale=y_scale)
+    if x_scale != None and x_scale != 'linear':
+        p.set(xscale=x_scale)
+    if y_scale != None and y_scale != 'linear':
+        p.set(yscale=y_scale)
 
 
 def _limiter(x, y, x_limit, y_limit):

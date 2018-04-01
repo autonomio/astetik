@@ -2,51 +2,52 @@ import seaborn as sns
 
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
+from ..style.sizer import _sizer
 
+def scat(data,
+         x,
+         y,
+         hue=None,
+         size=None,
+         # ASTETIK PARAMS START >>
+         palette='default',
+         style='astetik',
+         dpi=72,
+         x_label='',
+         y_label='',
+         x_scale='linear',
+         y_scale='linear',
+         x_limit='auto',
+         y_limit='auto'):
 
-def swarm(data,
-          x,
-          y,
-          hue=None,
-          # ASTETIK PARAMS START >>
-          palette='default',
-          style='astetik',
-          dpi=72,
-          x_label='',
-          y_label='',
-          x_scale='linear',
-          y_scale='linear',
-          x_limit='auto',
-          y_limit='auto'):
+    '''SCATTER PLOT
 
-    '''SWARM PLOT
-    This is similar to scatter plot, in the sense that overlapping of observations
-    is avoided (each sample will be seen as a dot) but groups events based on a
-    categorical value (x).
+    Observations may overlap, and sizing is possible. Both x and y should
+    be continuous variables. If you want to use categorical on x-axis, use
+    ast.swarm() instead.
 
     USE
     ===
-    swarm(data=patients),
-          x='insurance',       # categorical value
-          y='hospital_bill',   # continuous value
-          hue='expired',       # binary value
-          palette='default',
-          x_limit=None,
-          y_limit=[25,70],
-          y_scale='log')
+    p = scat(data=df,
+         x='Age',
+         y='Fare',
+         hue='Survived',
+         size='Rand',
+         palette='default',
+         style='astetik')
 
     PARAMETERS
     ----------
     data :: pandas dataframe
-    x :: x-axis data (categorical)
-    y :: y-axis data (continuous)
+    x :: x-axis data
+    y :: y-axis data
     hue :: color highlight (categorical or boolean)
     palette :: cmap, seaborn palette, matplotlib color code
     style :: any style from matplotlib or seaborn
     dpi :: the resolution of the plot
     x_label :: string value for x-axis label
     y_label :: string value for y-axis label
-    x_scale :: 'linear' or 'log' or 'symlog' (NOTE: not useful with this plot)
+    x_scale :: 'linear' or 'log' or 'symlog'
     y_scale :: 'linear' or 'log' or 'symlog'
     x_limit :: int or list with two ints
     y_limit :: int or list with two ints
@@ -58,6 +59,11 @@ def swarm(data,
         n = len(data[hue].unique())
     else:
         n = 1
+
+    if size == None:
+        size = 8
+    else:
+        size = _sizer(size)
     # <<< PLOT SPECIFIC ENDS
 
     # HEADER STARTS >>>
@@ -65,13 +71,13 @@ def swarm(data,
     # <<< HEADER ENDS
 
     # # # # # # PLOT CODE STARTS # # # # # #
-    p = sns.swarmplot(data=data,
+    p = sns.stripplot(data=data,
                       x=x,
                       y=y,
                       hue=hue,
                       palette=palette,
-                      linewidth=0.5,
-                      size=4)
+                      linewidth=1,
+                      size=size)
     # # # # # # PLOT CODE ENDS # # # # # #
 
     # SCALING AND LIMITS STARTS >>>
@@ -85,3 +91,7 @@ def swarm(data,
     # FOOTER STARTS >>>
     _footer(x_label, y_label)
     # <<< FOOTER ENDS
+
+    # SPECIAL CASE (to reset the x-labels)
+    p.set(xscale='linear')
+    # SPECIAL CASE ENDS

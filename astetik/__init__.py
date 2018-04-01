@@ -7,6 +7,7 @@ from .plots.pie import pie
 from .plots.swarm import swarm
 from .plots.timeline import timeline
 from .plots.vbar import vbar
+from .plots.scat import scat
 # from .plots.words import words
 # from .plots.line import line
 

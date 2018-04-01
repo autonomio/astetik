@@ -5,10 +5,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
 from ..style.color_picker import color_picker, color_blind, _label_to_hex
-
+from ..utils.utils import _highlight_color
 # << ASTETIK IMPORTS END
 
-from ..utils.utils import _highlight_color
+
 
 def freq(data,
          color='default',
@@ -16,7 +16,7 @@ def freq(data,
          order='desc',
          dropna=True,
          highlight_mode='!=',
-         highlight_value=25,
+         highlight_value=None,
          limit_values=30,
          dpi=72):
 
@@ -83,9 +83,13 @@ def freq(data,
     rcParams['font.family'] = 'Verdana'
     rcParams['figure.dpi'] = dpi
 
-    sns.barplot(x='x', y='y', data=data,
-                palette=colors, order=order,
-                saturation=1, ax=ax)
+    sns.barplot(x='x',
+                y='y',
+                data=data,
+                palette=colors,
+                order=order,
+                saturation=1,
+                ax=ax)
 
     plt.xlabel("", fontsize=15, labelpad=30, color="gray")
     plt.ylabel("", fontsize=15, labelpad=30, color="gray")
