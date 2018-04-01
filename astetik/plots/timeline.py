@@ -49,9 +49,9 @@ def timeline(data, x,
     else:
         try:
 
-            palette = color_picker(palette=palette, n=n)
+            palette = color_picker(palette=palette, n_colors=n)
         except UnboundLocalError:
-            palette = _label_to_hex(palette, n=n)
+            palette = _label_to_hex(palette, n_colors=n)
 
     # create the plot
     p = data.plot(x=x, y=columns,

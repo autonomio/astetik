@@ -44,7 +44,7 @@ def corr(data, title='',
     # # # # # DATA PREP ENDS # # # # #
 
     # HEADER STARTS >>>
-    palette = _header(palette, style, y=n, dpi=dpi)  # NOTE: y exception
+    palette = _header(palette, style, n_colors=n, dpi=dpi)  # NOTE: y exception
     # <<< HEADER ENDS
 
     # # # # # MAIN PLOT CODE STARTS # # # # # # #

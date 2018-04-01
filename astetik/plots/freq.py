@@ -46,7 +46,7 @@ def freq(data,
 
     '''
 
-    color, highlight_color = color_picker(palette=color, n=2)
+    color, highlight_color = color_picker(palette=color, n_colors=2)
 
     # preps the data to frequency format
     data = pd.DataFrame(data)

@@ -3,7 +3,7 @@ import seaborn as sns
 from matplotlib.colorbar import cm
 
 
-def color_picker(palette, center='light', n=10, show=False):
+def color_picker(palette, center='light', n_colors=10, show=False):
 
     '''COLOR PICKER
     Provides access to several color palettes that will
@@ -33,26 +33,26 @@ def color_picker(palette, center='light', n=10, show=False):
     if palette == 'default':
         palette = 'blue_to_red'
 
-    if n < 3:
-        n_input = n
-        n = 6
+    if n_colors < 3:
+        n_input = n_colors
+        n_colors = 6
     else:
-        n_input = n
+        n_input = n_colors
 
     if palette == 'blue_to_red':
-        out = sns.color_palette("RdBu_r", n_colors=n)
+        out = sns.color_palette("RdBu_r", n_colors=n_colors)
     elif palette == 'blue_to_green':
-        out = sns.color_palette("GnBu_d", n_colors=n)
+        out = sns.color_palette("GnBu_d", n_colors=n_colors)
     elif palette == 'red_to_green':
-        out = sns.diverging_palette(16, 180, sep=5, center=center, n=n)
+        out = sns.diverging_palette(16, 180, sep=5, center=center, n=n_colors)
     elif palette == 'green_to_red':
-        out = sns.diverging_palette(180, 16, sep=5, center=center, n=n)
+        out = sns.diverging_palette(180, 16, sep=5, center=center, n=n_colors)
     elif palette == 'violet_to_blue':
-        out = sns.diverging_palette(1, 255, sep=5, center=center, n=n)
+        out = sns.diverging_palette(1, 255, sep=5, center=center, n=n_colors)
     elif palette == 'brown_to_green':
-        out = sns.diverging_palette(50, 100, sep=5, center=center, n=n)
+        out = sns.diverging_palette(50, 100, sep=5, center=center, n=n_colors)
     elif palette == 'green_to_marine':
-        out = sns.diverging_palette(100, 200, sep=5, center=center, n=n)
+        out = sns.diverging_palette(100, 200, sep=5, center=center, n=n_colors)
 
     if n_input == 1:
         out = out[0]
@@ -112,7 +112,7 @@ def cmaps(cmap):
     return cmap
 
 
-def _label_to_hex(label, n):
+def _label_to_hex(label, n_colors):
 
-    hex = sns.color_palette(label, n)
+    hex = sns.color_palette(label, n_colors)
     return hex.as_hex()

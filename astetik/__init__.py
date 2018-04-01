@@ -8,6 +8,8 @@ from .plots.swarm import swarm
 from .plots.timeline import timeline
 from .plots.vbar import vbar
 from .plots.scat import scat
+from .plots.line import line
+from .plots.grid import grid
 # from .plots.words import words
 # from .plots.line import line
 

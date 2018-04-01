@@ -61,7 +61,7 @@ def swarm(data,
     # <<< PLOT SPECIFIC ENDS
 
     # HEADER STARTS >>>
-    palette = _header(palette, style, y=n, dpi=dpi)  # NOTE: y exception
+    palette = _header(palette, style, n_colors=n, dpi=dpi)  # NOTE: y exception
     # <<< HEADER ENDS
 
     # # # # # # PLOT CODE STARTS # # # # # #

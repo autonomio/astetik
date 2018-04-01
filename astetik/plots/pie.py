@@ -21,16 +21,16 @@ def pie(data,
     if quantile_cut != None:
         data = data.copy(deep=True)
         data[x] = pd.qcut(data[x], quantile_cut)
-        y = len(data[x].unique())
+        n_colors = len(data[x].unique())
     else:
-        y = len(x)
+        n_colors = len(x)
     data = data.sort_values(x)
     labels = data[x].value_counts().index.values
     data = data[x].value_counts().values
     # << PLOT SPECIFIC END
 
     # HEADER STARTS >>>
-    palette = _header(palette, style, y, dpi)
+    palette = _header(palette, style, n_colors, dpi)
     # <<< HEADER ENDS
 
     # # # # # # PLOT CODE STARTS # # # # # #

@@ -31,9 +31,9 @@ def kde(x,
     else:
         try:
 
-            palette = color_picker(palette=palette, n=n)
+            palette = color_picker(palette=palette, n_colors=n)
         except UnboundLocalError:
-            palette = _label_to_hex(palette, n=n)
+            palette = _label_to_hex(palette, n_colors=n)
 
     sns.set_context("notebook", font_scale=1.2, rc={"lines.linewidth": 2})
     plt.figure(figsize=(12, 8))
