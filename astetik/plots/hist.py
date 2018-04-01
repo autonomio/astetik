@@ -8,16 +8,19 @@ from ..style.color_picker import color_picker, color_blind, _label_to_hex
 from ..utils.utils import _title_handling
 # << ASTETIK IMPORTS END
 
+from ..style.template import _header, _footer
+
 
 def hist(data,
          x,
          palette='default',
          bins=True,
-         title=None,
-         sub_title=None,
+         title='',
+         sub_title='',
          footnote=None,
          samplenote=None,
-         xlabel=None,
+         x_label='',
+         y_label='',
          dropna=False,
          auto_xlim=True,
          kde=False,
@@ -103,15 +106,6 @@ def hist(data,
     # show samplesize as subtitle
     _title_handling(p, data, title, sub_title, samplenote, footnote)
 
-    # handling x_labels
-    if xlabel is not None:
-        x = xlabel
-    plt.xlabel("", fontsize=15, labelpad=20, color="gray")
-
-    plt.tick_params(axis='both', which='major', labelsize=16, pad=25)
-    plt.axhline(y=0, color='black', linewidth=1.3, alpha=.7)
-    plt.axvline(x=0, color='black', linewidth=1.3, alpha=.7)
-
-    plt.tight_layout()
-
-    sns.despine()
+    # FOOTER STARTS >>>
+    _footer(p, x_label, y_label)
+    # <<< FOOTER ENDS

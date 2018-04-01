@@ -2,8 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from ..style.template import _header
+from ..style.template import _header, _footer
 from ..utils.transform import equal_samples
+from ..utils.utils import _limiter, _scaler
 
 
 def grid(data,
@@ -50,8 +51,6 @@ def grid(data,
     ascending = sort ascending or not
 
     '''
-
-    new_data = pd.DataFrame()
 
     if even_observations != False:
         equal_samples(data, col, even_observations)

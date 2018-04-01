@@ -5,10 +5,18 @@ from matplotlib.pyplot import rcParams
 from ..style.color_picker import color_picker, color_blind, _label_to_hex
 # << ASTETIK IMPORTS END
 
+from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
+
 
 def kde(x,
         y=None,
         title='',
+        sub_title='',
+        footnote='',
+        samplenote='',
+        x_label='',
+        y_label='',
         palette='default',
         xscale='linear',
         yscale='linear',
@@ -60,8 +68,8 @@ def kde(x,
     p.set(yscale=yscale)
 
     # ASTETIK FOOTER STARTS >>
-    plt.xlabel("", fontsize=15, labelpad=20, color="gray")
-    plt.tick_params(axis='both', which='major', labelsize=16, pad=25)
-    plt.tight_layout()
-    sns.despine()
+    # FOOTER STARTS >>>
+    _footer(p, x_label, y_label)
+    # <<< FOOTER ENDS
+
     #  << ASTETIK FOOTER ENDS

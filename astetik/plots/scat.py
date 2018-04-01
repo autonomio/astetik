@@ -4,6 +4,7 @@ from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
 from ..style.sizer import _sizer
 
+
 def scat(data,
          x,
          y,
@@ -13,6 +14,10 @@ def scat(data,
          palette='default',
          style='astetik',
          dpi=72,
+         title='',
+         sub_title='',
+         footnote='',
+         samplenote='',
          x_label='',
          y_label='',
          x_scale='linear',
@@ -89,7 +94,7 @@ def scat(data,
     # <<< SCALING AND LIMITS ENDS
 
     # FOOTER STARTS >>>
-    _footer(x_label, y_label)
+    _footer(p, x_label, y_label)
     # <<< FOOTER ENDS
 
     # SPECIAL CASE (to reset the x-labels)

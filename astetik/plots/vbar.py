@@ -1,8 +1,23 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
 
-def vbar(data, x, y, highlight, color='red', sort=True, sort_ascending=False, title=''):
+
+def vbar(data,
+         x,
+         y,
+         highlight,
+         color='red',
+         sort=True,
+         sort_ascending=False,
+         title='',
+         sub_title='',
+         footnote='',
+         samplenote='',
+         x_label='',
+         y_label=''):
 
     '''Vertical Bars with Highlight
 
@@ -31,10 +46,7 @@ def vbar(data, x, y, highlight, color='red', sort=True, sort_ascending=False, ti
     # setting the xlim automatically
     xlim = data[x].min() - (data[x].min() * 0.2)
     g.set(xlim=(xlim, None))
-    plt.tick_params(axis='both', labelsize=11, which='major', pad=10)
 
-    plt.title(x, fontsize=22, y=1.03, color="gray");
-    plt.xlabel(x, fontsize=15, labelpad=20, color="gray");
-    plt.ylabel(title, fontsize=15, labelpad=20, color="gray");
-
-    sns.despine()
+    # FOOTER STARTS >>>
+    _footer(p, x_label, y_label)
+    # <<< FOOTER ENDS

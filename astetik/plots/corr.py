@@ -7,10 +7,17 @@ from matplotlib.pyplot import rcParams
 
 import seaborn as sns
 
-from ..style.color_picker import color_picker, color_blind, _label_to_hex
-from ..style.template import _header
+from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
 
-def corr(data, title='',
+
+def corr(data,
+         title='',
+         sub_title='',
+         footnote='',
+         samplenote='',
+         x_label='',
+         y_label='',
          corr_method='spearman',
          annot=False,
          palette="RdYlGn",
@@ -48,14 +55,8 @@ def corr(data, title='',
     # <<< HEADER ENDS
 
     # # # # # MAIN PLOT CODE STARTS # # # # # # #
-    g = sns.heatmap(data, mask=mask, linewidths=2, cmap=palette, annot=annot)
-    g.set_xticklabels(data, rotation=45, fontsize=12, ha="right")
-    g.set_yticklabels(data, rotation=0, ha="right")
-    # # # # # MAIN PLOT CODE ENDS # # # # # # #
-
-    # ASTETIK FOOTER STARTS >>
-    plt.xlabel("", fontsize=15, labelpad=20, color="gray")
-    plt.tick_params(axis='both', which='major', labelsize=16, pad=12)
-    plt.tight_layout()
-    sns.despine()
-    #  << ASTETIK FOOTER ENDS
+    p = sns.heatmap(data, mask=mask, linewidths=2, cmap=palette, annot=annot)
+    p.set_xticklabels(data, rotation=45)
+    # FOOTER STARTS >>>
+    _footer(p, x_label, y_label)
+    # <<< FOOTER ENDS

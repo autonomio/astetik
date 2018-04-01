@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ..style.template import _header, _footer
 from ..style.titles import _titles
-
+from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
 
 def line(data,
          x,
@@ -92,7 +92,7 @@ def line(data,
     if median_line:
         x_mean = x.mean()
         x_mean = np.full(len(data), x_mean)
-        line_mean = plt.plot(y, x_mean)
+        plt.plot(y, x_mean)
 
     # START OF TITLES >>>
     _titles(p, data, title, sub_title, samplenote, footnote)
@@ -102,5 +102,5 @@ def line(data,
         plt.legend(x, loc=1)
 
     # FOOTER STARTS >>>
-    _footer(x_label, y_label)
+    _footer(p, x_label, y_label)
     # <<< FOOTER ENDS

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
 from ..style.color_picker import color_picker, color_blind, _label_to_hex
 from ..utils.utils import _n_decider
-
+from ..style.style import styles, default_colors
 
 def _header(palette,
             style,
@@ -35,19 +35,23 @@ def _header(palette,
         rcParams['axes.facecolor'] = 'white'
         rcParams['savefig.facecolor'] = 'white'
 
-    rcParams['font.size'] = 14
-    rcParams['font.family'] = 'Verdana'
-    rcParams['figure.dpi'] = dpi
-    rcParams['lines.linewidth'] = 2
+    style_dic = styles(dpi)
 
+    for key in style_dic.keys():
+        rcParams[key] = style_dic[key]
 
     return palette
 
 
-def _footer(xlabel, ylabel):
+def _footer(p, xlabel, ylabel):
 
-    plt.xlabel(xlabel, fontsize=15, labelpad=20, color="gray")
-    plt.ylabel(ylabel, fontsize=15, labelpad=20, color="gray")
-    plt.tick_params(axis='both', which='major', labelsize=16, pad=25)
+    default_color = default_colors()
+
+    plt.xlabel(xlabel, color=default_color)
+    plt.ylabel(ylabel, color=default_color)
+    try:
+        p.spines['bottom'].set_color('black')
+    except:
+        pass
+    sns.despine(left=True, right=True, top=True)
     plt.tight_layout()
-    sns.despine()

@@ -6,13 +6,19 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
 from ..style.color_picker import color_picker, color_blind, _label_to_hex
 from ..utils.utils import _highlight_color
+from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
 # << ASTETIK IMPORTS END
-
 
 
 def freq(data,
          color='default',
          title='',
+         sub_title='',
+         footnote='',
+         samplenote='',
+         x_label='',
+         y_label='',
          order='desc',
          dropna=True,
          highlight_mode='!=',
@@ -83,22 +89,16 @@ def freq(data,
     rcParams['font.family'] = 'Verdana'
     rcParams['figure.dpi'] = dpi
 
-    sns.barplot(x='x',
-                y='y',
-                data=data,
-                palette=colors,
-                order=order,
-                saturation=1,
-                ax=ax)
-
-    plt.xlabel("", fontsize=15, labelpad=30, color="gray")
-    plt.ylabel("", fontsize=15, labelpad=30, color="gray")
+    p = sns.barplot(x='x',
+                    y='y',
+                    data=data,
+                    palette=colors,
+                    order=order,
+                    saturation=1,
+                    ax=ax)
 
     ax.set_xticklabels(data['x'], rotation=45, ha="right")
 
-    # ASTETIK FOOTER STARTS >>
-    plt.xlabel("", fontsize=15, labelpad=20, color="gray")
-    plt.tick_params(axis='both', which='major', labelsize=16, pad=25)
-    plt.tight_layout()
-    sns.despine()
-    #  << ASTETIK FOOTER ENDS
+    # FOOTER STARTS >>>
+    _footer(p, x_label, y_label)
+    # <<< FOOTER ENDS

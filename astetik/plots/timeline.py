@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import warnings
 from ..style.color_picker import _label_to_hex, color_blind, color_picker
 
+from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
+
 
 def timeline(data, x,
              columns=None,
@@ -9,8 +12,10 @@ def timeline(data, x,
              style='fivethirtyeight',
              title='',
              sub_title='',
-             footnote=None,
-             samplenote=None,
+             footnote='',
+             samplenote='',
+             x_label='',
+             y_label='',
              legend=True,
              log_x=False,
              log_y=False,
@@ -114,4 +119,6 @@ def timeline(data, x,
                  verticalalignment='bottom',
                  horizontalalignment='right')
 
-    p.tick_params(axis='both', which='major', pad=10)
+    # FOOTER STARTS >>>
+    _footer(p, x_label, y_label)
+    # <<< FOOTER ENDS
