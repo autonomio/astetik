@@ -24,11 +24,9 @@ You might ask, why not use one of...
 
 ...and so forth. The short answer is simplicity. Simplicity that focus equally on the user experience of the data scientist, and the experience of the audience. While the data scientist should not have to think about it, the audience should be vowed by it. Without compromising the capabilities that are essential for visual storytelling.
 
-If you are anything like me, at times you've felt like...
-
 <img width=300 src='https://cdn-images-1.medium.com/max/800/1*y0SNvGzJ1PXRNoTUr9LZEQ.gif'>
 
-Not going to happen. I promise. 
+Not going to happen.
 
 
 ## Background 
