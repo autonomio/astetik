@@ -33,7 +33,14 @@ Not going to happen.
 
 It started from the realization that there was not a single library for Python, able to produce publication quality descriptive stats tables. The first version just did one thing, and it looked like this: 
 
-[![Screen Shot 2016-11-04 at 18.37.44.png](https://s14.postimg.org/hnoexoujl/Screen_Shot_2016_11_04_at_18_37_44.png)](https://postimg.org/image/70uls9me5/)
+[![pretty table](https://s14.postimg.org/hnoexoujl/Screen_Shot_2016_11_04_at_18_37_44.png)](https://postimg.org/image/70uls9me5/)
+
+At the time I was doing a lot of analysis that involved correlation, and ended up doing a simple heatmap plot which took about 20 lines of codes to polish it, and several hours of work having no previous knowledge of matplotlib or seaborn. The first plot looked like this:
+
+
+
+
+
 
 ## Features 
 
