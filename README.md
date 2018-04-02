@@ -2,9 +2,7 @@
 
 ## TL;DR
 
-    pip install astetik
-    
-Have fun :) 
+    pip install astetik      # have fun
 
 ## Some opinionated comments on data visualization and Python
 
