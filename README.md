@@ -1,5 +1,11 @@
 <img width=250 src='https://raw.githubusercontent.com/mikkokotila/astetik/master/logo.png'>
 
+## TL;DR
+
+    pip install astetik
+    
+Have fun :) 
+
 ## Some opinionated comments on data visualization and Python
 
 As someone else so eloquently put it, the merit, and also the curse, of Matplotlib is how everything is made possible for the user. It is with this vast flexibility, that also comes great confusion. Still the only purpose a plotting library serves, is in its ability to bring the data scientist closer to the end goal; being able to tell visually compelling stories with data. We want to tell those stories without having to think about the plots too much, as a plot is just a means to an end. If you want to quench your thirst, you don't want to spend too much time producing water, but drink it, and move on. Data visualization in the pydata ecosystem should be like this. Amazing looking, publication quality visualizations should be available through single-line, easy-to-understand, and easy-to-remember commands. One command per plot. No more, no less. 
