@@ -8,21 +8,11 @@ As someone so eloquently put it, the merit, and also the curse, of Matplotlib is
 
 Astetik takes the amazing potential of matplotlib and seaborn, and makes it available through single-line commands. While much of the lower level complexity is made invisible, some completely new features are added. Whatever is added is further taking away from the complexity of the visualizastion workflow. 
 
+In *Five Essential Points of Data Visualization* I explain some of the frustrations, and ideas, conceived over more than 20 years working with data visualization and data-driven storytelling, that led to Astetik. You can [read it here](https://medium.com/@mikkokotila/five-essential-points-on-data-visualization-2856b80730b3). It is my sincere wish that you will find Astetik beneficial. 
 
-*Five Essential Points of Data Visualization*[click here](https://medium.com/@mikkokotila/five-essential-points-on-data-visualization-2856b80730b3)
+## Background 
 
-
-
-
-
-
-https://medium.com/@mikkokotila/five-essential-points-on-data-visualization-2856b80730b3
-
-
-
-astetik is a python library for producing publication quality descriptive statistics tables from a Pandas DataFrame. It uses very simple and extremely easy to edit html code to produce the result. 
-
-Basically it does one thing (display publication quality descriptive stat tables for three features at a time), and does it really well: 
+It started from the realization that there was not a single library for Python, able to produce publication quality descriptive stats tables. The first version just did one thing, and it looked like this: 
 
 [![Screen Shot 2016-11-04 at 18.37.44.png](https://s14.postimg.org/hnoexoujl/Screen_Shot_2016_11_04_at_18_37_44.png)](https://postimg.org/image/70uls9me5/)
 
