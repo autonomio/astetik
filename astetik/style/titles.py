@@ -1,7 +1,11 @@
 import matplotlib.pyplot as plt
 
 
-def _titles(p, data, title, sub_title, footnote, samplenote):
+def _titles(title,
+            sub_title,
+            location='left',
+            fontname='Verdana',
+            fontsize='24'):
 
     '''TITLE HANDLER
 
@@ -26,24 +30,12 @@ def _titles(p, data, title, sub_title, footnote, samplenote):
 
     '''
 
-    # handling title
-    if title is not None:
-        plt.title(title,
-                  fontsize=28,
-                  fontname='Verdana',
-                  weight='bold',
-                  verticalalignment='top',
-                  horizontalalignment='left',
-                  y=1.15,
-                  x=.0,
-                  color="grey")
+    title = title.replace(' ', '\,')
 
-    if sub_title is not None:
-        plt.suptitle(sub_title,
-                     fontsize=18,
-                     fontname='Verdana',
-                     verticalalignment='top',
-                     horizontalalignment='left',
-                     y=0.913,
-                     x=0.112,
-                     color="grey")
+    plt.title(r"$\bf{" + title + "}$" + '\n' + sub_title,
+              loc=location,
+              fontsize=fontsize,
+              fontname=fontname,
+              weight='normal',
+              y=1.03,
+              color="grey");

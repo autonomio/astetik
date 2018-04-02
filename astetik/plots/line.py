@@ -5,6 +5,7 @@ from ..style.titles import _titles
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
 
+
 def line(data,
          x,
          y='auto',
@@ -16,14 +17,16 @@ def line(data,
          style='astetik',
          title='',
          sub_title='',
-         footnote=None,
-         samplenote=None,
          x_label='',
          y_label='',
          drawstyle='default',
          linestyle='solid',
          markerstyle='o',
-         dpi=72):
+         dpi=72,
+         sub_x=0.112,
+         sub_y=0.913,
+         title_x=0,
+         title_y=1.15):
 
     """TIMESERIES LINE PLOT
 
@@ -67,9 +70,8 @@ def line(data,
     markers = ["o", "+", "x", "|", "-", ",", ".", "^", "v"]
     # <<< END OF PLOT SPECIFIC
 
-
     # START OF HEADER >>>
-    palette = _header(palette, style, n_colors=lines, dpi=dpi)  # NOTE: y exception
+    palette = _header(palette, style, n_colors=lines, dpi=dpi)
     # <<< END OF HEADER
 
     # # # # PLOT STARTS # # # #
@@ -95,7 +97,7 @@ def line(data,
         plt.plot(y, x_mean)
 
     # START OF TITLES >>>
-    _titles(p, data, title, sub_title, samplenote, footnote)
+    _titles(title, sub_title=sub_title)
     # <<< END OF TITLES
 
     if legend != False:

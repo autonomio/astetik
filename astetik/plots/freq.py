@@ -4,7 +4,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
-from ..style.color_picker import color_picker, color_blind, _label_to_hex
+
+from ..style.titles import _titles
+from ..style.color_picker import color_picker
 from ..utils.utils import _highlight_color
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
@@ -15,8 +17,6 @@ def freq(data,
          color='default',
          title='',
          sub_title='',
-         footnote='',
-         samplenote='',
          x_label='',
          y_label='',
          order='desc',
@@ -98,6 +98,10 @@ def freq(data,
                     ax=ax)
 
     ax.set_xticklabels(data['x'], rotation=45, ha="right")
+
+    # START OF TITLES >>>
+    _titles(title, sub_title=sub_title)
+    # <<< END OF TITLES
 
     # FOOTER STARTS >>>
     _footer(p, x_label, y_label)

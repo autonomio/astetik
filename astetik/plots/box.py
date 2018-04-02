@@ -1,5 +1,6 @@
 import seaborn as sns
 
+from ..style.titles import _titles
 from ..style.template import _header, _footer
 #from ..utils.utils import _limiter, _scaler
 
@@ -11,6 +12,8 @@ def box(data,
         palette='default',
         style='astetik',
         dpi=72,
+        title='',
+        sub_title='',
         x_label='',
         y_label='',
         x_scale='linear',
@@ -28,8 +31,12 @@ def box(data,
                     hue=hue,
                     palette=palette)
 
-    #FOOTER STARTS >>>
+    # START OF TITLES >>>
+    _titles(title, sub_title=sub_title)
+    # <<< END OF TITLES
+
+    # FOOTER STARTS >>>
     _footer(p, x_label, y_label)
-    #<<< FOOTER ENDS
+    # <<< FOOTER ENDS
 
     p.spines['bottom'].set_color('black')

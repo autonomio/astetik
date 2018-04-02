@@ -1,5 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from ..style.titles import _titles
 from ..style.template import _header, _footer
 
 
@@ -11,8 +13,6 @@ def pie(data,
         dpi=72,
         title='',
         sub_title='',
-        footnote='',
-        samplenote='',
         x_label='',
         y_label='',
         x_scale='linear',
@@ -49,6 +49,10 @@ def pie(data,
     # LEGEND STARTS >>>
     plt.legend(p[0], labels, loc='center left', bbox_to_anchor=(1.1, 0.5))
     # <<< LEGEND ENDS
+
+    # START OF TITLES >>>
+    _titles(title, sub_title=sub_title)
+    # <<< END OF TITLES
 
     # FOOTER STARTS >>>
     _footer(p, x_label, y_label)

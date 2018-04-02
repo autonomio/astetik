@@ -1,4 +1,3 @@
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -18,8 +17,6 @@ def grid(data,
          style='astetik',
          title='',
          sub_title='',
-         footnote=None,
-         samplenote=None,
          x_label='',
          y_label='',
          dpi=72

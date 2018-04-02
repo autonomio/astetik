@@ -1,7 +1,8 @@
 import seaborn as sns
 
+from ..style.titles import _titles
 from ..style.template import _header, _footer
-#from ..utils.utils import _limiter, _scaler
+from ..utils.utils import _limiter, _scaler
 
 
 def strip(data,
@@ -13,6 +14,8 @@ def strip(data,
           palette='default',
           style='astetik',
           dpi=72,
+          title='',
+          sub_title='',
           x_label='',
           y_label='',
           x_scale='linear',
@@ -35,9 +38,13 @@ def strip(data,
                       dodge=dodge,
                       jitter=jitter)
 
-    #FOOTER STARTS >>>
+    # START OF TITLES >>>
+    _titles(title, sub_title=sub_title)
+    # <<< END OF TITLES
+
+    # FOOTER STARTS >>>
     _footer(p, x_label, y_label)
-    #<<< FOOTER ENDS
+    # <<< FOOTER ENDS
 
     p.spines['bottom'].set_color('black')
     p.set_xticklabels(order, rotation=90)

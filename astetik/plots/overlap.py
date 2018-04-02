@@ -1,6 +1,7 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from ..style.titles import _titles
 from ..style.template import _header, _footer
 from ..utils.transform import _groupby
 from ..style.formats import _thousand_sep
@@ -16,6 +17,8 @@ def overlap(data,
             palette='default',
             style='astetik',
             dpi=72,
+            title='',
+            sub_title='',
             x_label='',
             y_label='',
             x_scale='linear',
@@ -99,3 +102,7 @@ def overlap(data,
     ax.xaxis.set_major_locator(plt.MaxNLocator(5))
 
     _thousand_sep(data[x], ax)
+
+    # START OF TITLES >>>
+    _titles(title, sub_title=sub_title)
+    # <<< END OF TITLES

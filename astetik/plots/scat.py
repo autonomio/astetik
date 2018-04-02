@@ -1,5 +1,6 @@
 import seaborn as sns
 
+from ..style.titles import _titles
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
 from ..style.sizer import _sizer
@@ -16,8 +17,6 @@ def scat(data,
          dpi=72,
          title='',
          sub_title='',
-         footnote='',
-         samplenote='',
          x_label='',
          y_label='',
          x_scale='linear',
@@ -92,6 +91,10 @@ def scat(data,
     if x_limit != None or y_limit != None:
         _limiter(data[x], data[y], x_limit, y_limit)
     # <<< SCALING AND LIMITS ENDS
+
+    # START OF TITLES >>>
+    _titles(title, sub_title=sub_title)
+    # <<< END OF TITLES
 
     # FOOTER STARTS >>>
     _footer(p, x_label, y_label)

@@ -1,4 +1,5 @@
 import seaborn as sns
+
 from ..style.template import _header, _footer
 
 
@@ -10,6 +11,8 @@ def count(data,
           palette='default',
           style='astetik',
           dpi=72,
+          title='',
+          sub_title='',
           x_label='',
           y_label='',
           x_scale='linear',

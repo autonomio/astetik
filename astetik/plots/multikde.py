@@ -1,7 +1,8 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from ..style.template import _header
+from ..style.template import _header, _footer
+from ..utils.transform import _groupby
 
 
 def multikde(data,
@@ -13,6 +14,8 @@ def multikde(data,
              palette='default',
              style='astetik',
              dpi=72,
+             title='',
+             sub_title='',
              x_label='',
              y_label='',
              x_scale='linear',

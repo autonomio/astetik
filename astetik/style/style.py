@@ -24,9 +24,9 @@ def styles(dpi):
             'axes.ymargin': 0.05,
 
                 # AXES TITLE
-                'axes.titlesize': 10.0,
-                'axes.titlepad': 6.0,
-                'axes.titleweight': 'bold',
+                'axes.titlesize': 11.0,
+                'axes.titlepad': 10.0,
+                'axes.titleweight': 'normal',
 
             # FIGURE
             'figure.dpi': dpi,

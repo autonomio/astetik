@@ -1,13 +1,9 @@
 import warnings
 
-# ASTETIK IMPORTS START >>
 import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import rcParams
-from ..style.color_picker import color_picker, color_blind, _label_to_hex
-from ..utils.utils import _title_handling
-# << ASTETIK IMPORTS END
 
+from ..style.titles import _titles
 from ..style.template import _header, _footer
 
 
@@ -17,8 +13,6 @@ def hist(data,
          bins=True,
          title='',
          sub_title='',
-         footnote=None,
-         samplenote=None,
          x_label='',
          y_label='',
          dropna=False,
@@ -54,36 +48,9 @@ def hist(data,
     if bins is True:
         bins = len(data) / 10
 
-    # ASTETIK HEADER STARTS >>
-    if style != 'astetik':
-        plt.style.use(style)
-
-    try:
-        if y == None:
-            n = 1
-        else:
-            n = 2
-    except:
-        try:
-            n = data.shape[1]
-        except IndexError:
-            n = 1
-
-    if palette == 'colorblind':
-        palette = color_blind()
-    else:
-        try:
-
-            palette = color_picker(palette=palette, n_colors=n)
-        except UnboundLocalError:
-            palette = _label_to_hex(palette, n_colors=n)
-
-    sns.set_context("notebook", font_scale=1.2, rc={"lines.linewidth": 2})
-    plt.figure(figsize=(12, 8))
-
-    rcParams['font.family'] = 'Verdana'
-    rcParams['figure.dpi'] = dpi
-    # << ASTETIK HEADER ENDS
+    # HEADER STARTS >>>
+    palette = _header(palette, style, n_colors=1, dpi=dpi)
+    # <<< HEADER ENDS
 
     p = sns.distplot(data.dropna(),
                      bins=bins,
@@ -104,7 +71,7 @@ def hist(data,
     plt.tick_params(axis='both', which='major', pad=10)
 
     # show samplesize as subtitle
-    _title_handling(p, data, title, sub_title, samplenote, footnote)
+    _titles(title, sub_title)
 
     # FOOTER STARTS >>>
     _footer(p, x_label, y_label)

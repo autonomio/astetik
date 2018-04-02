@@ -1,7 +1,8 @@
 import seaborn as sns
 
+from ..style.titles import _titles
 from ..style.template import _header, _footer
-#from ..utils.utils import _limiter, _scaler
+from ..utils.utils import _limiter, _scaler
 
 
 def violin(data,
@@ -12,6 +13,8 @@ def violin(data,
            palette='default',
            style='astetik',
            dpi=72,
+           title='',
+           sub_title='',
            x_label='',
            y_label='',
            x_scale='linear',
@@ -20,7 +23,7 @@ def violin(data,
            y_limit='auto'):
 
     # HEADER STARTS >>>
-    palette = _header(palette, style, n_colors=2, dpi=dpi)  # NOTE: y exception
+    palette = _header(palette, style, n_colors=2, dpi=dpi)
     # <<< HEADER ENDS
 
     p = sns.violinplot(data=data,
@@ -31,8 +34,12 @@ def violin(data,
                        split=split,
                        cut=3)
 
-    #FOOTER STARTS >>>
+    # START OF TITLES >>>
+    _titles(title, sub_title=sub_title)
+    # <<< END OF TITLES
+
+    # FOOTER STARTS >>>
     _footer(p, x_label, y_label)
-    #<<< FOOTER ENDS
+    # <<< FOOTER ENDS
 
     p.spines['bottom'].set_color('black')

@@ -1,12 +1,7 @@
 import numpy as np
-
-import matplotlib
-matplotlib.use('Agg')  # this needs to be here exceptionslly
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import rcParams
-
 import seaborn as sns
 
+from ..style.titles import _titles
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
 
@@ -14,8 +9,6 @@ from ..utils.utils import _limiter, _scaler
 def corr(data,
          title='',
          sub_title='',
-         footnote='',
-         samplenote='',
          x_label='',
          y_label='',
          corr_method='spearman',
@@ -43,20 +36,25 @@ def corr(data,
     annot :: show the annotation (values) on each cell
 
     '''
-    # # # # # DATA PREP STARTS # # # # #
-    data = data.corr(method='spearman')
+    # # # # # PREP STARTS # # # # #
+    data = data.corr(method=corr_method)
     mask = np.zeros_like(data)
     mask[np.triu_indices_from(mask)] = True
-    n = 14
-    # # # # # DATA PREP ENDS # # # # #
+    # # # # # PREP ENDS # # # # #
 
     # HEADER STARTS >>>
-    palette = _header(palette, style, n_colors=n, dpi=dpi)  # NOTE: y exception
+    palette = _header(palette, style, n_colors=10, dpi=dpi)  # NOTE: y exception
     # <<< HEADER ENDS
 
     # # # # # MAIN PLOT CODE STARTS # # # # # # #
     p = sns.heatmap(data, mask=mask, linewidths=2, cmap=palette, annot=annot)
     p.set_xticklabels(data, rotation=45)
+    # # # # # MAIN PLOT CODE ENDS # # # # # # #
+
+    # START OF TITLES >>>
+    _titles(title, sub_title=sub_title)
+    # <<< END OF TITLES
+
     # FOOTER STARTS >>>
     _footer(p, x_label, y_label)
     # <<< FOOTER ENDS

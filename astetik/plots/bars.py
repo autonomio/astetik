@@ -1,4 +1,12 @@
+# EXCEPTIONAL IMPORT #
+import matplotlib
+matplotlib.use('Agg')
+# ENDS #
+
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import rcParams
 import seaborn as sns
+
 from ..style.template import _header, _footer
 
 
@@ -11,6 +19,8 @@ def bars(data,
          palette='default',
          style='astetik',
          dpi=72,
+         title='',
+         sub_title='',
          x_label='',
          y_label='',
          x_scale='linear',
@@ -25,7 +35,12 @@ def bars(data,
         n_colors = len(data[x].unique())
 
     # HEADER STARTS >>>
-    palette = _header(palette, style, n_colors=n_colors, dpi=dpi, fig_height=None, fig_width=None)  # NOTE: y exception
+    palette = _header(palette,
+                      style,
+                      n_colors=n_colors,
+                      dpi=dpi,
+                      fig_height=None,
+                      fig_width=None)
     # <<< HEADER ENDS
 
     p = sns.factorplot(data=data,
