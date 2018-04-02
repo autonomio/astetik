@@ -2,6 +2,17 @@
 
     pip install astetik      # TL;DR
     
+## Why Astetik
+
+You might ask, why not use one of...
+
+- matplotlib
+- plotly
+- bokeh
+- mpl3d
+- seaborn
+
+...and so forth. The short answer is simplicity. Simplicity that focus equally on the user experience of the data scientist, and the experience of the audience. While the data scientist should not have to think about it, the audience should be vowed by it. Without compromising the capabilities that are essential for visual storytelling.
 
 ## Some opinionated comments on data visualization and Python
 
@@ -14,18 +25,6 @@ That's the problem astetik solves.
 Astetik takes the amazing potential of matplotlib and seaborn, and makes it available through single-line commands. While much of the lower level complexity is made invisible, some completely new features are added. Whatever is added is further taking away from the complexity of the visualizastion workflow. 
 
 In *Five Essential Points of Data Visualization* I explain some of the frustrations, and ideas, conceived over more than 20 years working with data visualization and data-driven storytelling, that led to Astetik. You can [read it here](https://medium.com/@mikkokotila/five-essential-points-on-data-visualization-2856b80730b3). It is my sincere wish that you will find Astetik beneficial. 
-
-## Why Astetik
-
-You might ask, why not use one of...
-
-- matplotlib
-- plotly
-- bokeh
-- mpl3d
-- seaborn
-
-...and so forth. The short answer is simplicity. Simplicity that focus equally on the user experience of the data scientist, and the experience of the audience. While the data scientist should not have to think about it, the audience should be vowed by it. Without compromising the capabilities that are essential for visual storytelling.
 
 ## Background 
 
