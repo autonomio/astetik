@@ -83,24 +83,17 @@ That's it, you're ready to go.
 
 ## TODO
 
-1) transform all the plot codes to be template driven
+FEATURES:
+- add limiter to all relevant plots
+- add scaler to all relevant plots 
+- add outlier removal to all plots 
 
-2) add sample data to all functions
+USABILITY: 
+- add sample data to all plots
+- add sample plot resulting from the data
+- unify docstrings
+- unify parameters 
 
-3) add an example plot for all functions
-
-4) unify the docstrings for common parameters
-
-5) unify the parameters to the extent possible
-
-6) test title and subtitle for all plots
-
-7) unify the color picker
-
-8) add data scaler function (to do it before plot creation) 
-
-9) TEST TEST TEST ... AND STILL A LITTLE TEST
-
-10) push the new version to pypi
-
-9) outliers
+OTHER: 
+- unify the color pickers
+- add saving figure to all 
