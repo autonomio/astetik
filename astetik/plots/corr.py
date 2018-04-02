@@ -15,7 +15,8 @@ def corr(data,
          annot=False,
          palette="RdYlGn",
          dpi=72,
-         style='astetik'):
+         style='astetik',
+         save=False):
 
     '''CORRELATION HEATMAP
 
@@ -56,5 +57,5 @@ def corr(data,
     # <<< END OF TITLES
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, save=save)
     # <<< FOOTER ENDS

@@ -18,13 +18,17 @@ def strip(data,
           sub_title='',
           x_label='',
           y_label='',
+          legend=True,
           x_scale='linear',
           y_scale='linear',
           x_limit='auto',
-          y_limit='auto'):
+          y_limit='auto',
+          save=False):
+
+    n = len(data[hue].unique())
 
     # HEADER STARTS >>>
-    palette = _header(palette, style, n_colors=2, dpi=dpi)  # NOTE: y exception
+    palette = _header(palette, style, n_colors=n, dpi=dpi)  # NOTE: y exception
     # <<< HEADER ENDS
 
     order = data[x].unique()
@@ -43,7 +47,7 @@ def strip(data,
     # <<< END OF TITLES
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, legend, n, save)
     # <<< FOOTER ENDS
 
     p.spines['bottom'].set_color('black')

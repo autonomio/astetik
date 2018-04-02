@@ -9,7 +9,6 @@ def swarm(data,
           x,
           y,
           hue=None,
-          # ASTETIK PARAMS START >>
           palette='default',
           style='astetik',
           dpi=72,
@@ -17,10 +16,12 @@ def swarm(data,
           sub_title='',
           x_label='',
           y_label='',
+          legend=True,
           x_scale='linear',
           y_scale='linear',
           x_limit='auto',
-          y_limit='auto'):
+          y_limit='auto',
+          save=False):
 
     '''SWARM PLOT
     This is similar to scatter plot, in the sense that overlapping of observations
@@ -90,5 +91,5 @@ def swarm(data,
     # <<< END OF TITLES
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, legend, n, save)
     # <<< FOOTER ENDS

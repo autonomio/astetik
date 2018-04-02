@@ -21,7 +21,8 @@ def hist(data,
          rug=False,
          vertical=False,
          style='astetik',
-         dpi=72):
+         dpi=72,
+         save=False):
 
     '''Distribution Plot
 
@@ -74,5 +75,5 @@ def hist(data,
     _titles(title, sub_title)
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, save=save)
     # <<< FOOTER ENDS

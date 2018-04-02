@@ -16,13 +16,20 @@ def box(data,
         sub_title='',
         x_label='',
         y_label='',
+        legend=True,
         x_scale='linear',
         y_scale='linear',
         x_limit='auto',
-        y_limit='auto'):
+        y_limit='auto',
+        save=False):
+
+    if hue != None:
+        n = len(data[hue].unique())
+    else:
+        n = 1
 
     # HEADER STARTS >>>
-    palette = _header(palette, style, n_colors=2, dpi=dpi)  # NOTE: y exception
+    palette = _header(palette, style, n_colors=n, dpi=dpi)  # NOTE: y exception
     # <<< HEADER ENDS
 
     p = sns.boxplot(data=data,
@@ -36,7 +43,7 @@ def box(data,
     # <<< END OF TITLES
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, legend, n, save=save)
     # <<< FOOTER ENDS
 
     p.spines['bottom'].set_color('black')

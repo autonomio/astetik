@@ -47,12 +47,12 @@ def styles(dpi):
 
             # LEGEND
             'legend.framealpha': 1,
-            'legend.frameon': False,
-            'legend.handleheight': 1.5,
-            'legend.handlelength': 2,
+            'legend.frameon': True,
+            'legend.handleheight': 2.5,
+            'legend.handlelength': 2.5,
             'legend.loc': 'upper right',
             'legend.labelspacing': 0.8,
-            'legend.borderpad': 0.4,
+            'legend.borderpad': 0.5,
             'legend.columnspacing': 2.0,
 
             # SAVEFIG

@@ -19,7 +19,8 @@ def pie(data,
         y_scale='linear',
         x_limit='auto',
         y_limit='auto',
-        quantile_cut=None):
+        quantile_cut=None,
+        save=False):
 
     # PLOT SPECIFIC START >>>
     if quantile_cut != None:
@@ -55,5 +56,5 @@ def pie(data,
     # <<< END OF TITLES
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, save=save)
     # <<< FOOTER ENDS

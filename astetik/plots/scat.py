@@ -11,7 +11,6 @@ def scat(data,
          y,
          hue=None,
          size=None,
-         # ASTETIK PARAMS START >>
          palette='default',
          style='astetik',
          dpi=72,
@@ -19,10 +18,12 @@ def scat(data,
          sub_title='',
          x_label='',
          y_label='',
+         legend=True,
          x_scale='linear',
          y_scale='linear',
          x_limit='auto',
-         y_limit='auto'):
+         y_limit='auto',
+         save=False):
 
     '''SCATTER PLOT
 
@@ -97,9 +98,9 @@ def scat(data,
     # <<< END OF TITLES
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, legend, n, save)
     # <<< FOOTER ENDS
 
-    # SPECIAL CASE (to reset the x-labels)
+    # SPECIAL CASE
     p.set(xscale='linear')
     # SPECIAL CASE ENDS

@@ -21,7 +21,8 @@ def multikde(data,
              x_scale='linear',
              y_scale='linear',
              x_limit='auto',
-             y_limit='auto'):
+             y_limit='auto',
+             save=False):
 
     '''JOY PLOT
 

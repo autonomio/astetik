@@ -13,12 +13,14 @@ def kde(x,
         x_label='',
         y_label='',
         palette='default',
+        legend=False,
         xscale='linear',
         yscale='linear',
         cbar=True,
         cumulative=False,
         style='astetik',
-        dpi=72):
+        dpi=72,
+        save=False):
 
     # HEADER STARTS >>>
     palette = _header(palette, style, n_colors=1, dpi=dpi)
@@ -29,7 +31,7 @@ def kde(x,
                     shade=True,
                     cut=5,
                     shade_lowest=False,
-                    legend=True,
+                    legend=legend,
                     cumulative=cumulative,
                     cbar=cbar,
                     kernel='gau',
@@ -44,5 +46,5 @@ def kde(x,
     # <<< END OF TITLES
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, save=save)
     # <<< FOOTER ENDS

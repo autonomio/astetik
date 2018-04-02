@@ -24,7 +24,8 @@ def overlap(data,
             x_scale='linear',
             y_scale='linear',
             x_limit='auto',
-            y_limit='auto'):
+            y_limit='auto',
+            save=False):
 
     '''OVERLAP BAR PLOT
 

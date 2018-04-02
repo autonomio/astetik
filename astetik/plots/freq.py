@@ -24,7 +24,8 @@ def freq(data,
          highlight_mode='!=',
          highlight_value=None,
          limit_values=30,
-         dpi=72):
+         dpi=72,
+         save=False):
 
     '''Frequency Bar
     Works best for max 30 unique values in the column, where
@@ -104,5 +105,5 @@ def freq(data,
     # <<< END OF TITLES
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, save=save)
     # <<< FOOTER ENDS

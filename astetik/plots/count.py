@@ -1,4 +1,5 @@
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 from ..style.template import _header, _footer
 
@@ -19,7 +20,9 @@ def count(data,
           y_scale='linear',
           x_limit='auto',
           y_limit='auto',
-          col_wrap=4):
+          col_wrap=4,
+          legend=True,
+          save=False):
 
     if hue != None:
         n_colors = len(data[hue].unique())
@@ -44,8 +47,10 @@ def count(data,
                        col_wrap=col_wrap,
                        palette=palette,
                        size=4,
-                       kind='count')
+                       kind='count',
+                       legend=legend,
+                       legend_out=False)
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, save=save)
     # <<< FOOTER ENDS

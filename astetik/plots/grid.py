@@ -19,8 +19,8 @@ def grid(data,
          sub_title='',
          x_label='',
          y_label='',
-         dpi=72
-         ):
+         dpi=72,
+         save=False):
 
     '''GRID PLOT
     This plot is especially useful for investigating

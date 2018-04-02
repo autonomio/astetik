@@ -1,3 +1,5 @@
+import time
+
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
@@ -41,9 +43,19 @@ def _header(palette,
     return palette
 
 
-def _footer(p, xlabel, ylabel):
+def _footer(p,
+            xlabel,
+            ylabel,
+            legend=False,
+            n=None,
+            save=False):
 
     default_color = default_colors()
+
+    # LEGEND STARTS >>>
+    if legend != False:
+        plt.legend(loc=1, ncol=n)
+    # <<< LEGEND ENDS
 
     plt.xlabel(xlabel, color=default_color)
     plt.ylabel(ylabel, color=default_color)
@@ -53,3 +65,9 @@ def _footer(p, xlabel, ylabel):
         pass
     sns.despine(left=True, right=True, top=True)
     plt.tight_layout()
+
+    # SAVING THE PLOT
+    if save != False:
+        time_stamp = time.strftime('%Y%m%d_%H%M%S')
+        filename = "astetik_" + time_stamp + ".png"
+        plt.savefig(filename, dpi=72)

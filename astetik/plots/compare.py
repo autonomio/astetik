@@ -22,8 +22,8 @@ def compare(data,
             x_scale='linear',
             y_scale='linear',
             x_limit='auto',
-            y_limit='auto'):
-
+            y_limit='auto',
+            save=False):
     '''COMPARE PLOT
 
     This needs to have a single row per entity, for example a patient

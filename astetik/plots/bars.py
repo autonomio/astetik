@@ -27,7 +27,8 @@ def bars(data,
          y_scale='linear',
          x_limit='auto',
          y_limit='auto',
-         col_wrap=4):
+         col_wrap=4,
+         save=False):
 
     if hue != None:
         n_colors = len(data[hue].unique())
@@ -55,5 +56,5 @@ def bars(data,
                        kind='bar')
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, save=save)
     # <<< FOOTER ENDS

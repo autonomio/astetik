@@ -23,10 +23,7 @@ def line(data,
          linestyle='solid',
          markerstyle='o',
          dpi=72,
-         sub_x=0.112,
-         sub_y=0.913,
-         title_x=0,
-         title_y=1.15):
+         save=False):
 
     """TIMESERIES LINE PLOT
 
@@ -101,8 +98,8 @@ def line(data,
     # <<< END OF TITLES
 
     if legend != False:
-        plt.legend(x, loc=1)
+        plt.legend(x, loc=1, ncol=lines)
 
     # FOOTER STARTS >>>
-    _footer(p, x_label, y_label)
+    _footer(p, x_label, y_label, save=save)
     # <<< FOOTER ENDS
