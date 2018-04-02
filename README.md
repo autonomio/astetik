@@ -18,6 +18,24 @@ It started from the realization that there was not a single library for Python, 
 
 [![Screen Shot 2016-11-04 at 18.37.44.png](https://s14.postimg.org/hnoexoujl/Screen_Shot_2016_11_04_at_18_37_44.png)](https://postimg.org/image/70uls9me5/)
 
+## Features 
+
+### Visualization
+
+- Over 20 plot types
+
+- Descriptive table
+
+- Wordcloud
+
+### Data Preparation 
+
+
+
+
+
+
+
 You can see / try astetik in a live Jupyter notebook: 
 
 https://nbviewer.jupyter.org/github/mikkokotila/astetik/blob/master/astetik.ipynb
