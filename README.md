@@ -34,7 +34,11 @@ At the time I was doing a lot of analysis that involved correlation, and ended u
 
 <img src=https://raw.githubusercontent.com/mikkokotila/astetik/master/examples/images/heat_titanic.png>
 
+The code to run it was (and still is):
 
+    ast.corr(titanic, title='TITANIC SURVIVAL DATA', sub_title="Economics of Making it Alive")
+
+Today Astetik include, in addition to the original descriptive table and the heatmap correlation, over 20 unique plots and many unique features to make the daily life of data scientists and visual storytellers more enjoyable. 
 
 ## Features 
 
