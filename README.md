@@ -1,6 +1,6 @@
 <img width=250 src='https://raw.githubusercontent.com/mikkokotila/astetik/master/logo.png'>
 
-## Some opinionated comments on data visualization on Python
+## Some opinionated comments on data visualization and Python
 
 As someone else so eloquently put it, the merit, and also the curse, of Matplotlib is how everything (and then some) is possible to do with it. It is with this vast flexibility, that often also comes with great confusion. With confusion comes pain and suffering. Seaborn does an amazing job in taking away a lot of that confusion and pain, and bringing the data scientist closer to the end goal; being able to tell visually compelling stories with data. In fact, we want to tell those stories without having to think about the plots too much, as a plot is just a means to an end. If you want to quench your thirst, you don't want to spend too much time producing water, but drink it, and move on. Data visualization in the pydata ecosystem should be like this. Amazing looking, publication quality visualizations should be available through single-line, easy-to-understand, and easy-to-remember commands. One command per plot. No more, no less. 
 
