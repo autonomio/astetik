@@ -28,7 +28,7 @@ If you are anything like me, at times you've felt like...
 
 <img width=300 src='https://cdn-images-1.medium.com/max/800/1*y0SNvGzJ1PXRNoTUr9LZEQ.gif'>
 
-GOING TO NOT HAPPEN WITH ASTETIK...I PROMISE.
+Not going to happen. I promise. 
 
 
 ## Background 
