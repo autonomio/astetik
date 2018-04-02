@@ -15,8 +15,11 @@ from .plots.violin import violin
 from .plots.strip import strip
 from .plots.count import count
 from .plots.bars import bars
+from .plots.overlap import overlap
+from .plots.multikde import multikde
+from .plots.compare import compare
 # from .plots.words import words
-# from .plots.line import line
+
 
 # TABLES
 from .tables.ols import ols

@@ -5,20 +5,20 @@ from ..style.template import _header, _footer
 
 
 def strip(data,
-        x,
-        y,
-        hue=None,
-        jitter=1,
-        dodge=False,
-        palette='default',
-        style='astetik',
-        dpi=72,
-        x_label='',
-        y_label='',
-        x_scale='linear',
-        y_scale='linear',
-        x_limit='auto',
-        y_limit='auto'):
+          x,
+          y,
+          hue=None,
+          jitter=1,
+          dodge=False,
+          palette='default',
+          style='astetik',
+          dpi=72,
+          x_label='',
+          y_label='',
+          x_scale='linear',
+          y_scale='linear',
+          x_limit='auto',
+          y_limit='auto'):
 
     # HEADER STARTS >>>
     palette = _header(palette, style, n_colors=2, dpi=dpi)  # NOTE: y exception

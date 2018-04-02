@@ -148,3 +148,46 @@ def mean_zero(data, retain=None):
         data = pd.merge(col_temp, data, left_index=True, right_index=True)
 
     return data
+
+
+def _groupby(data, by, func):
+
+    '''GROUP BY
+
+    Takes in a dataframe and returns it in a grouped by format.
+
+    PARAMETERS
+    ----------
+    data :: a pandas dataframe
+    by :: the column by which the grouping is done
+    func ::
+
+
+    '''
+
+    temp = data.groupby(by)
+
+    if func == 'median':
+        out = temp.median()
+    elif func == 'mean':
+        out = temp.mean()
+    elif func == 'first':
+        out = temp.mean()
+    elif func == 'last':
+        out = temp.mean()
+    elif func == 'std':
+        out = temp.std()
+    elif func == 'mode':
+        out = temp.std()
+    elif func == 'max':
+        out = temp.std()
+    elif func == 'min':
+        out = temp.std()
+    elif func == 'sum':
+        out = temp.sum()
+    elif func == 'random':
+        out = temp.agg(random.choice)
+
+    out = out.reset_index()
+
+    return out

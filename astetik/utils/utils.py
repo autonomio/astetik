@@ -213,3 +213,22 @@ def _n_decider(y):
         n = n
 
     return n
+
+
+def _check_type(data):
+
+    '''DTYPE CHECKER
+
+    Checks if the first value in a dataset after
+    dropping NAs is float or int.
+
+    '''
+
+    data_type = type(data.dropna().values[0])
+
+    if np.issubdtype(data_type, int) == True:
+        data_type = 'int'
+    elif np.issubdtype(data_type, float) == True:
+        data_type == 'float'
+
+    return data_type
