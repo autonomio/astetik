@@ -1,8 +1,7 @@
 <img width=250 src='https://raw.githubusercontent.com/mikkokotila/astetik/master/logo.png'>
 
-## TL;DR
-
-    pip install astetik      # have fun
+    pip install astetik      # TL;DR
+    
 
 ## Some opinionated comments on data visualization and Python
 
