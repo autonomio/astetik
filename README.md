@@ -32,7 +32,7 @@ It started from the realization that there was not a single library for Python, 
 
 At the time I was doing a lot of analysis that involved correlation, and ended up doing a simple heatmap plot which took about 20 lines of codes to polish it, and several hours of work having no previous knowledge of matplotlib or seaborn. The first plot looked like this:
 
-<img src=https://raw.githubusercontent.com/mikkokotila/astetik/master/examples/images/heat_titanic.png>
+<img width=600 src=https://raw.githubusercontent.com/mikkokotila/astetik/master/examples/images/heat_titanic.png>
 
 The code to run it was (and still is):
 
