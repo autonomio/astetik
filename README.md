@@ -24,11 +24,6 @@ You might ask, why not use one of...
 
 ...and so forth. The short answer is simplicity. Simplicity that focus equally on the user experience of the data scientist, and the experience of the audience. While the data scientist should not have to think about it, the audience should be vowed by it. Without compromising the capabilities that are essential for visual storytelling.
 
-<img width=300 src='https://cdn-images-1.medium.com/max/800/1*y0SNvGzJ1PXRNoTUr9LZEQ.gif'>
-
-Not going to happen.
-
-
 ## Background 
 
 It started from the realization that there was not a single library for Python, able to produce publication quality descriptive stats tables. The first version just did one thing, and it looked like this: 
@@ -37,8 +32,7 @@ It started from the realization that there was not a single library for Python, 
 
 At the time I was doing a lot of analysis that involved correlation, and ended up doing a simple heatmap plot which took about 20 lines of codes to polish it, and several hours of work having no previous knowledge of matplotlib or seaborn. The first plot looked like this:
 
-
-
+<img src=https://raw.githubusercontent.com/mikkokotila/astetik/master/examples/images/heat_titanic.png>
 
 
 
