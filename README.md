@@ -1,6 +1,6 @@
-# astetik
+<img width=250 src='https://raw.githubusercontent.com/mikkokotila/astetik/master/logo.png'>
 
-## Some opinions about data visualization on Pythoh
+## Some opinionated comments on data visualization on Pythoh
 
 As someone so eloquently put it, the merit, and also the curse, of Matplotlib is how everything (and then some) is possible. It is with this vast flexibility, that often also comes with great confusion. Seaborn does an amazing job in taking away a lot of that confusion, and bringing the data scientist far closer to the end goal; being able to tell visually compelling stories with data. If I might add, we want to tell those stories without having to think about the plots themselves too much, as that's just a means to an end. If you want to quench your thirst, you don't want to spend too much time thinking about the chemistry and physics that goes in to water, but drink it, and move. Data visualization in the pydata ecosystem should be like this. Amazing looking, publication quality visualizations should be available through single-line, easy-to-rememder, and easy-to-remember commands. One per plot. No more, no less. That's the problem astetik solves.
 
