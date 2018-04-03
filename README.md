@@ -18,6 +18,21 @@ You might ask, why not use one of...
 
 In *Five Essential Points of Data Visualization* I explain some of the frustrations, and ideas, conceived over more than 20 years working with data visualization and data-driven storytelling, that led to Astetik. You can [read it here](https://medium.com/@mikkokotila/five-essential-points-on-data-visualization-2856b80730b3). 
 
+## Simplicity
+
+### Parameters 
+
+Every plot has three kinds of parameters; data inputs, plot specific, and common. The common are identical, and presented in the identical order in every plot. This means that once you learn one plot, you've more or less learn the all. The only exception is the plot specific parameters, which have been kept to absolute minimum, in many cases as few as 2 or 3. 
+
+### Docstrings 
+
+Partially owing to the well unified parameter space between the plots, the docstrings are very clear, and easy to digest. The input related are given first, following the plot specifics, and last the common parameters, in which case the dosctring is identical in every plot. At the top of each docstring several key points are made clear: 
+
+- range of dimensions the plot supports
+- type of features (e.g. categorical and continous) work the best 
+- recommended max number of features/columns
+
+
 ## Some opinionated comments on data visualization and Python
 
 As someone else so eloquently put it, the merit, and also the curse, of Matplotlib is how everything is made possible for the user. It is with this vast flexibility, that also comes great confusion. Still the only purpose a plotting library serves, is in its ability to bring the data scientist closer to the end goal; being able to tell visually compelling stories with data. We want to tell those stories without having to think about the plots too much, as a plot is just a means to an end. If you want to quench your thirst, you don't want to spend too much time producing water, but drink it, and move on. Data visualization in the pydata ecosystem should be like this. Amazing looking, publication quality visualizations should be available through single-line, easy-to-understand, and easy-to-remember commands. One command per plot. No more, no less. 
