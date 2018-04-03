@@ -1,0 +1,95 @@
+<!--
+
+  This file is provided for convinience, to see what's happening
+  inside the compact version that is used with table().
+
+  SOME IDEAS FOR MODIFICATION:
+
+	1) black text on white background
+	2) white text on black
+	3) very dark grey text on light grey
+	4) very light text on dark grey
+	5) western color scheme (don't ask)
+
+-->
+
+<style type="text/css">
+
+body{font-size:14px;
+	font-family:Verdana,Arial,sans-serif;
+	border-collapse:collapse;
+	border-width:0px;
+	border-spacing:0;
+	border:none;
+	color:white;}
+
+td{font-weight:bold;
+	text-align:right;
+	padding:10px 5px;
+	overflow:hidden;
+	word-break:normal;}
+
+th{font-weight:normal;
+	padding:10px 5px;
+	border-style:solid;
+	border-width:0px;
+	text-align:right;
+	vertical-align:top;
+	overflow:hidden;
+	word-break:normal;}
+
+.hr2{height: 1px; background-color: #FFF;}
+
+h5{font-family:Verdana;}
+h4{font-family:Verdana;}
+hr{height: 3px; width: 630px; left; background-color: #FFF;}
+col{width:120px;}
+
+</style>
+
+<body bgcolor="black">
+<table class="pr" style="undefined;table-layout: fixed; width: 500px; border-style: hidden; border-collapse: collapse;">
+
+<colgroup>
+	<col style="width: 150px">
+	<col>
+	<col>
+	<col>
+	<col>
+</colgroup>
+
+<h5>" + str(table_title) + "</h5>
+
+<h4><i>" + str(title) + "</i></h4>
+
+<hr align="left">
+
+<tr> <th></th>
+	<th>median</th>
+	<th>mean</th>
+	<th>std</th>
+	<th>total</th>
+</tr>
+<tr>
+	<td>" + data.index[0] + "</td>
+	<td>" + str(data['median'][0]) + "</td>
+	<td>" + str(data['mean'][0]) + "</td>
+	<td>" + str(data['std'][0]) + "</td>
+	<td>" + str(data['sum'][0]) + "</td>
+</tr>
+<tr>
+	<td>" + data.index[1] + "</td>
+	<td>" + str(data['median'][1]) + "</td>
+	<td>" + str(data['mean'][1]) + "</td>
+	<td>" + str(data['std'][1]) + "</td>
+	<td>" + str(data['sum'][1]) + "</td>
+</tr>
+<tr> <td>" + data.index[2] + "</td>
+	<td>" + str(data['median'][2]) + "</td>
+	<td>" + str(data['mean'][2]) + "</td>
+	<td>" + str(data['std'][2]) + "</td>
+	<td>" + str(data['sum'][2]) + "</td>
+</tr>
+</table>
+
+<hr align="left">
