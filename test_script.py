@@ -15,6 +15,7 @@ def create_data():
     df['other'] = (df.A + df.B) % 2 == False
     df = df.reset_index()
     df['text'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(23))
+    df['cats'] = np.random.randint(0,5, 100)
 
     return df
 
@@ -23,7 +24,7 @@ def test_tables(df):
 
     ast.text(df, 'text', sort='asc', max_rows=5)
     ast.table(df[['A', 'B', 'C']], table_title='test')
-    #ast.ols(df, 'odd', 'A', 'even', 'B')
+    ast.ols(df, 'B', 'A', 'even', 'C')
 
 
 def test_simple_minimal(df):
@@ -39,12 +40,12 @@ def test_simple_minimal(df):
     ast.box(df, x='A', y='even')
     ast.violin(df, x='A', y='even')
     ast.strip(df, x='odd', y='B', hue='even')
-    ast.count(df, x='odd')
+    ast.count(df, x='cats')
     ast.bars(df, x='even', y='B', hue='other', col='odd')
     ast.overlap(df, x='A', y='B', label_col='other')
     ast.multikde(df, x='A', label_col='even')
     ast.compare(df, x='A', y=['B', 'C'], label_col='other')
-    ast.multicount(df, x='even', y='A', hue='odd', col='other')
+    ast.multicount(df, x='even', hue='odd', col='other')
 
 
 # create the dataset
