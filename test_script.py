@@ -23,7 +23,7 @@ def test_tables(df):
 
     ast.text(df, 'text', sort='asc', max_rows=5)
     ast.table(df[['A', 'B', 'C']], table_title='test')
-    ast.ols(df, 'odd', 'A', 'even', 'B')
+    #ast.ols(df, 'odd', 'A', 'even', 'B')
 
 
 def test_simple_minimal(df):
