@@ -126,7 +126,8 @@ def hist(data,
     p = sns.distplot(data[x],
                      bins=bins,
                      norm_hist=False,
-                     color=palette,
+                     kde=False,
+                     color=palette[0],
                      vertical=vertical,
                      hist_kws=dict(alpha=1))
 
