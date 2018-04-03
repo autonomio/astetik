@@ -24,7 +24,7 @@ python:
 install:
   - "pip install -r requirements.txt"
   - "python setup.py install"
-  #- "pip install coveralls"
+  - "pip install coveralls"
   #- "./.travis.sh"
   #- "python -m spacy download en"
 
@@ -35,8 +35,8 @@ before_script:
   - sleep 3 # give xvfb some time to start
 
 # command to run tests
-#script:
-#  - "coverage run --source=autonomio ./test_script.py"
+script:
+  - "coverage run --source=astetik ./test_script.py"
 
-#after_success:
+after_success:
 #  coveralls
