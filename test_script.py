@@ -10,6 +10,8 @@ import astetik as ast
 def create_data():
 
     df = pd.DataFrame(np.random.randint(0, 100, size=(100, 8)), columns=list('ABCDEFGH'))
+    df['odd'] = df.A % 2 == True
+    df['even'] = df.A % 2 == False
     df['other'] = (df.A + df.B) % 2 == False
     df = df.reset_index()
     df['text'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(23))
