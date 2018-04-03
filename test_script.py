@@ -17,7 +17,7 @@ df['text'] = strings()
 
 ast.text(df, 'text', sort='asc', max_rows=5)
 ast.table(df[['A', 'B', 'C']], table_title='test')
-ast.ols(df, 'Survived', 'Age', 'Sex', 'Fare')
+ast.ols(df, 'A', 'B', 'C', 'D')
 ast.corr(df)
 ast.kde(data=df,
         x='B',
