@@ -12,8 +12,8 @@ def _header(palette,
             style,
             n_colors,
             dpi,
-            fig_width=12,
-            fig_height=8):
+            fig_width=None,
+            fig_height=None):
 
     if style != 'astetik':
         plt.style.use(style)

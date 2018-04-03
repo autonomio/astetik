@@ -1,47 +1,42 @@
 import seaborn as sns
-import matplotlib.pyplot as plt
 
-from ..style.style import params
-from ..style.titles import _titles
-from ..style.formats import _thousand_sep
 from ..style.template import _header, _footer
-from ..utils.utils import _limiter, _scaler
 
 
-def violin(data,
-           x,
-           y,
-           hue=None,
-           split=True,
-           palette='default',
-           style='astetik',
-           dpi=72,
-           title='',
-           sub_title='',
-           x_label='',
-           y_label='',
-           legend=True,
-           x_scale='linear',
-           y_scale='linear',
-           x_limit=None,
-           y_limit=None,
-           outliers=False,
-           save=False):
+def multicount(data,
+               x,
+               hue=None,
+               row=None,
+               col=None,
+               col_wrap=4,
+               palette='default',
+               style='astetik',
+               dpi=72,
+               title='',
+               sub_title='',
+               x_label='',
+               y_label='',
+               x_scale='linear',
+               y_scale='linear',
+               x_limit='auto',
+               y_limit='auto',
+               legend=True,
+               save=False):
 
-    '''VIOLIN PLOT
+    '''MULTICOUNT PLOT
 
-    A combination of kde style histogram and a box plotself.
+    A bar plot for counting values in a single feature. Useful for
+    categoricals and stepped data. Prints out multiple plots.
 
-    Inputs: 2 to 3
-    Features: 1 continuous and 1 or 2 categoricals
+    Inputs: 3 to 4
+    Features: 1 continuous and 2 to 3 categoricals
 
     1. USE
     ======
-    ast.violin(data=patients,
-                x='insurance',
-                y='age',
-                hue='expired',
-                y_limit=None)
+    ast.multicount(data=patients,
+                   x='expired',
+                   hue='gender',
+                   col='insurance')
 
     2. PARAMETERS
     =============
@@ -55,11 +50,12 @@ def violin(data,
 
     hue :: color highlight (categorical)
 
+    col :: the side-by-side plot comparison feature
+
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
-    split :: If False, 'hue' values will be separted in to
-             two elements as opposed to shown together.
+    col_wrap :: the number of plots to show per row
 
     ----------------------
     2.3. COMMON PARAMETERS
@@ -107,34 +103,34 @@ def violin(data,
     outliers :: Remove outliers using either 'zscore' or 'iqr'
 
     '''
-    if hue == None:
-        legend = False
+
+
+    if hue != None:
+        n_colors = len(data[hue].unique())
+    else:
+        n_colors = len(data[x].unique())
 
     # HEADER STARTS >>>
-    palette = _header(palette, style, n_colors=2, dpi=dpi)
+    palette = _header(palette,
+                      style,
+                      n_colors=n_colors,
+                      dpi=dpi,
+                      fig_height=None,
+                      fig_width=None)
     # <<< HEADER ENDS
 
-    p, ax = plt.subplots(figsize=(params()['fig_width'],
-                                  params()['fig_height']))
-    p = sns.violinplot(data=data,
+    p = sns.factorplot(data=data,
                        x=x,
-                       y=y,
+                       y=None,
                        hue=hue,
+                       row=row,
+                       col=col,
+                       col_wrap=col_wrap,
                        palette=palette,
-                       split=split,
-                       cut=3)
-
-    # SCALING AND LIMITS STARTS >>>
-    if x_scale != 'linear' or y_scale != 'linear':
-        _scaler(p, x_scale, y_scale)
-    if x_limit != None or y_limit != None:
-        _limiter(data=data, x=x, y=y, x_limit=None, y_limit=y_limit)
-    # <<< SCALING AND LIMITS ENDS
+                       size=4,
+                       kind='count',
+                       legend=legend,
+                       legend_out=False)
 
     # FOOTER STARTS >>>
-    _thousand_sep(p, ax)
-    _titles(title, sub_title=sub_title)
-    _footer(p, x_label, y_label, legend, 2, save)
-
-    p.spines['bottom'].set_color('black')
-    # <<< FOOTER ENDS
+    _footer(p, x_label, y_label, save=save)

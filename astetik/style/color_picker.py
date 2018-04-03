@@ -26,6 +26,7 @@ def color_picker(palette, center='light', n_colors=10, show=False):
     'blue_to_green'
     'red_to_green'
     'green_to_red'
+    'violet_to_blue'
     'brown_to_green'
     'green_to_marine'
     '''

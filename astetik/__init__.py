@@ -1,6 +1,5 @@
-#PLOTS
+# PLOTS
 from .plots.corr import corr
-from .plots.freq import freq
 from .plots.hist import hist
 from .plots.kde import kde
 from .plots.pie import pie
@@ -16,6 +15,7 @@ from .plots.bars import bars
 from .plots.overlap import overlap
 from .plots.multikde import multikde
 from .plots.compare import compare
+from .plots.multicount import multicount
 # from .plots.words import words
 
 

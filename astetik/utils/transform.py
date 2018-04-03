@@ -129,7 +129,6 @@ def mean_zero(data, retain=None):
     retain :: if some column should be excluded from rescaling
 
     '''
-
     # avoiding transformation of y, labels, etc
     if retain is not None:
         col_temp = pd.DataFrame(data[retain])

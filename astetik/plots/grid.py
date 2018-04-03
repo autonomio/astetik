@@ -1,107 +1,138 @@
-import matplotlib.pyplot as plt
 import seaborn as sns
 
 from ..style.template import _header, _footer
-from ..utils.transform import equal_samples
-from ..utils.utils import _limiter, _scaler
 
 
 def grid(data,
          x,
          y,
-         col,
-         even_observations=False,
-         col_count=4,
-         ascending=True,
+         col=None,
+         hue=None,
+         col_wrap=4,
          palette='default',
          style='astetik',
+         dpi=72,
          title='',
          sub_title='',
          x_label='',
          y_label='',
-         dpi=72,
+         x_scale='linear',
+         y_scale='linear',
+         x_limit='auto',
+         y_limit='auto',
+         legend=True,
          save=False):
 
-    '''GRID PLOT
-    This plot is especially useful for investigating
-    2-axis of continuous data against multiple labels
-    on one axis. For example, you might want to compare
-    the hours of the day, and have side-by-side plots
-    drawn out for each hour. Grid plot is that plot.
+    '''THE GRID
 
-    USE
-    ===
-    grid(data=new_patients,
-         x='icu_stays',
-         y='icu_days',
-         col='insurance',
-         even_observations=200, # takes 200 observations per label
-         palette='default',
-         style='astetik')
+    The grid provides an overview of 4 features simultanously by
+    drawing a grid of scatter plots.
 
-    data :: a pandas dataframe
-    x :: any continous value
-    y :: any continuous value
-    equal_samples :: an int value for number of observations
-    for each sample (based on the 'col' categorical)
-    col_count :: number of columns to plot by row
-    ascending = sort ascending or not
+    Inputs: 4
+    Features: Ideally two continuous, and two categorical, but will
+              also work with just one continuous and two categoricals.
+
+    1. USE
+    ======
+    ast.grid(data=new_patients.head(1000),
+              x='icu_stays',
+              y='hospital_days',
+              col='religion',
+              palette='default',
+              col_wrap=4);
+
+    2. PARAMETERS
+    =============
+    2.1 INPUT PARAMETERS
+    --------------------
+    data :: pandas dataframe
+
+    x :: x-axis data (categorical)
+
+    y :: y-axis data (continuous or categorical)
+
+    hue :: color highlight (categorical)
+
+    col :: the side-by-side plot comparison feature
+
+    --------------------
+    2.2. PLOT PARAMETERS
+    --------------------
+    col_wrap :: the number of plots to show per row
+
+    ----------------------
+    2.3. COMMON PARAMETERS
+    ----------------------
+    palette :: One of the hand-crafted palettes:
+                'default'
+                'colorblind'
+                'blue_to_red'
+                'blue_to_green'
+                'red_to_green'
+                'green_to_red'
+                'violet_to_blue'
+                'brown_to_green'
+                'green_to_marine'
+
+                Or use any cmap, seaborn or matplotlib
+                color or palette code, or hex value.
+
+    style :: Use one of the three core styles:
+                'astetik'     # white
+                '538'         # grey
+                'solarized'   # sepia
+
+              Or alternatively use any matplotlib or seaborn
+              style definition.
+
+    dpi :: the resolution of the plot (int value)
+
+    title :: the title of the plot (string value)
+
+    sub_title :: a secondary title to be shown below the title
+
+    x_label :: string value for x-axis label
+
+    y_label :: string value for y-axis label
+
+    x_scale :: 'linear' or 'log' or 'symlog'
+
+    y_scale :: 'linear' or 'log' or 'symlog'
+
+    x_limit :: int or list with two ints
+
+    y_limit :: int or list with two ints
+
+    outliers :: Remove outliers using either 'zscore' or 'iqr'
 
     '''
 
-    if even_observations != False:
-        equal_samples(data, col, even_observations)
+    data = data.copy(deep=True)
+    n_colors = 1
+    if hue is True:
+        hue = len(data[hue].unique())
 
-    data = data.sort_values(col, ascending=ascending)
-
-    uniques = len(data[col].unique())
-
-    if uniques is 1:
-        print ("ERROR: column has only one unique item")
-
-    if uniques < 4:
-        col_count = uniques
-
-    row_modulus = uniques % col_count
-    row_count = uniques / col_count
-
-    if row_modulus is not 0:
-        row_count = row_count + 1
-
-    row_count = int(row_count)
-    col_count = int(col_count)
-
-    # START OF HEADER >>>
+    # HEADER STARTS >>>
     palette = _header(palette,
                       style,
-                      n_colors=1,
-                      dpi=dpi,
-                      fig_width=None,
-                      fig_height=None)  # EXCEPTION
+                      n_colors=n_colors,
+                      dpi=72,
+                      fig_height=None,
+                      fig_width=None)
+    # <<< HEADER ENDS
 
-    # <<< END OF HEADER
-    fig, axs = plt.subplots(row_count,
-                            col_count,
-                            figsize=(16, row_count*4),
-                            sharex=True,
-                            sharey=True)
+    p = sns.factorplot(data=data,
+                       x=x,
+                       y=y,
+                       col=col,
+                       hue=hue,
+                       palette=palette,
+                       col_wrap=4,
+                       kind='strip',
+                       size=3)
 
-    axs = axs.ravel()
+    # FOOTER STARTS >>>
+    _footer(p, x_label, y_label, save=save)
 
-    for i in range(uniques):
-
-        item = data[col].unique()[i]
-        temp = data[data[col] == item]
-        axs[i].scatter(temp[x],
-                       temp[y],
-                       c=palette,
-                       s=40,
-                       linewidths=1,
-                       edgecolors='black',
-                       alpha=1)
-        axs[i].set_title(item)
-        axs[i].tick_params(axis='both', which='major', pad=15)
-        sns.despine(top=True, bottom=True, left=True, right=True)
-
-    for i in range(uniques, row_count*col_count):
-        fig.delaxes(axs[i])
+    sns.despine(bottom=True, left=True)
+    p.set(xticklabels=[])

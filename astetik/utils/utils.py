@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from .exceptions import MissingParameter
 
+
 def _highlight_color(data,
                      color,
                      highlight_color,
@@ -40,6 +41,7 @@ def _sort_strings(data, column, sort):
     data = data.sort_values(column, ascending=asc)
 
     return data
+
 
 import pandas as pd
 
@@ -152,7 +154,7 @@ def _title_handling(p, data, title, sub_title, footnote, samplenote):
                  horizontalalignment='right')
 
 
-def _scaler(p, x_scale, y_scale):
+def _scaler(p, x_scale=None, y_scale=None):
 
     if x_scale != None and x_scale != 'linear':
         p.set(xscale=x_scale)
@@ -160,24 +162,60 @@ def _scaler(p, x_scale, y_scale):
         p.set(yscale=y_scale)
 
 
-def _limiter(x, y, x_limit, y_limit):
+def _limiter(data=None, x=None, y=None, x_limit=None, y_limit=None):
 
-    if x_limit != 'auto':
-        if type(x_limit) == type(list):
-            plt.xlim(x_limit[0], x_limit[1])
-        else:
-            plt.xlim(x_limit,)
+    '''LIMITER (not for calling diretly )
+    Handles x and y limits for all the plots. Can handle situations where
+    there are more than one x as input.
+    '''
+    # SPECIAL CASE WITH MORE THAN ONE X
+    if type(x) == type([]):
+        max_list = []
+        for i in range(len(x)):
+            max_list.append(data[x[i]].max())
+        x_max = max_list.index(max(max_list))
+
+        min_list = []
+        for i in range(len(x)):
+            min_list.append(data[x[i]].min())
+        x_min = min_list.index(min(min_list))
+
+        x_max = data[x[x_max]].max()
+        x_min = data[x[x_min]].min()
+
+    # REGULAR CASE WITH JUST ONE X
     else:
-        plt.ylim(x.min(), x.max() * 1.1)
+        x_min = data[x].min()
+        x_max = data[x].max()
 
+    # HANDLING THE LIMITS STARTS
+    if x_limit != None:
+        # X-LIMS
+        if x_limit != 'auto':
+            if type(x_limit) == type(list):
+                plt.xlim(x_limit[0], x_limit[1])
+            else:
+                plt.xlim(x_limit,)
+        elif x_limit == 'auto':
+            plt.xlim(x_min, x_max * 1.1)
 
-    if y_limit != 'auto':
-        if type(y_limit) == type(list):
-            plt.ylim(y_limit[0], y_limit[1])
+    if y_limit != None:
+        # SPECIAL CASES LIKE LINE PLOTS
+        if y == '_R_E_S_':
+            y_min = x_min
+            y_max = x_max
         else:
-            plt.ylim(y_limit,)
-    else:
-        plt.ylim(y.min(), y.max() * 1.1)
+            y_min = data[y].min()
+            y_max = data[y].max()
+
+        # Y-LIMS
+        if y_limit != 'auto':
+            if type(y_limit) == type(list):
+                plt.ylim(y_limit[0], y_limit[1])
+            else:
+                plt.ylim(y_limit,)
+        elif y_limit == 'auto':
+            plt.ylim(y_min, y_max * 1.1)
 
 
 def _n_decider(y):

@@ -10,8 +10,7 @@ def compare(data,
             y,
             label_col,
             sort=False,
-            transform=None,
-            transform_func='mean',
+            transform_func=False,
             palette='default',
             style='astetik',
             dpi=72,
@@ -24,32 +23,109 @@ def compare(data,
             x_limit='auto',
             y_limit='auto',
             save=False):
+
     '''COMPARE PLOT
 
     This needs to have a single row per entity, for example a patient
     or a state and so forth. It will be best if the columns are
     normalized data, percentages, or something similar.
 
-    USE
-    ===
+   Inputs: at least 3
+   Features: At least two continuous and one categorical.
 
+    1. USE
+    ======
     ast.compare(data=patients,
-            x='hospital_stays',
-            y=['died_hospital','died_out'],
-            label_col='religion',
-            transform=True)
+                x='hospital_stays',
+                y=['died_hospital','died_out'],
+                label_col='religion',
+                transform=True)
 
-    PARAMETERS
-    ----------
+    1. USE
+    ======
+    ast.box(data=patients,
+            x='insurance',
+            y='age',
+            hue='expired')
+
+    2. PARAMETERS
+    =============
+    2.1 INPUT PARAMETERS
+    --------------------
     data :: a pandas dataframe
-    x :: the main feature
-    cols :: a list with one or more columns
-    label_col :: the label column
 
+    x :: the main feature (continuous)
 
+    y :: two or more features in a list (continuous)
+
+    label_col :: the label column (categorical)
+
+    --------------------
+    2.2. PLOT PARAMETERS
+    --------------------
+    sort :: True for ascending and False for descending
+
+    transform_func :: If not false, the selected function such as
+                      'mean' will be used to group by the label_col.
+                      Available functions:
+                        - 'median'
+                        - 'mean'
+                        - 'first'
+                        - 'last',
+                        - 'std',
+                        - 'mode',
+                        - 'max',
+                        - 'min',
+                        - 'sum',
+                        - 'random'
+
+    ----------------------
+    2.3. COMMON PARAMETERS
+    ----------------------
+    palette :: One of the astetik palettes:
+                'default'
+                'colorblind'
+                'blue_to_red'
+                'blue_to_green'
+                'red_to_green'
+                'green_to_red'
+                'violet_to_blue'
+                'brown_to_green'
+                'green_to_marine'
+
+                Or use any cmap, seaborn or matplotlib
+                color or palette code, or hex value.
+
+    style :: Use one of the three core styles:
+                'astetik'     # white
+                '538'         # grey
+                'solarized'   # sepia
+
+              Or alternatively use any matplotlib or seaborn
+              style definition.
+
+    dpi :: the resolution of the plot (int value)
+
+    title :: the title of the plot (string value)
+
+    sub_title :: a secondary title to be shown below the title
+
+    x_label :: string value for x-axis label
+
+    y_label :: string value for y-axis label
+
+    x_scale :: 'linear' or 'log' or 'symlog'
+
+    y_scale :: 'linear' or 'log' or 'symlog'
+
+    x_limit :: int or list with two ints
+
+    y_limit :: int or list with two ints
+
+    outliers :: Remove outliers using either 'zscore' or 'iqr'
     '''
 
-    if transform == True:
+    if transform_func != False:
         plot_data = _groupby(data, label_col, transform_func)
     else:
         plot_data = data

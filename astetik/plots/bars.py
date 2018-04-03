@@ -8,6 +8,7 @@ from matplotlib.pyplot import rcParams
 import seaborn as sns
 
 from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
 
 
 def bars(data,
@@ -27,8 +28,92 @@ def bars(data,
          y_scale='linear',
          x_limit='auto',
          y_limit='auto',
-         col_wrap=4,
+         col_wrap=None,
          save=False):
+
+    '''BAR PLOT
+
+    A multi-dimension bar plot that takes up to 5 features at a time.
+
+    Inputs: 2 to 5
+    Features: At least one continuous (or stepped) variable and results
+              can be categorical.
+
+    1. USE
+    ======
+    ast.bars(data=patients,
+              x='icu_days',
+              y='insurance',
+              hue='gender',
+              col='religion',
+              row='ethnicity')
+
+    2. PARAMETERS
+    =============
+    2.1 INPUT PARAMETERS
+    --------------------
+    data :: pandas dataframe
+
+    x :: x-axis data (categorical)
+
+    y :: y-axis data (continuous or categorical)
+
+    hue :: color highlight (categorical)
+
+    row :: the comparison feature for side-by-side plots
+
+    col :: the comparison feature for on top of each other plots
+
+    --------------------
+    2.2. PLOT PARAMETERS
+    --------------------
+    None
+
+    ----------------------
+    2.3. COMMON PARAMETERS
+    ----------------------
+    palette :: One of the astetik palettes:
+                'default'
+                'colorblind'
+                'blue_to_red'
+                'blue_to_green'
+                'red_to_green'
+                'green_to_red'
+                'violet_to_blue'
+                'brown_to_green'
+                'green_to_marine'
+
+                Or use any cmap, seaborn or matplotlib
+                color or palette code, or hex value.
+
+    style :: Use one of the three core styles:
+                'astetik'     # white
+                '538'         # grey
+                'solarized'   # sepia
+
+              Or alternatively use any matplotlib or seaborn
+              style definition.
+
+    dpi :: the resolution of the plot (int value)
+
+    title :: the title of the plot (string value)
+
+    sub_title :: a secondary title to be shown below the title
+
+    x_label :: string value for x-axis label
+
+    y_label :: string value for y-axis label
+
+    x_scale :: 'linear' or 'log' or 'symlog'
+
+    y_scale :: 'linear' or 'log' or 'symlog'
+
+    x_limit :: int or list with two ints
+
+    y_limit :: int or list with two ints
+
+    outliers :: Remove outliers using either 'zscore' or 'iqr'
+    '''
 
     if hue != None:
         n_colors = len(data[hue].unique())
@@ -43,7 +128,7 @@ def bars(data,
                       fig_height=None,
                       fig_width=None)
     # <<< HEADER ENDS
-
+    print(len(palette))
     p = sns.factorplot(data=data,
                        x=x,
                        y=y,
@@ -55,6 +140,9 @@ def bars(data,
                        size=4,
                        kind='bar')
 
+    # SCALING AND LIMITS STARTS >>>
+    if x_scale != 'linear' or y_scale != 'linear':
+        _scaler(p, x_scale, y_scale)
+
     # FOOTER STARTS >>>
     _footer(p, x_label, y_label, save=save)
-    # <<< FOOTER ENDS

@@ -2,7 +2,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from ..style.titles import _titles
-from ..style.template import _header, _footer
+from ..style.template import _header
 from ..utils.transform import _groupby
 from ..style.formats import _thousand_sep
 
@@ -35,32 +35,83 @@ def overlap(data,
     each other per category. Each category will have its own
     bar, where the 'x' and 'y' features will be overlapping.
 
+    Inputs: 3
+    Features: 2 continuous and 1 categorical
+
     NOTE: 'y' should be a subset of 'x'.
 
-    USE
-    ===
-    overlap(data=patients,
-            x='hospital_days',
-            y='icu_days',
-            label_col='insurance',
-            sort=False,
-            transform=True,
-            transform_func='sum',
-            palette='colorblind')
+    1. USE
+    ======
+    ast.overlap(data=patients,
+                x='hospital_days',
+                y='icu_days',
+                label_col='insurance',
+                sort=False,
+                transform=True,
+                transform_func='sum',
+                palette='colorblind')
 
-    PARAMETERS
-    ----------
-    data :: a pandas data frame
-    x :: a continuous variable
-    y :: a countinuous variable that is a subset of 'x'
-    label_col :: a variable with the labels for comparison
-    sort :: data will be sorted either 'asc' or 'desc' or None
-    transform :: None or True, if True then data will be grouped
-                 according to the label_col parameter. Otherwise
-                 the data should be in the right format already
-    transform_func = the function to be applied for the groupby
-                 in transform: median, mean, first, last, std,
-                 mode, max, min, sum, random.
+    2. PARAMETERS
+    =============
+    2.1 INPUT PARAMETERS
+    --------------------
+    data :: pandas dataframe
+
+    x :: x-axis data (continuous)
+    y :: x-axis overlap data (continuous)
+    label_col :: the column with the label values
+
+    --------------------
+    2.2. PLOT PARAMETERS
+    --------------------
+    sort :: either True or False for ascending sort based on the
+            x-axis data.
+
+    ----------------------
+    2.3. COMMON PARAMETERS
+    ----------------------
+    palette :: One of the hand-crafted palettes:
+                'default'
+                'colorblind'
+                'blue_to_red'
+                'blue_to_green'
+                'red_to_green'
+                'green_to_red'
+                'violet_to_blue'
+                'brown_to_green'
+                'green_to_marine'
+
+                Or use any cmap, seaborn or matplotlib
+                color or palette code, or hex value.
+
+    style :: Use one of the three core styles:
+                'astetik'     # white
+                '538'         # grey
+                'solarized'   # sepia
+
+              Or alternatively use any matplotlib or seaborn
+              style definition.
+
+    dpi :: the resolution of the plot (int value)
+
+    title :: the title of the plot (string value)
+
+    sub_title :: a secondary title to be shown below the title
+
+    x_label :: string value for x-axis label
+
+    y_label :: string value for y-axis label
+
+    x_scale :: 'linear' or 'log' or 'symlog'
+
+    y_scale :: 'linear' or 'log' or 'symlog'
+
+    x_limit :: int or list with two ints
+
+    y_limit :: int or list with two ints
+
+    outliers :: Remove outliers using either 'zscore' or 'iqr'
+
     '''
 
     if transform == True:
@@ -102,8 +153,5 @@ def overlap(data,
     sns.despine(bottom=True)
     ax.xaxis.set_major_locator(plt.MaxNLocator(5))
 
-    _thousand_sep(data[x], ax)
-
-    # START OF TITLES >>>
+    _thousand_sep(p, ax)
     _titles(title, sub_title=sub_title)
-    # <<< END OF TITLES

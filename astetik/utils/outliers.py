@@ -1,29 +1,23 @@
 import scipy.stats as sc
-import pandas as pd
 
 
-def outlier_series(data, iqr_x=3):
+def outliers(data, col, mode='zscore', threshold=3):
 
-    '''Removes Outliers from a Series / List
+    '''OUTLIER FILTERING
+
+    NOTE: this will automatically also drop nans from the dataset.
+
     '''
 
-    return data[data < sc.iqr(data) * iqr_x]
+    # avoid destruction
+    data = data.copy(deep=True)
+    data = data[data[col].isna() == False]
 
+    if mode == 'zscore':
+        data['zscore'] = stats.zscore(data[col].astype(float))
+        data = data[data.zscore < 3][data.zscore > -3].drop('zscore', axis=1)
 
-def outlier_col(data, col, iqr_x=3):
+    if mode == 'iqr':
+        data = data[data[col] < sc.iqr(data[col]) * threshold]
 
-    '''Removes Outliers from a single column in a Dataframe
-    '''
-
-    return data[data[col] < sc.iqr(data[col]) * iqr_x]
-
-
-def outlier_cols(data, cols, iqr_x=3):
-
-    '''Removes Outliers from multiple columns in a Dataframe
-    '''
-
-    temp = pd.DataFrame(data)
-    for col in cols:
-        temp = temp[temp[col] < sc.iqr(temp[col]) * iqr_x]
-    return temp
+    return data

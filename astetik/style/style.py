@@ -3,6 +3,13 @@ def default_colors():
     return '#696969'
 
 
+def params():
+
+    param_dic = {'fig_height': 6.6,
+                 'fig_width': 10}
+
+    return param_dic
+
 def styles(dpi):
 
     default_color = default_colors()
