@@ -16,11 +16,11 @@ def grid(data,
          sub_title='',
          x_label='',
          y_label='',
+         legend=True,
          x_scale='linear',
          y_scale='linear',
          x_limit='auto',
          y_limit='auto',
-         legend=True,
          save=False):
 
     '''THE GRID

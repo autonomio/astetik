@@ -12,8 +12,7 @@ def overlap(data,
             y,
             label_col,
             sort=None,
-            transform=None,
-            transform_func='sum',
+            transform_func=False,
             palette='default',
             style='astetik',
             dpi=72,
@@ -21,6 +20,7 @@ def overlap(data,
             sub_title='',
             x_label='',
             y_label='',
+            legend=True,
             x_scale='linear',
             y_scale='linear',
             x_limit='auto',
@@ -66,6 +66,20 @@ def overlap(data,
     --------------------
     sort :: either True or False for ascending sort based on the
             x-axis data.
+
+    transform_func :: If not False, the selected function such as
+                      'mean' will be used to group by the label_col.
+                      Available functions:
+                        - 'median'
+                        - 'mean'
+                        - 'first'
+                        - 'last',
+                        - 'std',
+                        - 'mode',
+                        - 'max',
+                        - 'min',
+                        - 'sum',
+                        - 'random'
 
     ----------------------
     2.3. COMMON PARAMETERS
@@ -114,7 +128,7 @@ def overlap(data,
 
     '''
 
-    if transform == True:
+    if transform_func != False:
         data = _groupby(data, label_col, transform_func)
 
     if sort != None:

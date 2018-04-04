@@ -18,6 +18,7 @@ def compare(data,
             sub_title='',
             x_label='',
             y_label='',
+            legend=True,
             x_scale='linear',
             y_scale='linear',
             x_limit='auto',
@@ -130,6 +131,8 @@ def compare(data,
     else:
         plot_data = data
 
+    if type(y) != type([]):
+        y = [y]
     index_cols = y
     index_cols.insert(0, x)
 

@@ -104,6 +104,8 @@ def multicount(data,
 
     '''
 
+    if row != None:
+        col_wrap = None
 
     if hue != None:
         n_colors = len(data[hue].unique())

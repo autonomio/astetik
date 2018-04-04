@@ -127,7 +127,7 @@ def corr(data,
                                   params()['fig_height']))
 
     p = sns.heatmap(data, mask=mask, linewidths=2, cmap=palette, annot=annot)
-    
+
     # HEADER
     _thousand_sep(p, ax)
     _titles(title, sub_title=sub_title)

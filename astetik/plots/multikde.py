@@ -2,13 +2,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from ..style.template import _header
+from ..utils.transform import _groupby
 
 
 def multikde(data,
              x,
              label_col,
              sort=None,
-             transform=None,
              transform_func='sum',
              palette='default',
              style='astetik',
@@ -57,6 +57,20 @@ def multikde(data,
     sort :: either True or False for ascending sort based on the
             x-axis data.
 
+    transform_func :: If not false, the selected function such as
+                      'mean' will be used to group by the label_col.
+                      Available functions:
+                        - 'median'
+                        - 'mean'
+                        - 'first'
+                        - 'last',
+                        - 'std',
+                        - 'mode',
+                        - 'max',
+                        - 'min',
+                        - 'sum',
+                        - 'random'
+
     ----------------------
     2.3. COMMON PARAMETERS
     ----------------------
@@ -103,6 +117,9 @@ def multikde(data,
     outliers :: Remove outliers using either 'zscore' or 'iqr'
 
     '''
+
+    if transform_func != False:
+        data = _groupby(data, label_col, transform_func)
 
     palette = _header(palette,
                       style,

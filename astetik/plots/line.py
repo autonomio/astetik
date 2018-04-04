@@ -161,16 +161,21 @@ def line(data,
                      rasterized=True,
                      aa=True,
                      alpha=1)
-    # # # # PLOT ENDS # # # #
-    if median_line:
-        x_mean = x.mean()
-        x_mean = np.full(len(data), x_mean)
-        plt.plot(y, x_mean)
 
-    # SCALING AND LIMITS STARTS >>>
+    # SCALING
     if x_scale != 'linear' or y_scale != 'linear':
         _scaler(p, x_scale, y_scale)
 
+    # # # # PLOT ENDS # # # #
+    if median_line:
+        if len(x) > 1:
+            print("You can only have mean line with single line")
+        else:
+            x_mean = data[x].mean()
+            x_mean = np.full(len(data), x_mean)
+            plt.plot(y_data, x_mean)
+
+    # LIMITS
     if x_limit != None or y_limit != None:
         _limiter(data=data, x=x, y='_R_E_S_', x_limit=None, y_limit=y_limit)
 
