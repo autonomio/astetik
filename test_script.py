@@ -403,7 +403,7 @@ df = create_data()
 test_tables(df)
 
 # run simple plot tests
-test_simple_minimal(df)
+# test_simple_minimal(df)
 
 # test plots with parameters
 corr_full(df)
