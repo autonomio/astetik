@@ -223,40 +223,40 @@ def grid_full(df):
 def box_full(df):
 
     ast.box(data=df,
-              x='A',
-              y='even',
-              hue='odd',
-              style='astetik',
-              dpi=72,
-              title='This is a title',
-              sub_title='And this a subtitle',
-              x_label='this is x label',
-              y_label='and this y',
-              legend=False,
-              x_scale='log',
-              y_scale='symlog',
-              x_limit=1,
-              y_limit=[1,21])
+            x='A',
+            y='even',
+            hue='odd',
+            style='astetik',
+            dpi=72,
+            title='This is a title',
+            sub_title='And this a subtitle',
+            x_label='this is x label',
+            y_label='and this y',
+            legend=False,
+            x_scale='log',
+            y_scale='symlog',
+            x_limit=1,
+            y_limit=[1, 21])
 
 
 def violin_full(df):
 
     ast.violin(data=df,
-              x='A',
-              y='even',
-              hue='odd',
-              split=False,
-              style='astetik',
-              dpi=72,
-              title='This is a title',
-              sub_title='And this a subtitle',
-              x_label='this is x label',
-              y_label='and this y',
-              legend=False,
-              x_scale='log',
-              y_scale='symlog',
-              x_limit=1,
-              y_limit=[1,21])
+               x='A',
+               y='even',
+               hue='odd',
+               split=False,
+               style='astetik',
+               dpi=72,
+               title='This is a title',
+               sub_title='And this a subtitle',
+               x_label='this is x label',
+               y_label='and this y',
+               legend=False,
+               x_scale='log',
+               y_scale='symlog',
+               x_limit=1,
+               y_limit=[1, 21])
 
 
 def strip_full(df):
@@ -293,29 +293,29 @@ def count_full(df):
               legend=False,
               x_scale='log',
               y_scale='symlog',
-              x_limit=[10,20],
-              y_limit=[1,21])
+              x_limit=[10, 20],
+              y_limit=[1, 21])
 
 
 def bars_full(df):
 
     ast.bars(data=df,
-              x='cats',
-              y='B',
-              hue='odd',
-              row='even',
-              col='other',
-              style='astetik',
-              dpi=72,
-              title='This is a title',
-              sub_title='And this a subtitle',
-              x_label='this is x label',
-              y_label='and this y',
-              legend=False,
-              x_scale='log',
-              y_scale='symlog',
-              x_limit=[10,20],
-              y_limit=[1,21])
+             x='cats',
+             y='B',
+             hue='odd',
+             row='even',
+             col='other',
+             style='astetik',
+             dpi=72,
+             title='This is a title',
+             sub_title='And this a subtitle',
+             x_label='this is x label',
+             y_label='and this y',
+             legend=False,
+             x_scale='log',
+             y_scale='symlog',
+             x_limit=[10, 20],
+             y_limit=[1, 21])
 
 def overlap_full(df):
 
@@ -334,8 +334,9 @@ def overlap_full(df):
                 legend=False,
                 x_scale='log',
                 y_scale='symlog',
-                x_limit=[10,20],
-                y_limit=[1,21])
+                x_limit=[10, 20],
+                y_limit=[1, 21])
+
 
 def multikde_full(df):
 
@@ -373,28 +374,29 @@ def compare_full(df):
                 legend=False,
                 x_scale='log',
                 y_scale='symlog',
-                x_limit=[10,20],
-                y_limit=[1,21])
+                x_limit=[10, 20],
+                y_limit=[1, 21])
 
 
 def multicount_full(df):
 
     ast.multicount(data=df,
-              x='A',
-              hue='cats',
-              col='other',
-              row='odd',
-              style='astetik',
-              dpi=72,
-              title='This is a title',
-              sub_title='And this a subtitle',
-              x_label='this is x label',
-              y_label='and this y',
-              legend=False,
-              x_scale='log',
-              y_scale='symlog',
-              x_limit=[10,20],
-              y_limit=[1,21])
+                   x='A',
+                   hue='cats',
+                   col='other',
+                   row='odd',
+                   style='astetik',
+                   dpi=72,
+                   title='This is a title',
+                   sub_title='And this a subtitle',
+                   x_label='this is x label',
+                   y_label='and this y',
+                   legend=False,
+                   x_scale='log',
+                   y_scale='symlog',
+                   x_limit=[10, 20],
+                   y_limit=[1, 21])
+
 
 # create the dataset
 df = create_data()
