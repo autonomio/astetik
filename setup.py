@@ -98,6 +98,5 @@ if __name__ == "__main__":
                      'Topic :: Multimedia :: Graphics',
                      'Operating System :: POSIX',
                      'Operating System :: Unix',
-                     'Operating System :: Windows',
                      'Operating System :: MacOS'],
           )
