@@ -37,7 +37,7 @@ def test_simple_minimal(df):
     ast.scat(df, x='A', y='B')
     ast.line(df, x='A')
     ast.grid(df, x='A', y='B', col='even')
-    ast.box(df, x='A', y='even')
+    #ast.box(df, x='A', y='even')
     ast.violin(df, x='A', y='even')
     ast.strip(df, x='odd', y='B', hue='even')
     ast.count(df, x='cats')
