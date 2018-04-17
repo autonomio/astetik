@@ -1,17 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.dates import HourLocator
 
 from ..style.formats import _thousand_sep
 from ..style.style import params
 from ..style.titles import _titles
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
+from ..utils.utils import multicol_transform
+from ..utils.datetime import date_handler
 
 
 def line(data,
          x,
          y=None,
-         dropna=True,
+         interval=False,
+         interval_func=None,
+         time_frame=None,
+         dropna=False,
          median_line=False,
          drawstyle='default',
          linestyle='solid',
@@ -62,6 +68,26 @@ def line(data,
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
+    interval :: If not False, should be number of minutes per
+                 sample as int or one of the presets:
+                 - 'quarter'
+                 - 'half',
+                 - 'full' (days)
+                 - 'week'
+                 - 'month' (30 days)
+                 - 'year'.
+
+    interval_func :: The grouping by function that will be used:
+
+                        'median', 'mean', 'mode',
+                        'first', 'last', 'std', 'mode'
+                        'max', 'min', 'sum', 'random',
+                        or 'freq'
+
+    time_frame :: the time frame to be used for x-axis labels:
+
+                  'year', 'month', 'day', 'hour', 'minute', 'second'
+
     median_line :: If True, a median line will be drawn
 
     drawstyle :: 'default', 'steps', 'steps-pre','steps-mid' or 'steps-post'
@@ -126,15 +152,17 @@ def line(data,
     if dropna == True:
         data = data[data[x].isna() == False]
 
-    x_data = []
-
-    for i in range(len(x)):
-        x_data.append(np.array(data[x[i]]))
-
     if y == None:
-        y_data = range(len(data))
-    else:
-        y_data = data[y]
+        data[y] = range(len(data))
+
+    if interval != False:
+        data = data.copy(deep=True)
+        data = multicol_transform(transform='interval',
+                                  data=data,
+                                  x=x,
+                                  y=y,
+                                  func=interval_func,
+                                  freq=interval)
 
     markers = ["o", "+", "x", "|", "-", ",", ".", "^", "v"]
     # <<< END OF PLOT SPECIFIC
@@ -148,8 +176,8 @@ def line(data,
 
     # # # # PLOT STARTS # # # #
     for i in range(lines):
-        p = plt.plot(y_data,
-                     x_data[i],
+        p = plt.plot(data[y],
+                     data[x[i]],
                      marker=markers[i],
                      drawstyle=drawstyle,
                      linestyle=linestyle,
@@ -173,16 +201,23 @@ def line(data,
         else:
             x_mean = data[x].mean()
             x_mean = np.full(len(data), x_mean)
-            plt.plot(y_data, x_mean)
+            plt.plot(data[y], x_mean)
+
+    # DATETIME FORMAT
+    if time_frame != None:
+        date_handler(data[x[0]], ax, time_frame)
 
     # LIMITS
     if x_limit != None or y_limit != None:
         _limiter(data=data, x=x, y='_R_E_S_', x_limit=None, y_limit=y_limit)
 
     # HEADER
-    _thousand_sep(p, ax)
+    _thousand_sep(p, ax, x_sep=False)
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save)
 
     if legend != False:
         plt.legend(x, loc=1, ncol=lines)
+    if y != None:
+        hours = HourLocator()
+        ax.xaxis.set_minor_locator(hours)

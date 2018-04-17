@@ -1,7 +1,36 @@
 import math
-import random
 import pandas as pd
 import numpy as np
+
+
+def groupby_func(data, func):
+
+    if func == 'median':
+        out = data.median()
+    elif func == 'mean':
+        out = data.mean()
+    elif func == 'first':
+        out = data.mean()
+    elif func == 'last':
+        out = data.mean()
+    elif func == 'std':
+        out = data.std()
+    elif func == 'mode':
+        out = data.std()
+    elif func == 'max':
+        out = data.std()
+    elif func == 'min':
+        out = data.std()
+    elif func == 'sum':
+        out = data.sum()
+    elif func == 'random':
+        out = data.agg(np.random.choice)
+    elif func == 'freq':
+        out = data.agg(lambda x: x.value_counts().index[0])
+
+    out = out.reset_index()
+
+    return out
 
 
 def rescaler(values, scale=1, to_int=False):
@@ -42,7 +71,7 @@ def intervals(data, x, dt_col, mode='first', freq=60):
     x :: the column with the value
     dt_col :: the column with the datetime values
     mode :: 'median', 'mean', 'mode', 'first', 'last', 'std', 'mode'
-            'max', 'min', 'sum', 'random'
+            'max', 'min', 'sum', 'random', 'freq'
     freq :: number of minutes per sample as int or a string 'quarter', 'half',
             'full' (days), 'week', 'month' (30 days), 'year'.
 
@@ -67,31 +96,7 @@ def intervals(data, x, dt_col, mode='first', freq=60):
     time_temp = data[[x, dt_col]].set_index(dt_col)
     time_temp = time_temp.groupby(pd.Grouper(freq=freq, label='right'))
 
-    if mode == 'median':
-        out = time_temp.median()
-    elif mode == 'mean':
-        out = time_temp.mean()
-    elif mode == 'first':
-        out = time_temp.mean()
-    elif mode == 'last':
-        out = time_temp.mean()
-    elif mode == 'std':
-        out = time_temp.std()
-    elif mode == 'mode':
-        out = time_temp.std()
-    elif mode == 'max':
-        out = time_temp.std()
-    elif mode == 'min':
-        out = time_temp.std()
-    elif mode == 'sum':
-        out = time_temp.sum()
-    elif mode == 'random':
-        out = time_temp.agg(random.choice)
-
-    out = pd.DataFrame(out['value'])
-    out = out.reset_index()
-
-    return out
+    return groupby_func(data=time_temp, func=mode)
 
 
 def equal_samples(data, col, sample_size):
@@ -166,27 +171,4 @@ def _groupby(data, by, func):
 
     temp = data.groupby(by)
 
-    if func == 'median':
-        out = temp.median()
-    elif func == 'mean':
-        out = temp.mean()
-    elif func == 'first':
-        out = temp.mean()
-    elif func == 'last':
-        out = temp.mean()
-    elif func == 'std':
-        out = temp.std()
-    elif func == 'mode':
-        out = temp.std()
-    elif func == 'max':
-        out = temp.std()
-    elif func == 'min':
-        out = temp.std()
-    elif func == 'sum':
-        out = temp.sum()
-    elif func == 'random':
-        out = temp.agg(random.choice)
-
-    out = out.reset_index()
-
-    return out
+    return groupby_func(data=temp, func=func)

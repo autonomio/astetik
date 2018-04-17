@@ -3,6 +3,7 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 from .exceptions import MissingParameter
+from .transform import intervals
 
 
 def _highlight_color(data,
@@ -270,3 +271,19 @@ def _check_type(data):
         data_type == 'float'
 
     return data_type
+
+
+def multicol_transform(transform, data, x=None, y=None, func=None, freq=None):
+
+    out = pd.DataFrame()
+
+    if type(x) != type([]):
+        x = [x]
+
+    for col in x:
+        if transform == 'interval':
+            temp = intervals(data=data, x=col, dt_col=y, mode=func, freq=freq)
+        out[col] = temp[col]
+    out[y] = temp[y]
+
+    return out
