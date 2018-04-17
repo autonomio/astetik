@@ -151,13 +151,11 @@ def overlap(data,
     sns.barplot(data=data,
                 x=x,
                 y=label_col,
-                label=x,
                 color=palette[0])
 
     sns.barplot(data=data,
                 x=y,
                 y=label_col,
-                label=y,
                 color=palette[1])
 
     # # # # PLOT ENDS # # # #

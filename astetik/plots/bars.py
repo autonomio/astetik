@@ -129,7 +129,6 @@ def bars(data,
                       fig_height=None,
                       fig_width=None)
     # <<< HEADER ENDS
-    print(len(palette))
     p = sns.factorplot(data=data,
                        x=x,
                        y=y,
