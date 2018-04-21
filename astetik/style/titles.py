@@ -29,13 +29,13 @@ def _titles(title,
     NOTE: At the moment works with one dimensional data.
 
     '''
+    if len(title) + len(sub_title) > 0:
+        title = title.replace(' ', '\,')
 
-    title = title.replace(' ', '\,')
-
-    plt.title(r"$\bf{" + title + "}$" + '\n' + sub_title,
-              loc=location,
-              fontsize=fontsize,
-              fontname=fontname,
-              weight='normal',
-              y=1.03,
-              color="grey");
+        plt.title(r"$\bf{" + title + "}$" + '\n' + sub_title,
+                  loc=location,
+                  fontsize=fontsize,
+                  fontname=fontname,
+                  weight='normal',
+                  y=1.03,
+                  color="grey");

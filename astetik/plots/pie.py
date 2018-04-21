@@ -1,13 +1,15 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from ..style.style import params
+from ..utils.exceptions import MissingLabel
 from ..style.titles import _titles
 from ..style.template import _header, _footer
 
 
 def pie(data,
-        x,
-        quantile_cut=None,
+        x=None,
+        labels=None,
         palette='default',
         style='astetik',
         dpi=72,
@@ -24,7 +26,11 @@ def pie(data,
 
     '''PIE PLOT
 
-    A classic pie chart.
+    A classic pie chart. If dataframe is given as input, column sums
+    will be automatically used as values. If you want to use a given
+    row of data instead, indicate it using data.iloc[4] in the case of
+    wanting to use the 5th row. If array is given as input, provide labels
+    separately.
 
     Inputs: 1
     Features: 1 categorical or continuous
@@ -44,9 +50,7 @@ def pie(data,
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
-    quantile_cut :: An int value for the number of buckets data will be cut.
-                    This will always yield an evenly split pie, and is useful
-                    for showing the IQR ranges for a given feature.
+    NONE
 
     ----------------------
     2.3. COMMON PARAMETERS
@@ -95,21 +99,34 @@ def pie(data,
 
     '''
 
-    # PLOT SPECIFIC START >>>
-    if quantile_cut != None:
-        data = data.copy(deep=True)
-        data[x] = pd.qcut(data[x], quantile_cut)
-        n_colors = len(data[x].unique())
+    if x != None:
+
+        # more than single column
+        try:
+            data[x].shape[1]
+            labels = data[x].sum().index.values
+            data = data[x].sum().values
+
+        # single column
+        except IndexError:
+            labels = data[x].value_counts().index.values
+            data = data[x].value_counts().values
+
     else:
-        n_colors = len(x)
-    data = data.sort_values(x)
-    labels = data[x].value_counts().index.values
-    data = data[x].value_counts().values
-    # << PLOT SPECIFIC END
+        try:
+            data.shape[1]
+            labels = data.sum().index.values
+            data = data.sum().values
+        except IndexError or ValueError:
+            pass
+
+    n_colors = len(data)
 
     # HEADER STARTS >>>
     palette = _header(palette, style, n_colors, dpi)
     # <<< HEADER ENDS
+
+    p, ax = plt.subplots(figsize=(8, 8))
 
     # # # # # # PLOT CODE STARTS # # # # # #
     p = plt.pie(x=data,
@@ -121,8 +138,13 @@ def pie(data,
     # # # # # # PLOT CODE ENDS # # # # # #
 
     # LEGEND STARTS >>>
-    if legend != False:
-        plt.legend(p[0], labels, loc='center left', bbox_to_anchor=(1.1, 0.5))
+
+    try:
+        if legend != False:
+            plt.legend(p[0], labels, loc='center left', bbox_to_anchor=(1.1, 0.5))
+    except TypeError:
+        MissingLabel("Looks like you didn't provide 'label' parameter for legend")
+
     # <<< LEGEND ENDS
 
     # START OF TITLES >>>

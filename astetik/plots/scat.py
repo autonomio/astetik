@@ -25,8 +25,8 @@ def scat(data,
          legend=True,
          x_scale='linear',
          y_scale='linear',
-         x_limit='auto',
-         y_limit='auto',
+         x_limit=None,
+         y_limit=None,
          outliers=False,
          save=False):
 
@@ -117,6 +117,7 @@ def scat(data,
         n = len(data[hue].unique())
     else:
         n = 1
+        legend = False
 
     if size == None:
         size = 8
@@ -152,4 +153,4 @@ def scat(data,
     _thousand_sep(p, ax)
     _footer(p, x_label, y_label, legend, n, save)
 
-    p.set(xscale='linear')
+    ax.xaxis.set_major_locator(plt.MaxNLocator(5))

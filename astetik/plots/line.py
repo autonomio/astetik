@@ -1,6 +1,7 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.dates import HourLocator
+from matplotlib import ticker
 
 from ..style.formats import _thousand_sep
 from ..style.style import params
@@ -164,7 +165,8 @@ def line(data,
                                   func=interval_func,
                                   freq=interval)
 
-    markers = ["o", "+", "x", "|", "-", ",", ".", "^", "v"]
+    markers = ["o", "+", "x", "|", "1", "8", "s", "p",
+               "o", "+", "x", "|", "1", "8", "s", "p"]
     # <<< END OF PLOT SPECIFIC
 
     # START OF HEADER >>>
@@ -205,7 +207,8 @@ def line(data,
 
     # DATETIME FORMAT
     if time_frame != None:
-        date_handler(data[x[0]], ax, time_frame)
+        data[y] = pd.to_datetime(data[y])
+        date_handler(data[y], ax, time_frame)
 
     # LIMITS
     if x_limit != None or y_limit != None:
@@ -217,7 +220,6 @@ def line(data,
     _footer(p, x_label, y_label, save=save)
 
     if legend != False:
-        plt.legend(x, loc=1, ncol=lines)
-    if y != None:
-        hours = HourLocator()
-        ax.xaxis.set_minor_locator(hours)
+        plt.legend(x, loc=1, ncol=1, bbox_to_anchor=(1.15, 1.0))
+
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8))
