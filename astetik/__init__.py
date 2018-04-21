@@ -29,4 +29,4 @@ from .tables.text import text
 
 from .utils.transform import boolcols_to_cat
 
-__version__ = "1.9"
+__version__ = "1.9.1"
