@@ -37,7 +37,7 @@ def bars(data,
     A multi-dimension bar plot that takes up to 5 features at a time.
 
     Inputs: 2 to 5
-    Features: At least one continuous (or stepped) variable and results
+    Features: At least one continuous (or stepped) variable and rest
               can be categorical.
 
     1. USE
@@ -116,6 +116,8 @@ def bars(data,
     outliers :: Remove outliers using either 'zscore' or 'iqr'
     '''
 
+    aspect = int(len(data[x].unique()) / 5)
+
     if hue != None:
         n_colors = len(data[hue].unique())
     else:
@@ -137,6 +139,7 @@ def bars(data,
                        col=col,
                        col_wrap=col_wrap,
                        palette=palette,
+                       aspect=aspect,
                        size=4,
                        kind='bar')
 

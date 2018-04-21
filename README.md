@@ -54,7 +54,19 @@ The code to run it was (and still is):
 
     ast.corr(titanic, title='TITANIC SURVIVAL DATA', sub_title="Economics of Making it Alive")
 
-Today Astetik include, in addition to the original descriptive table and the heatmap correlation, over 20 unique plots and many unique features to make the daily life of data scientists and visual storytellers more enjoyable.
+Today Astetik include, in addition to the original descriptive table and the heatmap correlation, over 20 unique plots and many unique features to make the daily life of data scientists and visual storytellers more enjoyable. The focus remains on simplicity in both use and aesthetic:
+
+<img width=600 src=https://raw.githubusercontent.com/mikkokotila/astetik/master/examples/images/foon_line.png>
+
+The code to produce the above line graph: 
+
+    ast.line(data=global_totals,
+             x=['population','food'],
+             y='year',
+             palette='colorblind',
+             legend=True,
+             title='Global Food Trends',
+             sub_title='Production on its own trajectory since 1992')
 
 ## Features
 

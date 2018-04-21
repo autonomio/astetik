@@ -7,6 +7,7 @@ from ..style.titles import _titles
 
 def count(data,
           x,
+          sort=None,
           palette='default',
           style='astetik',
           dpi=72,
@@ -44,7 +45,7 @@ def count(data,
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
-    None
+    sort :: If True, will be sorted based on input values.
 
     ----------------------
     2.3. COMMON PARAMETERS
@@ -95,6 +96,9 @@ def count(data,
 
     aspect = int(len(data[x].unique()) / 5)
 
+    if sort != None:
+        sort = data[x].value_counts().index.values
+
     # HEADER STARTS >>>
     palette = _header(palette,
                       style,
@@ -104,17 +108,18 @@ def count(data,
                       fig_width=None)
 
     p = sns.factorplot(data=data,
-                       x=x,
+                       y=x,
                        palette=palette,
                        size=4,
                        aspect=aspect,
                        kind='count',
                        legend=legend,
-                       legend_out=False)
+                       legend_out=False,
+                       order=sort)
 
     # FOOTER
     _titles(title, sub_title)
-    _thousand_sep(p, p.ax)
+    _thousand_sep(p, p.ax, y_sep=False)
     _footer(p, x_label, y_label, save=save)
 
     p.set_xticklabels(None, rotation=90)

@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -6,6 +7,7 @@ from matplotlib.pyplot import rcParams
 from ..style.color_picker import color_picker, color_blind, _label_to_hex
 from ..utils.utils import _n_decider
 from ..style.style import styles, default_colors
+from ..style.random_colors import randomcolor
 
 
 def _header(palette,
@@ -15,13 +17,20 @@ def _header(palette,
             fig_width=None,
             fig_height=None):
 
-    if style != 'astetik':
+    if palette == 'random':
+        palette = randomcolor()
+
+    elif style != 'astetik':
         plt.style.use(style)
 
     n = _n_decider(n_colors)
 
-    if palette == 'colorblind':
-        palette = color_blind()
+    try:
+        if palette.startswith('colorblind'):
+            palette = color_blind(palette)
+    except AttributeError:
+        palette = palette
+
     else:
         try:
             palette = color_picker(palette=palette, n_colors=n)
@@ -68,6 +77,8 @@ def _footer(p,
 
     # SAVING THE PLOT
     if save != False:
-        time_stamp = time.strftime('%Y%m%d_%H%M%S')
+
+        dt = datetime.now()
+        time_stamp = time.strftime('%Y%m%d_%H%M%S_' + str(dt.microsecond))
         filename = "astetik_" + time_stamp + ".png"
         plt.savefig(filename, dpi=72)

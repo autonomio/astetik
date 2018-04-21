@@ -1,5 +1,6 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 from ..style.titles import _titles
 from ..style.template import _header
@@ -12,6 +13,7 @@ def overlap(data,
             y,
             label_col,
             sort=None,
+            limit=None,
             transform_func=False,
             palette='default',
             style='astetik',
@@ -66,6 +68,8 @@ def overlap(data,
     --------------------
     sort :: either True or False for ascending sort based on the
             x-axis data.
+
+    limit :: limit the number of items to be shown
 
     transform_func :: If not False, the selected function such as
                       'mean' will be used to group by the label_col.
@@ -151,19 +155,25 @@ def overlap(data,
     sns.barplot(data=data,
                 x=x,
                 y=label_col,
+                orient='h',
                 color=palette[0])
 
     sns.barplot(data=data,
                 x=y,
                 y=label_col,
+                orient='h',
                 color=palette[1])
 
     # # # # PLOT ENDS # # # #
+    if legend != False:
+        x_patch = mpatches.Patch(color=palette[0], label=x)
+        y_patch = mpatches.Patch(color=palette[1], label=y)
+        ax.legend(handles=[x_patch, y_patch], ncol=1, loc="upper right", frameon=True)
 
-    ax.legend(ncol=2, loc="lower right", frameon=True)
     ax.set(ylabel=y_label, xlabel=x_label)
     sns.despine(bottom=True)
     ax.xaxis.set_major_locator(plt.MaxNLocator(5))
 
     _thousand_sep(p, ax)
-    _titles(title, sub_title=sub_title)
+    if len(title) + len(sub_title) < 0:
+        _titles(title, sub_title=sub_title)

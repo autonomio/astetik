@@ -135,21 +135,26 @@ def mean_zero(data, retain=None):
 
     '''
     # avoiding transformation of y, labels, etc
+
+    data = data.copy(deep=True)
+
+    try:
+        col_list = list(data.columns)
+    except AttributeError:
+        col_list = list(pd.DataFrame(data.columns))
+
     if retain is not None:
-        col_temp = pd.DataFrame(data[retain])
-        data = data.drop(retain, axis=1)
+        col_list.remove(retain)
 
-    # storing the temp values
-    data_mean = data.mean(axis=0)
-    data_std = data.std(axis=0)
+    for col in col_list:
 
-    # transforming the data
-    data = data - data_mean
-    data = data / data_std
+        # storing the temp values
+        data_mean = data[col].mean(axis=0)
+        data_std = data[col].std(axis=0)
 
-    # putting retained cols as first columns
-    if retain is not None:
-        data = pd.merge(col_temp, data, left_index=True, right_index=True)
+        # transforming the data
+        col_data = data[col] - data_mean
+        data[col] = col_data / data_std
 
     return data
 
@@ -172,3 +177,26 @@ def _groupby(data, by, func):
     temp = data.groupby(by)
 
     return groupby_func(data=temp, func=func)
+
+
+def boolcols_to_cat(data, labels, other_label='NA'):
+
+    '''CONVERT BOOLEAN COLS TO CATEGORICAL
+
+    Returns a single categorical label seqeuence
+    that is produced from 2 or more boolean columns.
+
+    '''
+
+    c = len(data)
+    l = ['~'] * c
+
+    for i in range(c):
+        for label in labels:
+            if data[label][i] == True:
+                l[i] = label
+                break
+
+    l = [label.replace('~', other_label) for label in l]
+
+    return l

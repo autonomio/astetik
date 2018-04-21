@@ -124,7 +124,6 @@ def pie_full(df):
 
     ast.pie(data=df,
              x='A',
-             quantile_cut=8,
              palette='colorblind',
              style='fivethirtyeight',
              dpi=240,

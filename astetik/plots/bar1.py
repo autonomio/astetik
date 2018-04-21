@@ -1,16 +1,22 @@
-import numpy as np
-import seaborn as sns
+# EXCEPTIONAL IMPORT #
+import matplotlib
+matplotlib.use('Agg')
+# ENDS #
+
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import rcParams
+import seaborn as sns
 
-from ..style.formats import _thousand_sep
-from ..style.style import params
-from ..style.titles import _titles
 from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
+from ..utils.utils import factorplot_sizing
+from ..style.titles import _titles
 
 
-def corr(data,
-         corr_method='spearman',
-         annot=False,
+def bar1(data,
+         x,
+         y,
+         multi_color=False,
          palette='default',
          style='astetik',
          dpi=72,
@@ -25,44 +31,33 @@ def corr(data,
          y_limit='auto',
          save=False):
 
-    '''CORRELATION HEATMAP
+    '''BAR PLOT
 
-    This is best used with less than 10 variables in the datasetself.
-    For best results, split the analysis to several parts.
+    A 1-dimensional bar graph for the case where there is a single
+    value per label.
 
-   Inputs: a dataframe with several columns
-   Features: Both categorical and continuous features will be used
-
-    1. USE
-    ======
-    ast.compare(data=patients,
-                x='hospital_stays',
-                y=['died_hospital','died_out'],
-                label_col='religion',
-                transform=True)
+    Inputs: 2
 
     1. USE
     ======
-    ast.box(data=patients,
-            x='insurance',
-            y='age',
-            hue='expired')
+    ast.bar1d(data=patients,
+              x='icu_days',
+              y='insurance')
 
     2. PARAMETERS
     =============
     2.1 INPUT PARAMETERS
     --------------------
-    data :: a pandas dataframe
+    data :: pandas dataframe
+
+    x :: x-axis data (single value per label)
+
+    y :: y-axis data (labels)
 
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
-    corr_method :: The method that will be used for the correlation:
-                    - 'pearson' : standard correlation coefficient
-                    - 'kendall' : Kendall Tau correlation coefficient
-                    - 'spearman' : Spearman rank correlation
-
-    annotation :: True if each cell will be annotated with the value
+    multi_color :: If True, label values will be used for hue.
 
     ----------------------
     2.3. COMMON PARAMETERS
@@ -110,27 +105,36 @@ def corr(data,
     outliers :: Remove outliers using either 'zscore' or 'iqr'
     '''
 
-    # # # # # PREP STARTS # # # # #
-    data = data.corr(method=corr_method)
-    mask = np.zeros_like(data)
-    mask[np.triu_indices_from(mask)] = True
-    # # # # # PREP ENDS # # # # #
+    size, aspect = factorplot_sizing(data[x])
+
+    if multi_color == True:
+        n_colors = len(data[x].unique())
+    else:
+        n_colors = 1
 
     # HEADER STARTS >>>
     palette = _header(palette,
                       style,
-                      n_colors=10,
-                      dpi=dpi)
+                      n_colors=n_colors,
+                      dpi=dpi,
+                      fig_height=None,
+                      fig_width=None)
+    # <<< HEADER ENDS
+    p = sns.factorplot(data=data,
+                       x=x,
+                       y=y,
+                       palette=palette,
+                       aspect=aspect,
+                       size=size,
+                       kind='bar')
 
-    # PLOT
-    p, ax = plt.subplots(figsize=(params()['fig_width'],
-                                  params()['fig_height']))
+    # SCALING AND LIMITS STARTS >>>
+    if x_scale != 'linear' or y_scale != 'linear':
+        _scaler(p, x_scale, y_scale)
 
-    p = sns.heatmap(data, mask=mask, linewidths=2, cmap=palette, annot=annot)
-
-    # HEADER
-    _thousand_sep(p, ax)
+    # FOOTER STARTS >>>
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save)
 
-    p.set_xticklabels(data)
+    if data[x].min() < 0:
+        sns.despine(left=True)

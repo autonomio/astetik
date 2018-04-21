@@ -287,3 +287,25 @@ def multicol_transform(transform, data, x=None, y=None, func=None, freq=None):
     out[y] = temp[y]
 
     return out
+
+
+def factorplot_sizing(data):
+
+    '''COMPUTE SIZE AND ASPECT
+
+    This is for the sole purpose of standardizing
+    the factorplot sizing so that bar thickness
+    is same regardless of the number of bars in the figure.
+    '''
+    items = len(data)
+
+    # choose these first
+    width = 9                  # larger the wider
+    thickness = 3               # smaller the thicker
+
+    # compute the values
+    value = items + 2.5
+    size = value / thickness
+    aspect = (width / size)
+
+    return size, aspect

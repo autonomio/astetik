@@ -16,6 +16,8 @@ from .plots.overlap import overlap
 from .plots.multikde import multikde
 from .plots.compare import compare
 from .plots.multicount import multicount
+from .plots.bar1 import bar1
+from .plots.animate import Animation
 # from .plots.words import words
 
 
@@ -25,4 +27,6 @@ from .tables.table import table
 from .tables.text import text
 # from .tables.timeseries import timeseries
 
-__version__ = "1.1"
+from .utils.transform import boolcols_to_cat
+
+__version__ = "1.9"

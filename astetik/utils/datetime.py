@@ -2,17 +2,23 @@ import pandas as pd
 
 from matplotlib.dates import HourLocator, DayLocator, MonthLocator, YearLocator, MinuteLocator, SecondLocator
 from matplotlib.dates import DateFormatter
+from matplotlib import ticker
 
 
-def _time_freq(time_data, divider1, divider2, ):
-    out = round((time_data.time_stamp.max() - time_data.time_stamp.min()).days / divider2)
-    return round(out / divider1)
+def _time_freq(time_data, divider1, divider2):
+
+    out = (time_data.max() - time_data.min()).days
+    print(out)
+    out = round(out / divider2 / divider1)
+    print(out)
+    return out
 
 
 def date_handler(time_data, ax, time_frame):
 
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8))
+
     if time_frame == 'year':
-        ax.xaxis.set_major_locator(YearLocator(_time_freq(time_data, 10, 365)))
         ax.xaxis.set_major_formatter(DateFormatter('%Y'))
 
     elif time_frame == 'month':
