@@ -57,27 +57,34 @@ def _footer(p,
             ylabel,
             legend=False,
             n=None,
-            save=False):
+            save=False,
+            tight=True,
+            despine=True):
 
     default_color = default_colors()
 
     # LEGEND STARTS >>>
     if legend != False:
         plt.legend(loc=1, ncol=n)
-    # <<< LEGEND ENDS
 
+    # HANDLE LABELS
     plt.xlabel(xlabel, color=default_color)
     plt.ylabel(ylabel, color=default_color)
-    try:
-        p.spines['bottom'].set_color('black')
-    except:
-        pass
-    sns.despine(left=True, right=True, top=True)
-    plt.tight_layout()
+
+    # DESPINE THE FIGURE
+    if despine == True:
+        try:
+            p.spines['bottom'].set_color('black')
+        except:
+            pass
+        sns.despine(left=True, right=True, top=True)
+
+    # FORCE TIGHT LAYOUT
+    if tight == True:
+        plt.tight_layout()
 
     # SAVING THE PLOT
     if save != False:
-
         dt = datetime.now()
         time_stamp = time.strftime('%Y%m%d_%H%M%S_' + str(dt.microsecond))
         filename = "astetik_" + time_stamp + ".png"

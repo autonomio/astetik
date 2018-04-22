@@ -10,17 +10,17 @@ def groupby_func(data, func):
     elif func == 'mean':
         out = data.mean()
     elif func == 'first':
-        out = data.mean()
+        out = data.first()
     elif func == 'last':
-        out = data.mean()
+        out = data.last()
     elif func == 'std':
         out = data.std()
     elif func == 'mode':
-        out = data.std()
+        out = data.mode()
     elif func == 'max':
-        out = data.std()
+        out = data.max()
     elif func == 'min':
-        out = data.std()
+        out = data.min()
     elif func == 'sum':
         out = data.sum()
     elif func == 'random':

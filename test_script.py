@@ -42,7 +42,7 @@ def test_simple_minimal(df):
     ast.violin(df, x='odd', y='A', hue='even')
     ast.strip(df, x='odd', y='B', hue='even')
     ast.count(df, x='cats')
-    ast.bars(df, x='even', y='B', hue='other', col='odd')
+    ast.bargrid(df, x='even', y='B', hue='other', col='odd')
     ast.overlap(df, x='A', y='B', label_col='other')
     ast.multikde(df, x='A', label_col='even')
     ast.compare(df, x='A', y=['B', 'C'], label_col='other')
@@ -298,23 +298,24 @@ def count_full(df):
 
 def bars_full(df):
 
-    ast.bars(data=df,
-             x='cats',
-             y='B',
-             hue='odd',
-             row='even',
-             col='other',
-             style='astetik',
-             dpi=72,
-             title='This is a title',
-             sub_title='And this a subtitle',
-             x_label='this is x label',
-             y_label='and this y',
-             legend=False,
-             x_scale='log',
-             y_scale='symlog',
-             x_limit=[10, 20],
-             y_limit=[1, 21])
+    ast.bargrid(data=df,
+                x='cats',
+                y='B',
+                hue='odd',
+                row='even',
+                col='other',
+                style='astetik',
+                dpi=72,
+                title='This is a title',
+                sub_title='And this a subtitle',
+                x_label='this is x label',
+                y_label='and this y',
+                legend=False,
+                x_scale='log',
+                y_scale='symlog',
+                x_limit=[10, 20],
+                y_limit=[1, 21])
+
 
 def overlap_full(df):
 

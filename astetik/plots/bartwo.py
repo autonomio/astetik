@@ -3,51 +3,52 @@ import matplotlib
 matplotlib.use('Agg')
 # ENDS #
 
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import rcParams
 import seaborn as sns
+import pandas as pd
 
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
+from ..utils.utils import factorplot_sizing
+from ..style.titles import _titles
 
 
-def bars(data,
-         x,
-         y,
-         hue=None,
-         row=None,
-         col=None,
-         col_wrap=None,
-         palette='default',
-         style='astetik',
-         dpi=72,
-         title='',
-         sub_title='',
-         x_label='',
-         y_label='',
-         legend=True,
-         x_scale='linear',
-         y_scale='linear',
-         x_limit='auto',
-         y_limit='auto',
-         save=False):
+def bartwo(data,
+           x,
+           y,
+           hue=None,
+           sort=None,
+           multi_color=False,
+           error_bars=None,
+           palette='default',
+           style='astetik',
+           dpi=72,
+           title='',
+           sub_title='',
+           x_label='',
+           y_label='',
+           legend=True,
+           x_scale='linear',
+           y_scale='linear',
+           x_limit='auto',
+           y_limit='auto',
+           save=False):
 
-    '''BAR PLOT
+    '''2-D BAR PLOT
 
-    A multi-dimension bar plot that takes up to 5 features at a time.
+    A 2-dimensional bar graph for the case where there is a continuous
+    variable that is compared against labels and a single categorial.
 
-    Inputs: 2 to 5
-    Features: At least one continuous (or stepped) variable and rest
-              can be categorical.
+is a single
+    value per label. Accepts either dataframe or series. If series,
+    then labels will come from index.
+
+    Inputs: 1 (Series), 2(DataFrame)
 
     1. USE
     ======
-    ast.bars(data=patients,
+    ast.bar1d(data=patients,
               x='icu_days',
-              y='insurance',
-              hue='gender',
-              col='religion',
-              row='ethnicity')
+              y='insurance')
 
     2. PARAMETERS
     =============
@@ -55,20 +56,19 @@ def bars(data,
     --------------------
     data :: pandas dataframe
 
-    x :: x-axis data (categorical)
+    x :: x-axis data (single value per label)
 
-    y :: y-axis data (continuous or categorical)
-
-    hue :: color highlight (categorical)
-
-    row :: the comparison feature for side-by-side plots
-
-    col :: the comparison feature for on top of each other plots
+    y :: y-axis data (labels)
 
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
-    None
+    sort :: If True, values will be sorted ascending, if False descending.
+
+    multi_color :: If True, label values will be used for hue.
+
+    error_bars :: 'sd' for using standard deviation and a float value for
+                  using bootstrapping.
 
     ----------------------
     2.3. COMMON PARAMETERS
@@ -114,14 +114,10 @@ def bars(data,
     y_limit :: int or list with two ints
 
     outliers :: Remove outliers using either 'zscore' or 'iqr'
+
     '''
-
-    aspect = int(len(data[x].unique()) / 5)
-
-    if hue != None:
-        n_colors = len(data[hue].unique())
-    else:
-        n_colors = len(data[x].unique())
+    size, aspect = factorplot_sizing(data[y], width=7, thickness=2, auto=True)
+    n_colors = len(data[hue].unique())
 
     # HEADER STARTS >>>
     palette = _header(palette,
@@ -135,17 +131,20 @@ def bars(data,
                        x=x,
                        y=y,
                        hue=hue,
-                       row=row,
-                       col=col,
-                       col_wrap=col_wrap,
                        palette=palette,
                        aspect=aspect,
-                       size=4,
-                       kind='bar')
+                       size=size,
+                       kind='bar',
+                       orient='h',
+                       ci=error_bars)
 
     # SCALING AND LIMITS STARTS >>>
     if x_scale != 'linear' or y_scale != 'linear':
         _scaler(p, x_scale, y_scale)
 
     # FOOTER STARTS >>>
+    _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save)
+
+    if data[x].min() < 0:
+        sns.despine(left=True)

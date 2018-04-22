@@ -3,6 +3,7 @@ import seaborn as sns
 from ..style.template import _header, _footer
 from ..style.formats import _thousand_sep
 from ..style.titles import _titles
+from ..utils.utils import factorplot_sizing
 
 
 def count(data,
@@ -93,8 +94,8 @@ def count(data,
     outliers :: Remove outliers using either 'zscore' or 'iqr'
 
     '''
-
-    aspect = int(len(data[x].unique()) / 5)
+    size, aspect = factorplot_sizing(data[x], auto=True)
+    #aspect = int(len(data[x].unique()) / 5)
 
     if sort != None:
         sort = data[x].value_counts().index.values
@@ -110,7 +111,7 @@ def count(data,
     p = sns.factorplot(data=data,
                        y=x,
                        palette=palette,
-                       size=4,
+                       size=size,
                        aspect=aspect,
                        kind='count',
                        legend=legend,

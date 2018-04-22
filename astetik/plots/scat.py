@@ -32,9 +32,9 @@ def scat(data,
 
     '''SCATTER PLOT
 
-    Observations may overlap, and sizing is possible. Both x and y should
-    be continuous variables. If you want to use categorical on x-axis, use
-    ast.swarm() instead.
+    Observations may overlap, and sizing is possible. All except 'hue' should
+    be continuous variables (or sizing can be stepped). If you want to use
+    categorical on x-axis, use ast.swarm() or ast.strip() instead.
 
     1. USE
     ======

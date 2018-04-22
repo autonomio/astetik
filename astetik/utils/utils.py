@@ -44,9 +44,6 @@ def _sort_strings(data, column, sort):
     return data
 
 
-import pandas as pd
-
-
 def table_prep(data, columns=''):
 
     """
@@ -289,7 +286,7 @@ def multicol_transform(transform, data, x=None, y=None, func=None, freq=None):
     return out
 
 
-def factorplot_sizing(data):
+def factorplot_sizing(data, width=9, thickness=3, auto=False):
 
     '''COMPUTE SIZE AND ASPECT
 
@@ -297,11 +294,11 @@ def factorplot_sizing(data):
     the factorplot sizing so that bar thickness
     is same regardless of the number of bars in the figure.
     '''
-    items = len(data)
 
-    # choose these first
-    width = 9                  # larger the wider
-    thickness = 3               # smaller the thicker
+    if auto == True:
+        items = len(data.value_counts())
+    else:
+        items = len(data)
 
     # compute the values
     value = items + 2.5
