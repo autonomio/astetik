@@ -121,8 +121,6 @@ def multikde(data,
 
     '''
 
-    if x_scale
-
     if transform_func != False:
         data = _groupby(data, label_col, transform_func)
 
