@@ -28,7 +28,11 @@ def box(data,
 
     '''BOX PLOT
 
-    A traditional box plot.
+    A traditional box plot. Generally speaking you don't want
+    to have data where the 'y' (continuous or stepped) has a
+    significant range between min and max values. Works best
+    with normally distributed data. In other cases set
+    y_scale to 'log' or 'symlog'.
 
     Inputs: 2 to 3
     Features: At least one continuous and one categorical.
@@ -132,6 +136,9 @@ def box(data,
     if x_limit != None or y_limit != None:
         _limiter(data=data, x=x, y=y, x_limit=None, y_limit=y_limit)
     # <<< SCALING AND LIMITS ENDS
+
+    if hue == None:
+        legend = False
 
     # FOOTER
     _titles(title, sub_title)

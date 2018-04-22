@@ -31,6 +31,9 @@ def swarm(data,
     are avoided (each sample will be seen as a dot), but observations are
     grouped based on 'x'.
 
+    NOTE: this plot takes time to draw, so if your sample is tens or hundreds
+          of thousands of observations, be patient. 
+
     Inputs: 2 to 3
     Features: 1 continuous and 1 or 2 categoricals
 
@@ -120,11 +123,13 @@ def swarm(data,
     p, ax = plt.subplots(figsize=(params()['fig_width'],
                                   params()['fig_height']))
     # # # # # # PLOT CODE STARTS # # # # # #
+    order = data[x].unique()
     p = sns.swarmplot(data=data,
                       x=x,
                       y=y,
                       hue=hue,
                       palette=palette,
+                      order=order,
                       linewidth=0.5,
                       size=4)
     # # # # # # PLOT CODE ENDS # # # # # #
@@ -141,6 +146,7 @@ def swarm(data,
     _titles(title, sub_title=sub_title)
     # <<< END OF TITLES
 
-    # FOOTER STARTS >>>
+    _thousand_sep(p, ax)
     _footer(p, x_label, y_label, legend, n, save)
     # <<< FOOTER ENDS
+    p.set_xticklabels(order, rotation=90)

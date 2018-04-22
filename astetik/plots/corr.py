@@ -11,6 +11,9 @@ from ..style.template import _header, _footer
 def corr(data,
          corr_method='spearman',
          annot=False,
+         mask=True,
+         line_width=2,
+         line_color='white',
          palette='default',
          style='astetik',
          dpi=72,
@@ -64,6 +67,13 @@ def corr(data,
 
     annotation :: True if each cell will be annotated with the value
 
+    mask :: If set to False, a rectangular shape will be drawn instead
+            of a triangular shapeself.
+
+    line_width :: the width of the white lines between each element. Better
+                  to set small when there are really many items.
+
+    line_color :: the color of the lines between the elements e.g. 'black'
     ----------------------
     2.3. COMMON PARAMETERS
     ----------------------
@@ -112,8 +122,12 @@ def corr(data,
 
     # # # # # PREP STARTS # # # # #
     data = data.corr(method=corr_method)
-    mask = np.zeros_like(data)
-    mask[np.triu_indices_from(mask)] = True
+
+    if mask == True:
+        mask = np.zeros_like(data)
+        mask[np.triu_indices_from(mask)] = True
+    else:
+        mask = None
     # # # # # PREP ENDS # # # # #
 
     # HEADER STARTS >>>
@@ -126,11 +140,17 @@ def corr(data,
     p, ax = plt.subplots(figsize=(params()['fig_width'],
                                   params()['fig_height']))
 
-    p = sns.heatmap(data, mask=mask, linewidths=2, cmap=palette, annot=annot)
+    p = sns.heatmap(data,
+                    mask=mask,
+                    linewidths=line_width,
+                    linecolor=line_color,
+                    cmap=palette,
+                    annot=annot,
+                    square=True)
 
     # HEADER
     _thousand_sep(p, ax)
     _titles(title, sub_title=sub_title)
-    _footer(p, x_label, y_label, save=save)
+    _footer(p, x_label, y_label, save=save, tight=False, despine=False)
 
     p.set_xticklabels(data)

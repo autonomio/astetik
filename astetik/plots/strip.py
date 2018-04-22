@@ -12,7 +12,7 @@ from ..utils.utils import _limiter, _scaler
 def strip(data,
           x,
           y,
-          hue=None,
+          hue,
           jitter=1,
           dodge=False,
           palette='default',
@@ -32,10 +32,12 @@ def strip(data,
     '''STRIP PLOT
 
     Similar to swarm but now there can be overlapping of observations and
-    many more x categorical can be included.
+    many more x categorical can be included. Also in this plot 'hue' is
+    not optional. 
 
-    Inputs: 2 to 3
-    Features: 1 continuous and 1 or 2 categoricals
+    Inputs: 3
+    Features: 1 continuous and 2 categoricals, one should be not more than
+              a few unique values (hue).
 
     1. USE
     ======

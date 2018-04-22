@@ -9,19 +9,19 @@ def multikde(data,
              x,
              label_col,
              sort=None,
-             transform_func='sum',
+             transform_func=False,
              palette='default',
              style='astetik',
              dpi=72,
-             title='',
-             sub_title='',
-             x_label='',
-             y_label='',
-             legend=False,
-             x_scale='linear',
-             y_scale='linear',
-             x_limit='auto',
-             y_limit='auto',
+             title='',  # not working here
+             sub_title='',  # not working here
+             x_label='',  # not working here
+             y_label='',  # not working here
+             legend=False,  # not working here
+             x_scale='linear',  # not working here
+             y_scale='linear',  # not working here
+             x_limit='auto',  # not working here
+             y_limit='auto',  # not working here
              save=False):
 
     '''MULTI KDE
@@ -29,6 +29,9 @@ def multikde(data,
     Creates a plot with several kde style histograms
     one on top of each other. Great for comparing categorical
     features against continuous features.
+
+    Note that this does not work well with data where the
+    difference between min and max values is big.
 
     Inputs: 2
     Features: 1 continuous and 1 categorical

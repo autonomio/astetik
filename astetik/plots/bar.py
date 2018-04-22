@@ -3,9 +3,8 @@ import matplotlib
 matplotlib.use('Agg')
 # ENDS #
 
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import rcParams
 import seaborn as sns
+import pandas as pd
 
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
@@ -13,30 +12,33 @@ from ..utils.utils import factorplot_sizing
 from ..style.titles import _titles
 
 
-def bar1(data,
-         x,
-         y,
-         multi_color=False,
-         palette='default',
-         style='astetik',
-         dpi=72,
-         title='',
-         sub_title='',
-         x_label='',
-         y_label='',
-         legend=True,
-         x_scale='linear',
-         y_scale='linear',
-         x_limit='auto',
-         y_limit='auto',
-         save=False):
+def bar(data,
+        x=None,
+        y=None,
+        sort=None,
+        multi_color=False,
+        group_duplicate=True,
+        palette='default',
+        style='astetik',
+        dpi=72,
+        title='',
+        sub_title='',
+        x_label='',
+        y_label='',
+        legend=True,
+        x_scale='linear',
+        y_scale='linear',
+        x_limit='auto',
+        y_limit='auto',
+        save=False):
 
     '''BAR PLOT
 
     A 1-dimensional bar graph for the case where there is a single
-    value per label.
+    value per label. Accepts either dataframe or series. If series,
+    then labels will come from index.
 
-    Inputs: 2
+    Inputs: 1 (Series), 2(DataFrame)
 
     1. USE
     ======
@@ -57,7 +59,11 @@ def bar1(data,
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
+    sort :: If True, values will be sorted ascending, if False descending.
+
     multi_color :: If True, label values will be used for hue.
+
+    group_duplicate :: If set to False, duplicate values will not be merged.
 
     ----------------------
     2.3. COMMON PARAMETERS
@@ -104,8 +110,24 @@ def bar1(data,
 
     outliers :: Remove outliers using either 'zscore' or 'iqr'
     '''
+    # convert series to dataframe
+    if x == None and y == None:
+        data = data.copy(deep=True)
+        data = pd.DataFrame(data)
+        data.reset_index(inplace=True)
+        data.columns = ['x', 'y']
+        x = 'y'
+        y = 'x'
 
     size, aspect = factorplot_sizing(data[x])
+
+    # merge duplicate items
+    if group_duplicate == True:
+        data = data.groupby(y).sum().reset_index()
+        data.columns = [y, x]
+
+    if sort != None:
+        data = data.sort_values(x, ascending=sort)
 
     if multi_color == True:
         n_colors = len(data[x].unique())

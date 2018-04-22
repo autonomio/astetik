@@ -1,44 +1,63 @@
+# EXCEPTIONAL IMPORT #
+import matplotlib
+matplotlib.use('Agg')
+# ENDS #
+
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import rcParams
 import seaborn as sns
 
 from ..style.template import _header, _footer
+from ..utils.utils import _limiter, _scaler
 
 
-def multicount(data,
-               x,
-               hue=None,
-               row=None,
-               col=None,
-               col_wrap=4,
-               palette='default',
-               style='astetik',
-               dpi=72,
-               title='',
-               sub_title='',
-               x_label='',
-               y_label='',
-               x_scale='linear',
-               y_scale='linear',
-               x_limit='auto',
-               y_limit='auto',
-               legend=True,
-               save=False):
+def bargrid(data,
+            x,
+            y,
+            hue=None,
+            row=None,
+            col=None,
+            col_wrap=None,
+            palette='default',
+            style='astetik',
+            dpi=72,
+            title='',
+            sub_title='',
+            x_label='',
+            y_label='',
+            legend=True,
+            x_scale='linear',
+            y_scale='linear',
+            x_limit='auto',
+            y_limit='auto',
+            save=False):
 
-    '''MULTICOUNT PLOT
+    '''BAR PLOT
 
-    A bar plot for counting values in a single feature. Useful for
-    categoricals and stepped data. Prints out multiple plots. None
-    of the values can be continuous. If you want to use continuous
-    values then go for bargrid() instead.
+    A multi-dimension bar plot that takes up to 5 features at a time.
+    The most important thing to keep in mind is that only 'y' can and
+    should be continuous. All other should be boolean/categoricalself.
 
-    Inputs: 3 to 4
-    Features: 1 continuous and 2 to 3 categoricals
+    If you want to do a simple 1-d or 2-d barplot, you can do that with:
+
+    - ast.bar() for 1-d
+    - ast.bartwo() for 2-d
+
+    This plot is only useful for the case where you have at least 4 dimensions
+    you want to plot, and (again) all except 'y' are boolean/categorical.
+
+    Inputs: 2 to 5
+    Features: At least one continuous (or stepped) variable and rest
+              can be categorical.
 
     1. USE
     ======
-    ast.multicount(data=patients,
-                   x='expired',
-                   hue='gender',
-                   col='insurance')
+    ast.bars(data=patients,
+              x='icu_days',
+              y='insurance',
+              hue='gender',
+              col='religion',
+              row='ethnicity')
 
     2. PARAMETERS
     =============
@@ -52,17 +71,19 @@ def multicount(data,
 
     hue :: color highlight (categorical)
 
-    col :: the side-by-side plot comparison feature
+    row :: the comparison feature for side-by-side plots
+
+    col :: the comparison feature for on top of each other plots
 
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
-    col_wrap :: the number of plots to show per row
+    None
 
     ----------------------
     2.3. COMMON PARAMETERS
     ----------------------
-    palette :: One of the hand-crafted palettes:
+    palette :: One of the astetik palettes:
                 'default'
                 'colorblind'
                 'blue_to_red'
@@ -103,11 +124,7 @@ def multicount(data,
     y_limit :: int or list with two ints
 
     outliers :: Remove outliers using either 'zscore' or 'iqr'
-
     '''
-
-    if row != None:
-        col_wrap = None
 
     if hue != None:
         n_colors = len(data[hue].unique())
@@ -122,19 +139,20 @@ def multicount(data,
                       fig_height=None,
                       fig_width=None)
     # <<< HEADER ENDS
-
     p = sns.factorplot(data=data,
                        x=x,
-                       y=None,
+                       y=y,
                        hue=hue,
                        row=row,
                        col=col,
                        col_wrap=col_wrap,
                        palette=palette,
                        size=4,
-                       kind='count',
-                       legend=legend,
-                       legend_out=False)
+                       kind='bar')
+
+    # SCALING AND LIMITS STARTS >>>
+    if x_scale != 'linear' or y_scale != 'linear':
+        _scaler(p, x_scale, y_scale)
 
     # FOOTER STARTS >>>
     _footer(p, x_label, y_label, save=save)
