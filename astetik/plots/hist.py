@@ -26,8 +26,8 @@ def hist(data,
          legend=False,
          x_scale='linear',
          y_scale='linear',
-         x_limit='auto',
-         y_limit='auto',
+         x_limit=None,
+         y_limit=None,
          save=False):
 
     '''HISTOGRAM
@@ -111,7 +111,7 @@ def hist(data,
     warnings.simplefilter("ignore")
 
     if bins == True:
-        bins = int(len(data[x].unique()) / 10)
+        bins = int(len(data[x].unique()) / 10) + 5
 
     if dropna is True:
         data = data[data[x].isna() == False]

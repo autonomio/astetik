@@ -1,6 +1,8 @@
 import glob
 import os
 import numpy as np
+# EXCEPTIONAL IMPORT #
+
 import matplotlib.pyplot as plt
 
 from IPython.display import clear_output

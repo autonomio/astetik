@@ -179,7 +179,7 @@ def _groupby(data, by, func):
     return groupby_func(data=temp, func=func)
 
 
-def boolcols_to_cat(data, labels, other_label='NA'):
+def _boolcols_to_cat(data, labels, other_label='NA'):
 
     '''CONVERT BOOLEAN COLS TO CATEGORICAL
 

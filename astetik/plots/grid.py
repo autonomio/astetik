@@ -19,8 +19,8 @@ def grid(data,
          legend=True,
          x_scale='linear',
          y_scale='linear',
-         x_limit='auto',
-         y_limit='auto',
+         x_limit=None,
+         y_limit=None,
          save=False):
 
     '''THE GRID
@@ -47,9 +47,9 @@ def grid(data,
     --------------------
     data :: pandas dataframe
 
-    x :: x-axis data (categorical)
+    x :: x-axis data (continuous or categorical)
 
-    y :: y-axis data (continuous or categorical)
+    y :: y-axis data (continuous)
 
     hue :: color highlight (categorical)
 
@@ -108,9 +108,11 @@ def grid(data,
     '''
 
     data = data.copy(deep=True)
-    n_colors = 1
-    if hue is True:
-        hue = len(data[hue].unique())
+
+    if hue != None:
+        n_colors = len(data[hue].unique())
+    else:
+        n_colors = 1
 
     # HEADER STARTS >>>
     palette = _header(palette,

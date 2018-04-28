@@ -34,9 +34,10 @@ def color_picker(palette, center='light', n_colors=10, show=False):
     if palette == 'default':
         palette = 'blue_to_red'
 
-    if n_colors < 3:
+    # handle the case where few colors only are used
+    if n_colors <= 5:
         n_input = n_colors
-        n_colors = 6
+        n_colors = 8  # this decides how dark colors will be
     else:
         n_input = n_colors
 

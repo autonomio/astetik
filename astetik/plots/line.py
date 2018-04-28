@@ -13,7 +13,7 @@ from ..utils.datetime import date_handler
 
 
 def line(data,
-         x,
+         x=None,
          y=None,
          interval=False,
          interval_func=None,
@@ -23,6 +23,7 @@ def line(data,
          drawstyle='default',
          linestyle='solid',
          markerstyle='o',
+         legend_labels=None,
          palette='default',
          style='astetik',
          dpi=72,
@@ -33,14 +34,15 @@ def line(data,
          legend=False,
          x_scale='linear',
          y_scale=None,
-         x_limit='None',
-         y_limit='auto',
+         x_limit=None,
+         y_limit=None,
          save=False):
 
     '''TIMESERIES LINE PLOT
 
     A line plot for one or more columns all with a comparable
-    value, in a time sequence.
+    value, in a time sequence. IF 'x' is None, all columns except
+    'y' will be included.
 
     1.USE
     =====
@@ -145,6 +147,14 @@ def line(data,
     '''
 
     # START OF PLOT SPECIFIC >>>
+
+    if x == None:
+        x = list(data.columns.values)
+        try:
+            x.remove(y)
+        except ValueError:
+            pass
+
     if type(x) != type([]):
         x = [x]
 
@@ -173,7 +183,7 @@ def line(data,
     palette = _header(palette, style, n_colors=lines, dpi=dpi)
     # <<< END OF HEADER
 
-    p, ax = plt.subplots(figsize=(params()['fig_width'],
+    p, ax = plt.subplots(figsize=(params()['fig_width'] + 2,
                                   params()['fig_height']))
 
     # # # # PLOT STARTS # # # #
@@ -220,6 +230,8 @@ def line(data,
     _footer(p, x_label, y_label, save=save)
 
     if legend != False:
-        plt.legend(x, loc=1, ncol=1, bbox_to_anchor=(1.15, 1.0))
+        if legend_labels != None:
+            x = legend_labels
+        plt.legend(x, loc=1, ncol=1, bbox_to_anchor=(1.25, 1.0))
 
     ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8))

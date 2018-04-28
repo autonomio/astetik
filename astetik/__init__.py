@@ -19,6 +19,7 @@ from .plots.multicount import multicount
 from .plots.bar import bar
 from .plots.bartwo import bartwo
 from .plots.animate import Animation
+from .plots.world import world
 # from .plots.words import words
 
 
@@ -28,6 +29,6 @@ from .tables.table import table
 from .tables.text import text
 # from .tables.timeseries import timeseries
 
-from .utils.transform import boolcols_to_cat
+del plots, style, tables, utils
 
-__version__ = "1.9.2"
+__version__ = "1.9.3"

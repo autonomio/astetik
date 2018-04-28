@@ -22,8 +22,8 @@ def swarm(data,
           legend=True,
           x_scale='linear',
           y_scale='linear',
-          x_limit='auto',
-          y_limit='auto',
+          x_limit=None,
+          y_limit=None,
           save=False):
 
     '''SWARM PLOT
@@ -32,7 +32,8 @@ def swarm(data,
     grouped based on 'x'.
 
     NOTE: this plot takes time to draw, so if your sample is tens or hundreds
-          of thousands of observations, be patient. 
+          of thousands of observations, be patient. Or if it's not that important
+          that observations do not overlap, try strip() instead. 
 
     Inputs: 2 to 3
     Features: 1 continuous and 1 or 2 categoricals

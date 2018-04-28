@@ -1,7 +1,8 @@
+matplotlib
+seaborn
+geonamescache
+statsmodels
 numpy
 pandas
-seaborn
-matplotlib
 IPython
-statsmodels
 patsy

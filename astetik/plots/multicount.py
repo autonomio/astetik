@@ -18,17 +18,17 @@ def multicount(data,
                y_label='',
                x_scale='linear',
                y_scale='linear',
-               x_limit='auto',
-               y_limit='auto',
+               x_limit=None,
+               y_limit=None,
                legend=True,
                save=False):
 
     '''MULTICOUNT PLOT
 
-    A bar plot for counting values in a single feature. Useful for
-    categoricals and stepped data. Prints out multiple plots. None
-    of the values can be continuous. If you want to use continuous
-    values then go for bargrid() instead.
+    A bar plot for counting values in a single feature and then
+    comparing it with 'hue', 'col', and 'row' categorical variables.
+    Prints out multiple plots. None of the values can be continuous.
+    If you want to use continuous values then go for bargrid() instead.
 
     Inputs: 3 to 4
     Features: 1 continuous and 2 to 3 categoricals

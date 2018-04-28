@@ -1,14 +1,7 @@
-# EXCEPTIONAL IMPORT #
-import matplotlib
-matplotlib.use('Agg')
-# ENDS #
-
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import rcParams
 import seaborn as sns
 
 from ..style.template import _header, _footer
-from ..utils.utils import _limiter, _scaler
+from ..utils.utils import _scaler
 
 
 def bargrid(data,
@@ -28,8 +21,8 @@ def bargrid(data,
             legend=True,
             x_scale='linear',
             y_scale='linear',
-            x_limit='auto',
-            y_limit='auto',
+            x_limit=None,
+            y_limit=None,
             save=False):
 
     '''BAR PLOT

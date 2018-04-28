@@ -1,7 +1,5 @@
-import pandas as pd
 import matplotlib.pyplot as plt
 
-from ..style.style import params
 from ..utils.exceptions import MissingLabel
 from ..style.titles import _titles
 from ..style.template import _header, _footer

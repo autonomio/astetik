@@ -22,8 +22,8 @@ def box(data,
         legend=True,
         x_scale='linear',
         y_scale='linear',
-        x_limit='auto',
-        y_limit='auto',
+        x_limit=None,
+        y_limit=None,
         save=False):
 
     '''BOX PLOT
@@ -130,8 +130,6 @@ def box(data,
     # SCALING AND LIMITS STARTS >>>
     if x_scale != 'linear' or y_scale != 'linear':
         _scaler(p, x_scale, y_scale)
-
-    _thousand_sep(p, ax)
 
     if x_limit != None or y_limit != None:
         _limiter(data=data, x=x, y=y, x_limit=None, y_limit=y_limit)

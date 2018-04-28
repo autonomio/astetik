@@ -7,7 +7,6 @@ from ..style.titles import _titles
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
 from ..style.sizer import _sizer
-from ..utils.outliers import outliers
 
 
 def scat(data,

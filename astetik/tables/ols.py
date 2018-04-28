@@ -1,8 +1,11 @@
 import pandas as pd
+
+import warnings
+warnings.filterwarnings("ignore")
+
 import statsmodels.api as sm
 from patsy import dmatrices
 from IPython.core.display import display, HTML
-
 
 def ols(data, iv, dv1, dv2, dv3, title='OLS Summary', table_title=''):
 

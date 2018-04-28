@@ -1,13 +1,7 @@
-# EXCEPTIONAL IMPORT #
-import matplotlib
-matplotlib.use('Agg')
-# ENDS #
-
 import seaborn as sns
-import pandas as pd
 
 from ..style.template import _header, _footer
-from ..utils.utils import _limiter, _scaler
+from ..utils.utils import _scaler
 from ..utils.utils import factorplot_sizing
 from ..style.titles import _titles
 
@@ -29,20 +23,16 @@ def bartwo(data,
            legend=True,
            x_scale='linear',
            y_scale='linear',
-           x_limit='auto',
-           y_limit='auto',
+           x_limit=None,
+           y_limit=None,
            save=False):
 
     '''2-D BAR PLOT
 
     A 2-dimensional bar graph for the case where there is a continuous
-    variable that is compared against labels and a single categorial.
-
-is a single
-    value per label. Accepts either dataframe or series. If series,
-    then labels will come from index.
-
-    Inputs: 1 (Series), 2(DataFrame)
+    variable that is compared against labels and a single categorial. The
+    'x' is the continuous variable, 'y' is the labels (categorical) and
+    'hue' is the comparison color.
 
     1. USE
     ======
@@ -56,9 +46,11 @@ is a single
     --------------------
     data :: pandas dataframe
 
-    x :: x-axis data (single value per label)
+    x :: x-axis data (continuous)
 
-    y :: y-axis data (labels)
+    y :: y-axis data (category labels)
+
+    hue :: color comparison data (preferably binary categorical)
 
     --------------------
     2.2. PLOT PARAMETERS

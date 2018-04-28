@@ -24,7 +24,7 @@ MAINTAINER_EMAIL = 'mailme@mikkokotila.com'
 URL = 'http://mikkokotila.com'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/mikkokotila/pretty'
-VERSION = '1.9.2'
+VERSION = '1.9.3'
 
 try:
     from setuptools import setup
@@ -36,13 +36,13 @@ def check_dependencies():
     install_requires = []
 
     try:
-        import numpy
-    except ImportError:
-        install_requires.append('numpy')
-    try:
         import seaborn
     except ImportError:
         install_requires.append('seaborn')
+    try:
+        import numpy
+    except ImportError:
+        install_requires.append('numpy')
     #try:
     #    import matplotlib
     #except ImportError:
@@ -63,6 +63,11 @@ def check_dependencies():
         import patsy
     except ImportError:
         install_requires.append('patsy')
+    try:
+        import geonamescache
+    except ImportError:
+        install_requires.append('geonamescache')
+
 
     return install_requires
 
