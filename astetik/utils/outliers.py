@@ -14,7 +14,7 @@ def outliers(data, col, mode='zscore', threshold=3):
     data = data[data[col].isna() == False]
 
     if mode == 'zscore':
-        data['zscore'] = stats.zscore(data[col].astype(float))
+        data['zscore'] = sc.zscore(data[col].astype(float))
         data = data[data.zscore < 3][data.zscore > -3].drop('zscore', axis=1)
 
     if mode == 'iqr':

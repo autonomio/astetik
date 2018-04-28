@@ -1,9 +1,16 @@
+import warnings
+warnings.filterwarnings("ignore")
+
 import numpy as np
-import seaborn as sns
+import matplotlib
+matplotlib.use('Agg')
+# ENDS #
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+
 
 from ..style.formats import _thousand_sep
-from ..style.style import params
 from ..style.titles import _titles
 from ..style.template import _header, _footer
 
@@ -12,8 +19,10 @@ def corr(data,
          corr_method='spearman',
          annot=False,
          mask=True,
-         line_width=2,
-         line_color='white',
+         line_width=1,
+         line_color='black',
+         color_grades=5,
+         auto_sizing=True,
          palette='default',
          style='astetik',
          dpi=72,
@@ -24,14 +33,14 @@ def corr(data,
          legend=True,
          x_scale='linear',
          y_scale='linear',
-         x_limit='auto',
-         y_limit='auto',
+         x_limit=None,
+         y_limit=None,
          save=False):
 
     '''CORRELATION HEATMAP
 
-    This is best used with less than 10 variables in the datasetself.
-    For best results, split the analysis to several parts.
+    This is best used with less than 50 variables in the dataset.
+    For best results, column labels should be clear and not too long.
 
    Inputs: a dataframe with several columns
    Features: Both categorical and continuous features will be used
@@ -74,6 +83,14 @@ def corr(data,
                   to set small when there are really many items.
 
     line_color :: the color of the lines between the elements e.g. 'black'
+
+    auto_sizing :: If not True, then should be int value in inches which is used
+                   for both width and height.
+
+    color_grades :: The number of colors/shades to use in total. 5 is default.
+                    Generally the best results come with 3 or 5 or 7, but looks
+                    better with more colors.
+
     ----------------------
     2.3. COMMON PARAMETERS
     ----------------------
@@ -126,6 +143,7 @@ def corr(data,
     if mask == True:
         mask = np.zeros_like(data)
         mask[np.triu_indices_from(mask)] = True
+        line_color = 'white'
     else:
         mask = None
     # # # # # PREP ENDS # # # # #
@@ -133,24 +151,26 @@ def corr(data,
     # HEADER STARTS >>>
     palette = _header(palette,
                       style,
-                      n_colors=10,
+                      n_colors=color_grades,
                       dpi=dpi)
 
+    if auto_sizing == True:
+        size = data.shape[0] / 2 + 5
+
     # PLOT
-    p, ax = plt.subplots(figsize=(params()['fig_width'],
-                                  params()['fig_height']))
+    p, ax = plt.subplots(figsize=(size, size))
 
     p = sns.heatmap(data,
                     mask=mask,
                     linewidths=line_width,
                     linecolor=line_color,
                     cmap=palette,
-                    annot=annot,
-                    square=True)
+                    annot=annot)
 
     # HEADER
     _thousand_sep(p, ax)
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save, tight=False, despine=False)
 
-    p.set_xticklabels(data)
+    p.set_xticklabels(data, rotation=90)
+    p.set_yticklabels(data, rotation=0)

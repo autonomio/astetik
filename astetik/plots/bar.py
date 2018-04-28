@@ -1,13 +1,8 @@
-# EXCEPTIONAL IMPORT #
-import matplotlib
-matplotlib.use('Agg')
-# ENDS #
-
 import seaborn as sns
 import pandas as pd
 
 from ..style.template import _header, _footer
-from ..utils.utils import _limiter, _scaler
+from ..utils.utils import _scaler
 from ..utils.utils import factorplot_sizing
 from ..style.titles import _titles
 
@@ -28,8 +23,8 @@ def bar(data,
         legend=True,
         x_scale='linear',
         y_scale='linear',
-        x_limit='auto',
-        y_limit='auto',
+        x_limit=None,
+        y_limit=None,
         save=False):
 
     '''BAR PLOT
