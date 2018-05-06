@@ -59,7 +59,10 @@ def check_dependencies():
         import geonamescache
     except ImportError:
         install_requires.append('geonamescache')
-
+    try:
+        import statsmodels
+    except ImportError:
+        install_requires.append('statsmodels')
 
     return install_requires
 
