@@ -2,7 +2,7 @@ import pandas as pd
 
 import pkg_resources
 
-countries = pkg_resources.resource_filename(__name__, '../extras/countries.csv')
+countries = pkg_resources.resource_filename('astetik', 'extras/countries.csv')
 countries = pd.read_csv(countries)
 
 

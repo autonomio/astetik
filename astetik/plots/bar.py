@@ -37,9 +37,9 @@ def bar(data,
 
     1. USE
     ======
-    ast.bar1d(data=patients,
-              x='icu_days',
-              y='insurance')
+    ast.bar(data=patients,
+            x='icu_days',
+            y='insurance')
 
     2. PARAMETERS
     =============
@@ -122,7 +122,7 @@ def bar(data,
         data.columns = [y, x]
 
     if sort != None:
-        data = data.sort_values(x, ascending=sort)
+        data = data.sort_values(y, ascending=sort)
 
     if multi_color == True:
         n_colors = len(data[x].unique())

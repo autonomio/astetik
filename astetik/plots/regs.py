@@ -1,21 +1,21 @@
-import warnings
-
-import seaborn as sns
 import matplotlib.pyplot as plt
+import seaborn as sns
 
+from ..style.formats import _thousand_sep
 from ..style.style import params
 from ..style.titles import _titles
-from ..style.formats import _thousand_sep
-
 from ..style.template import _header, _footer
 from ..utils.utils import _limiter, _scaler
 
 
-def hist(data,
+def regs(data,
          x,
-         bins=True,
-         dropna=False,
-         vertical=False,
+         y,
+         hue=None,
+         marker='x',
+         fit_reg=False,
+         draw_scatter=True,
+         logres=False,
          palette='default',
          style='astetik',
          dpi=72,
@@ -23,27 +23,29 @@ def hist(data,
          sub_title='',
          x_label='',
          y_label='',
-         legend=False,
+         legend=True,
          x_scale='linear',
          y_scale='linear',
          x_limit=None,
          y_limit=None,
+         outliers=False,
          save=False):
 
-    '''HISTOGRAM
+    '''REGRESSION SCATTER PLOT
 
-    Create a classic histogram. Note that nans will be
-    dropped automatically as otherwise seaborn will throw
-    an error.
-
-    Inputs: 1
-    Features: One continuous
+    This can be used as a standard two variable scatter plot
+    where both variables are continuous. If x is categorical,
+    use scat() instead or swarm(), depending on your need.
+    Here you can also choose logres as True in case one of your
+    variables is a binary categorical.
 
     1. USE
     ======
-    ast.hist(data=df,
-             x='Fare',
-             style='astetik)
+    p = regs(data=df,
+         x='Age',
+         y='Fare',
+         palette='default',
+         style='astetik')
 
     2. PARAMETERS
     =============
@@ -51,18 +53,20 @@ def hist(data,
     --------------------
     data :: pandas dataframe
 
-    x :: x-axis data (continuous)
+    x :: x-axis data
 
-    y :: x-axis overlap data (continuous or categorical)
+    y :: y-axis data
 
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
-     bins= The number of bins to be shown. If True, will be automatic.
+    marker :: By default is 'x' but you can use any matplotlib supported
 
-     dropna= True if na values should be dropped first.
+    fit_reg :: If the regression fit should be drawn
 
-     vertical= The orientation of the plot 'v' or 'h'
+    draw_scatter :: if the scatter should be drawn
+
+    logres :: for logistic regression when one feature is binary categorical.
 
     ----------------------
     2.3. COMMON PARAMETERS
@@ -110,37 +114,34 @@ def hist(data,
     outliers :: Remove outliers using either 'zscore' or 'iqr'
 
     '''
-    warnings.simplefilter("ignore")
 
-    if bins == True:
-        bins = int(len(data[x].unique()) / 10) + 5
+    # HEADER STARTS >>>
+    palette = _header(palette, style, n_colors=1, dpi=dpi)  # NOTE: y exception
+    # <<< HEADER ENDS
 
-    if dropna is True:
-        data = data[data[x].isna() == False]
-
-    # HEADER
-    palette = _header(palette, style, n_colors=1, dpi=dpi)
-
-    # PLOT
+    # # # # # # PLOT CODE STARTS # # # # # #
     p, ax = plt.subplots(figsize=(params()['fig_width'],
                                   params()['fig_height']))
 
-    p = sns.distplot(data[x].dropna(),
-                     bins=bins,
-                     norm_hist=False,
-                     kde=False,
-                     color=palette[0],
-                     vertical=vertical,
-                     hist_kws=dict(alpha=1))
+    sns.regplot(data=data,
+                x=x, y=y,
+                fit_reg=fit_reg,
+                scatter=draw_scatter,
+                color=palette[0],
+                marker=marker,
+                logistic=logres)
+    # # # # # # PLOT CODE ENDS # # # # # #
 
-    # SCALING AND LIMITS
+    # SCALING AND LIMITS STARTS >>>
     if x_scale != 'linear' or y_scale != 'linear':
         _scaler(p, x_scale, y_scale)
 
     if x_limit != None or y_limit != None:
-        _limiter(data=data, x=x, y=None, x_limit=x_limit, y_limit=None)
+        _limiter(data=data, x=x, y=y, x_limit=x_limit, y_limit=y_limit)
 
-    # HEADER
+    # START OF TITLES >>>
+    _titles(title, sub_title=sub_title)
     _thousand_sep(p, ax)
-    _titles(title, sub_title)
-    _footer(p, x_label, y_label, save=save)
+    _footer(p=p, xlabel=x_label, ylabel=y_label, legend=False, n=1, save=save)
+
+    ax.xaxis.set_major_locator(plt.MaxNLocator(5))

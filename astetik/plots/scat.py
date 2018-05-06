@@ -31,14 +31,16 @@ def scat(data,
 
     '''SCATTER PLOT
 
-    Observations may overlap, and sizing is possible. All except 'hue' should
-    be continuous variables (or sizing can be stepped). If you want to use
-    categorical on x-axis, use ast.swarm() or ast.strip() instead.
+    Well actually, in comparison to a traditional scatter plot, there is
+    are some limimations here. Observations may overlap, and sizing is
+    possible. 'x' and 'hue' should not be continuous variables
+    ('size' can be stepped). If you want basic scatter plot, use regs() and
+    also see swarm() and strip() depending on your data.
 
     1. USE
     ======
     p = scat(data=df,
-         x='Age',
+         x='Class',
          y='Fare',
          hue='Survived',
          size='Rand',
@@ -149,7 +151,7 @@ def scat(data,
 
     # START OF TITLES >>>
     _titles(title, sub_title=sub_title)
-    _thousand_sep(p, ax)
+    #_thousand_sep(p, ax)
     _footer(p, x_label, y_label, legend, n, save)
 
-    ax.xaxis.set_major_locator(plt.MaxNLocator(5))
+    #ax.xaxis.set_major_locator(plt.MaxNLocator(5))
