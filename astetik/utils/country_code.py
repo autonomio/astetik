@@ -2,7 +2,11 @@ import pandas as pd
 
 import pkg_resources
 
-countries = pkg_resources.resource_filename('astetik', 'extras/countries.csv')
+try:
+    countries = pkg_resources.resource_filename('astetik', 'extras/countries.csv')
+except IOError:
+    countries = 'https://raw.githubusercontent.com/mikkokotila/astetik/master/astetik/extras/countries.csv'
+
 countries = pd.read_csv(countries)
 
 
