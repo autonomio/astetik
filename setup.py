@@ -24,7 +24,7 @@ MAINTAINER_EMAIL = 'mailme@mikkokotila.com'
 URL = 'http://mikkokotila.com'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/mikkokotila/pretty'
-VERSION = '1.9.4.1'
+VERSION = '1.9.4.2'
 
 try:
     from setuptools import setup
@@ -90,7 +90,8 @@ if __name__ == "__main__":
                   'astetik.utils',
                   'astetik.tables',
                   'astetik.style',
-                  'astetik.plots'],
+                  'astetik.plots',
+                  'astetik.extras'],
         classifiers=[
                      'Intended Audience :: Science/Research',
                      'Programming Language :: Python :: 2.7',
