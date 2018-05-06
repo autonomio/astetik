@@ -4,10 +4,11 @@ import pkg_resources
 
 try:
     countries = pkg_resources.resource_filename('astetik', 'extras/countries.csv')
-except IOError:
+    countries = pd.read_csv(countries)
+# yes, that's right, swallow everything :)
+except:
     countries = 'https://raw.githubusercontent.com/mikkokotila/astetik/master/astetik/extras/countries.csv'
-
-countries = pd.read_csv(countries)
+    countries = pd.read_csv(countries)
 
 
 def code_to_country(code):

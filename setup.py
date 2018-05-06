@@ -85,6 +85,8 @@ if __name__ == "__main__":
         url=URL,
         version=VERSION,
         download_url=DOWNLOAD_URL,
+        include_package_data=True,
+        package_data={'astetik.extras': ['*']},
         install_requires=install_requires,
         packages=['astetik',
                   'astetik.utils',
