@@ -1,7 +1,5 @@
-matplotlib
 seaborn
 geonamescache
-statsmodels
 numpy
 pandas
 IPython

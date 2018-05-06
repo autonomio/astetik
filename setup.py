@@ -24,7 +24,7 @@ MAINTAINER_EMAIL = 'mailme@mikkokotila.com'
 URL = 'http://mikkokotila.com'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/mikkokotila/pretty'
-VERSION = '1.9.3'
+VERSION = '1.9.4'
 
 try:
     from setuptools import setup
@@ -43,10 +43,6 @@ def check_dependencies():
         import numpy
     except ImportError:
         install_requires.append('numpy')
-    #try:
-    #    import matplotlib
-    #except ImportError:
-    #    install_requires.append('matplotlib')
     try:
         import pandas
     except ImportError:
@@ -55,10 +51,6 @@ def check_dependencies():
         import IPython
     except ImportError:
         install_requires.append('IPython')
-    try:
-        import statsmodels
-    except ImportError:
-        install_requires.append('statsmodels')
     try:
         import patsy
     except ImportError:

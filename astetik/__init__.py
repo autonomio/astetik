@@ -20,15 +20,33 @@ from .plots.bar import bar
 from .plots.bartwo import bartwo
 from .plots.animate import Animation
 from .plots.world import world
+from .plots.regs import regs
 # from .plots.words import words
 
 
 # TABLES
-from .tables.ols import ols
 from .tables.table import table
 from .tables.text import text
 # from .tables.timeseries import timeseries
 
-del plots, style, tables, utils
+try:
+    del plots
+except:
+    pass
 
-__version__ = "1.9.3"
+try:
+    del style
+except:
+    pass
+
+try:
+    del tables
+except:
+    pass
+
+try:
+    del utils
+except:
+    pass
+
+__version__ = "1.9.4"
