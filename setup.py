@@ -36,6 +36,10 @@ def check_dependencies():
     install_requires = []
 
     try:
+        import matplotlib
+    except ImportError:
+        install_requires.append('matplotlib')
+    try:
         import seaborn
     except ImportError:
         install_requires.append('seaborn')
