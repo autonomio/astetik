@@ -156,7 +156,7 @@ def line(data,
         except ValueError:
             pass
 
-    if type(x) != type([]):
+    if isinstance(x, list) is False:
         x = [x]
 
     lines = len(x)
@@ -181,7 +181,7 @@ def line(data,
                    "o", "+", "x", "|", "1", "8", "s", "p"]
     else:
         markers = []
-        for i in lines:
+        for i in range(lines):
             markers.append(markerstyle)
     # <<< END OF PLOT SPECIFIC
 
