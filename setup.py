@@ -67,7 +67,10 @@ def check_dependencies():
         import statsmodels
     except ImportError:
         install_requires.append('statsmodels')
-
+    try:
+        import sklearn
+    except ImportError:
+        install_requires.append('sklearn')
     return install_requires
 
 if __name__ == "__main__":
