@@ -16,6 +16,9 @@ def hist(data,
          bins=True,
          dropna=False,
          vertical=False,
+         kde=False,
+         norm_hist=False,
+         alpha=1,
          palette='default',
          style='astetik',
          dpi=72,
@@ -112,26 +115,34 @@ def hist(data,
     '''
     warnings.simplefilter("ignore")
 
+    
     if bins == True:
-        bins = int(len(data[x].unique()) / 10) + 5
+        if isinstance(x, list) is False:
+            bins = int(len(data[x].unique()) / 10) + 5
+        else:
+            bins = 10
 
     if dropna is True:
         data = data[data[x].isna() == False]
-
-    # HEADER
-    palette = _header(palette, style, n_colors=1, dpi=dpi)
 
     # PLOT
     p, ax = plt.subplots(figsize=(params()['fig_width'],
                                   params()['fig_height']))
 
-    p = sns.distplot(data[x].dropna(),
-                     bins=bins,
-                     norm_hist=False,
-                     kde=False,
-                     color=palette[0],
-                     vertical=vertical,
-                     hist_kws=dict(alpha=1))
+    if isinstance(x, list) is False:
+        x = [x]
+
+    n_colors = len(x)
+    palette = _header(palette, style, n_colors=n_colors, dpi=dpi)
+
+    for i in range(len(x)):
+        p = sns.distplot(data[x[i]].dropna(),
+                         bins=bins,
+                         norm_hist=norm_hist,
+                         kde=kde,
+                         color=palette[i],
+                         vertical=vertical,
+                         hist_kws=dict(alpha=alpha))
 
     # SCALING AND LIMITS
     if x_scale != 'linear' or y_scale != 'linear':
