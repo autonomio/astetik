@@ -42,6 +42,7 @@ def text(data,
         max_rows = len(data)
 
     # reset the index to avoid issues
+    data = data.copy(deep=True)
     data.reset_index(inplace=True)
 
     # display the content

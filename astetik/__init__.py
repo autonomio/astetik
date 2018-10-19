@@ -21,6 +21,7 @@ from .plots.bartwo import bartwo
 from .plots.animate import Animation
 from .plots.world import world
 from .plots.regs import regs
+from .plots.roc import roc
 # from .plots.words import words
 
 

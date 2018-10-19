@@ -1,42 +1,35 @@
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 
-from ..style.formats import _thousand_sep
-from ..style.style import params
 from ..style.titles import _titles
 from ..style.template import _header, _footer
-from ..utils.utils import _limiter, _scaler
-from ..utils.utils import multicol_transform
-from ..utils.datetime import date_handler
+
+from sklearn.metrics import roc_curve
 
 
-def line(data,
-         x=None,
-         y=None,
-         interval=False,
-         interval_func=None,
-         time_frame=None,
-         dropna=False,
-         median_line=False,
-         drawstyle='default',
-         linestyle='solid',
-         markerstyle=None,
-         legend_labels=None,
-         palette='default',
-         style='astetik',
-         dpi=72,
-         title='',
-         sub_title='',
-         x_label='',
-         y_label='',
-         legend=False,
-         x_scale='linear',
-         y_scale=None,
-         x_limit=None,
-         y_limit=None,
-         save=False):
+def roc(y_pred,
+        y_true,
+        interval=False,
+        interval_func=None,
+        time_frame=None,
+        dropna=False,
+        median_line=False,
+        drawstyle='default',
+        linestyle='solid',
+        legend_labels=None,
+        palette='default',
+        style='astetik',
+        dpi=72,
+        title='',
+        sub_title='',
+        x_label='',
+        y_label='',
+        legend=False,
+        x_scale='linear',
+        y_scale=None,
+        x_limit=None,
+        y_limit=None,
+        save=False):
 
     '''TIMESERIES LINE PLOT
 
@@ -148,95 +141,40 @@ def line(data,
 
     # START OF PLOT SPECIFIC >>>
 
-    if x == None:
-        x = list(data.columns.values)
-        try:
-            x.remove(y)
-        except ValueError:
-            pass
-
-    if type(x) != type([]):
-        x = [x]
-
-    lines = len(x)
-
-    if dropna == True:
-        data = data[data[x].isna() == False]
-
-    if y == None:
-        data[y] = range(len(data))
-
-    if interval != False:
-        data = data.copy(deep=True)
-        data = multicol_transform(transform='interval',
-                                  data=data,
-                                  x=x,
-                                  y=y,
-                                  func=interval_func,
-                                  freq=interval)
-
-    if markerstyle is None:
-        markers = ["o", "+", "x", "|", "1", "8", "s", "p",
-                   "o", "+", "x", "|", "1", "8", "s", "p"]
-    else:
-        markers = []
-        for i in lines:
-            markers.append(markerstyle)
-    # <<< END OF PLOT SPECIFIC
+    fpr, tpr, thresholds = roc_curve(y_pred, y_true)
 
     # START OF HEADER >>>
-    palette = _header(palette, style, n_colors=lines, dpi=dpi)
+    palette = _header(palette, style, n_colors=1, dpi=dpi)
     # <<< END OF HEADER
 
-    p, ax = plt.subplots(figsize=(params()['fig_width'] + 2,
-                                  params()['fig_height']))
+    p, ax = plt.subplots(figsize=(7, 7))
 
-    # # # # PLOT STARTS # # # #
-    for i in range(lines):
-        p = plt.plot(data[y],
-                     data[x[i]],
-                     marker=markers[i],
-                     drawstyle=drawstyle,
-                     linestyle=linestyle,
-                     c=palette[i],
-                     linewidth=2,
-                     markersize=7,
-                     markeredgewidth=2,
-                     mfc='white',
-                     rasterized=True,
-                     aa=True,
-                     alpha=1)
-
-    # SCALING
-    if x_scale != 'linear' or y_scale != 'linear':
-        _scaler(p, x_scale, y_scale)
-
-    # # # # PLOT ENDS # # # #
-    if median_line:
-        if len(x) > 1:
-            print("You can only have mean line with single line")
-        else:
-            x_mean = data[x].mean()
-            x_mean = np.full(len(data), x_mean)
-            plt.plot(data[y], x_mean)
-
-    # DATETIME FORMAT
-    if time_frame != None:
-        data[y] = pd.to_datetime(data[y])
-        date_handler(data[y], ax, time_frame)
-
-    # LIMITS
-    if x_limit != None or y_limit != None:
-        _limiter(data=data, x=x, y='_R_E_S_', x_limit=None, y_limit=y_limit)
+    plt.plot([0, 1], [0, 1], linewidth=2, color='#1B2F33', linestyle='dashed')
+    plt.plot(fpr, tpr,
+             linewidth=3,
+             color=palette,
+             linestyle=linestyle,
+             drawstyle=drawstyle,
+             c=palette[i],
+             rasterized=True,
+             aa=True,
+             alpha=1)
 
     # HEADER
-    _thousand_sep(p, ax, x_sep=False)
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save)
+
+    plt.axis([0, 1, 0, 1])
 
     if legend != False:
         if legend_labels != None:
             x = legend_labels
-        plt.legend(x, loc=1, ncol=1, bbox_to_anchor=(1.35, 1.0))
+        plt.legend(x,
+                   framealpha=0.0,
+                   fontsize=14,
+                   loc=1,
+                   ncol=1,
+                   bbox_to_anchor=(1.35, 1.0))
 
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8))
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=6))
+    ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=6))

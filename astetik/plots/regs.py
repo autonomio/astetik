@@ -11,7 +11,6 @@ from ..utils.utils import _limiter, _scaler
 def regs(data,
          x,
          y,
-         hue=None,
          marker='x',
          fit_reg=False,
          draw_scatter=True,

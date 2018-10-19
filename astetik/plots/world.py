@@ -1,7 +1,6 @@
 import pkg_resources
 import numpy as np
 import pandas as pd
-from geonamescache import GeonamesCache
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -9,7 +8,7 @@ from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 
 from ..utils.exceptions import MissingImport
-from ..utils.country_code import country_to_code
+
 from ..style.formats import _thousand_sep
 from ..utils.outliers import outliers
 
@@ -60,6 +59,9 @@ def world(data,
            linear.
 
     '''
+
+    from geonamescache import GeonamesCache
+    from ..utils.country_code import country_to_code
 
     data = data.copy(deep=True)
 
