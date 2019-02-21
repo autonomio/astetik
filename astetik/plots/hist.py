@@ -149,7 +149,7 @@ def hist(data,
         _scaler(p, x_scale, y_scale)
 
     if x_limit != None or y_limit != None:
-        _limiter(data=data, x=x, y=None, x_limit=x_limit, y_limit=None)
+        _limiter(data=data, x=x, y=x, x_limit=x_limit, y_limit=y_limit)
 
     # HEADER
     _thousand_sep(p, ax)

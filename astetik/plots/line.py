@@ -240,4 +240,4 @@ def line(data,
             x = legend_labels
         plt.legend(x, loc=1, ncol=1, bbox_to_anchor=(1.35, 1.0))
 
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8))
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8, integer=True))

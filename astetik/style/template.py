@@ -85,7 +85,13 @@ def _footer(p,
 
     # SAVING THE PLOT
     if save != False:
-        dt = datetime.now()
-        time_stamp = time.strftime('%Y%m%d_%H%M%S_' + str(dt.microsecond))
-        filename = "astetik_" + time_stamp + ".png"
+
+        if isinstance(save, str):
+            filename = save
+        
+        else:
+            dt = datetime.now()
+            time_stamp = time.strftime('%Y%m%d_%H%M%S_' + str(dt.microsecond))
+            filename = "astetik_" + time_stamp + ".png"
+        
         plt.savefig(filename, dpi=72)
