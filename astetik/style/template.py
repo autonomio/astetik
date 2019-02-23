@@ -65,7 +65,7 @@ def _footer(p,
 
     # LEGEND STARTS >>>
     if legend != False:
-        plt.legend(loc=1, ncol=n)
+        plt.legend(loc=0, ncol=1)
 
     # HANDLE LABELS
     plt.xlabel(xlabel, color=default_color)
