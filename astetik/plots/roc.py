@@ -155,7 +155,7 @@ def roc(y_pred,
              color=palette,
              linestyle=linestyle,
              drawstyle=drawstyle,
-             c=palette[i],
+             c=palette,
              rasterized=True,
              aa=True,
              alpha=1)
