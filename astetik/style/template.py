@@ -65,7 +65,7 @@ def _footer(p,
 
     # LEGEND STARTS >>>
     if legend != False:
-        plt.legend(loc=0, ncol=1)
+        plt.legend(loc='upper right', bbox_to_anchor=(1.3, 0.9), ncol=1)
 
     # HANDLE LABELS
     plt.xlabel(xlabel, color=default_color)
