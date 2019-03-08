@@ -11,7 +11,6 @@ from ..utils.utils import _limiter, _scaler
 def kde(data,
         x,
         y=None,
-        cbar=True,
         cumulative=False,
         palette='default',
         style='astetik',
@@ -54,8 +53,6 @@ def kde(data,
     --------------------
     2.2. PLOT PARAMETERS
     --------------------
-    cbar :: If drawing with both x and y, will include colorbar.
-
     cumulative :: If True, showing the cumulative distribution.
 
     ----------------------
@@ -126,10 +123,8 @@ def kde(data,
                     color=palette[0],
                     legend=legend,
                     cumulative=cumulative,
-                    cbar=cbar,
                     kernel='gau',
-                    bw='scott',
-                    cbar_kws=dict(alpha=1))
+                    bw='scott')
 
     # SCALING AND LIMITS
     if x_scale != 'linear' or y_scale != 'linear':
