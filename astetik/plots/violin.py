@@ -132,7 +132,7 @@ def violin(data,
     # <<< SCALING AND LIMITS ENDS
 
     # FOOTER STARTS >>>
-    _thousand_sep(p, ax)
+    _thousand_sep(p, ax, data, x, y)
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, legend, 2, save)
 

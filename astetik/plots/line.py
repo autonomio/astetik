@@ -231,7 +231,7 @@ def line(data,
         _limiter(data=data, x=x, y='_R_E_S_', x_limit=None, y_limit=y_limit)
 
     # HEADER
-    _thousand_sep(p, ax, x_sep=False)
+    _thousand_sep(p, ax, data, x[0], y)
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save)
 

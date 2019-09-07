@@ -1,24 +1,26 @@
-import numpy as np
+def _thousand_sep(p, ax, data, x, y):
 
-from matplotlib import ticker
+    '''Handles thousand separatos for tick labels.
 
+    p | fig object | matplotlib figure object
+    ax | axis object | a single axis object
+    data | df | pandas dataframe with data
+    x | str | column name for x
+    y | str | column name for y
 
-def _thousand_sep(p, ax, y_sep=True, x_sep=True):
+    NOTE: If x is list (e.g. hist or line) then x should be x[0].
+          For example _thousand_sep(p, ax, data, x[0], y)
 
-    '''Thousand Separator
-
-    PARAMETERS
-    ----------
-    ax :: a single axis object
     '''
-    # FOR MATPLOTLIB PLOTS
 
-    x = ax.get_xlim()[1]
-    y = ax.get_ylim()[1]
+    from matplotlib import ticker
 
-    if x_sep == True:
-        if x > 10:
+    # only apply if data is int
+    if x != None:
+        if isinstance(data[x][0], int):
             ax.get_xaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')));
-    if y_sep == True:
-        if y > 10:
+
+    # only apply if data is int
+    if y != None:
+        if isinstance(data[y][0], int):
             ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')));

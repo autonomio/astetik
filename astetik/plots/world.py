@@ -156,4 +156,4 @@ def world(data,
 
     plt.annotate(descripton, xy=(-.8, -3.2), size=14, xycoords='axes fraction')
 
-    _thousand_sep(p, ax)
+    _thousand_sep(p, ax, data, area_col, value_col)

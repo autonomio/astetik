@@ -134,6 +134,6 @@ def kde(data,
         _limiter(data=data, x=x, y=y, x_limit=x_limit, y_limit=y_limit)
 
     # FOOTER
-    _thousand_sep(p, ax)
+    _thousand_sep(p, ax, data, x, y)
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save)

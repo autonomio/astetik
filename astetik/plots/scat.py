@@ -151,7 +151,5 @@ def scat(data,
 
     # START OF TITLES >>>
     _titles(title, sub_title=sub_title)
-    #_thousand_sep(p, ax)
+    _thousand_sep(p, ax, data, x, y)
     _footer(p, x_label, y_label, legend, n, save)
-
-    #ax.xaxis.set_major_locator(plt.MaxNLocator(5))

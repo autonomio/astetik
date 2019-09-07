@@ -115,7 +115,7 @@ def hist(data,
     '''
     warnings.simplefilter("ignore")
 
-    
+
     if bins == True:
         if isinstance(x, list) is False:
             bins = int(len(data[x].unique()) / 10) + 5
@@ -152,6 +152,6 @@ def hist(data,
         _limiter(data=data, x=x, y=x, x_limit=x_limit, y_limit=y_limit)
 
     # HEADER
-    _thousand_sep(p, ax)
+    _thousand_sep(p, ax, data, x[0], None)
     _titles(title, sub_title)
     _footer(p, x_label, y_label, save=save)

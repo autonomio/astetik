@@ -24,6 +24,8 @@ from .plots.regs import regs
 from .plots.roc import roc
 # from .plots.words import words
 
+from .utils.gui import toggle as toggle
+from .utils.gui import warning as warning
 
 # TABLES
 from .tables.table import table
@@ -50,4 +52,4 @@ try:
 except:
     pass
 
-__version__ = "1.9.8"
+__version__ = "1.9.9"

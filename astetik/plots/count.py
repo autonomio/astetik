@@ -120,7 +120,7 @@ def count(data,
 
     # FOOTER
     _titles(title, sub_title)
-    _thousand_sep(p, p.ax, y_sep=False)
+    _thousand_sep(p, p.ax, data, x, None)
     _footer(p, x_label, y_label, save=save)
 
     p.set_xticklabels(None, rotation=90)

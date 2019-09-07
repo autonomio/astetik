@@ -2,13 +2,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-# ENDS #
+
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-
 
 from ..style.formats import _thousand_sep
 from ..style.titles import _titles
@@ -168,7 +164,6 @@ def corr(data,
                     annot=annot)
 
     # HEADER
-    _thousand_sep(p, ax)
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save, tight=False, despine=False)
 

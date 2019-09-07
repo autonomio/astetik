@@ -174,6 +174,6 @@ def overlap(data,
     sns.despine(bottom=True)
     ax.xaxis.set_major_locator(plt.MaxNLocator(5))
 
-    _thousand_sep(p, ax)
+    _thousand_sep(p, ax, data, x, y)
     if len(title) + len(sub_title) < 0:
         _titles(title, sub_title=sub_title)

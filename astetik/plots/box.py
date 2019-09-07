@@ -140,7 +140,7 @@ def box(data,
 
     # FOOTER
     _titles(title, sub_title)
-    _thousand_sep(p, ax)
+    _thousand_sep(p, ax, data, x, y)
     _footer(p, x_label, y_label, legend, n, save=save)
 
     p.spines['bottom'].set_color('black')

@@ -140,7 +140,8 @@ def regs(data,
 
     # START OF TITLES >>>
     _titles(title, sub_title=sub_title)
-    _thousand_sep(p, ax)
+
+    _thousand_sep(p, ax, data, x, y)
     _footer(p=p, xlabel=x_label, ylabel=y_label, legend=False, n=1, save=save)
 
     ax.xaxis.set_major_locator(plt.MaxNLocator(5))

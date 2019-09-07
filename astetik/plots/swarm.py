@@ -33,7 +33,7 @@ def swarm(data,
 
     NOTE: this plot takes time to draw, so if your sample is tens or hundreds
           of thousands of observations, be patient. Or if it's not that important
-          that observations do not overlap, try strip() instead. 
+          that observations do not overlap, try strip() instead.
 
     Inputs: 2 to 3
     Features: 1 continuous and 1 or 2 categoricals
@@ -147,7 +147,7 @@ def swarm(data,
     _titles(title, sub_title=sub_title)
     # <<< END OF TITLES
 
-    _thousand_sep(p, ax)
+    _thousand_sep(p, ax, data, x, y)
     _footer(p, x_label, y_label, legend, n, save)
     # <<< FOOTER ENDS
     p.set_xticklabels(order, rotation=90)
