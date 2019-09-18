@@ -7,7 +7,8 @@ from ..style.formats import _thousand_sep
 from ..style.style import params
 from ..style.titles import _titles
 from ..style.template import _header, _footer
-from ..utils.utils import _limiter, _scaler
+from ..style.legend import _legend
+from ..utils.utils import _limiter
 from ..utils.utils import multicol_transform
 from ..utils.datetime import date_handler
 
@@ -160,7 +161,7 @@ def line(data,
 
     lines = len(x)
 
-    if dropna == True:
+    if dropna:
         data = data[data[x].isna() == False]
 
     if y == None:
@@ -229,18 +230,9 @@ def line(data,
     if x_limit != None or y_limit != None:
         _limiter(data=data, x=x, y='_R_E_S_', x_limit=None, y_limit=y_limit)
 
-    # HEADER
     _thousand_sep(p, ax, data, y, x[0])
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save)
-
-    if legend != False:
-        if legend_labels != None:
-            x = legend_labels
-
-        if len(legend_position) == 0:
-            plt.legend(x, loc=1, ncol=1, bbox_to_anchor=(1.35, 1.0))
-        else:
-            plt.legend(x, loc=legend_position[0], ncol=legend_position[1])
+    _legend(x, legend, legend_labels, legend_position)
 
     ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8, integer=True))

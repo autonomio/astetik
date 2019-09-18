@@ -2,6 +2,7 @@ import seaborn as sns
 
 from ..style.template import _header, _footer
 from ..utils.utils import _scaler
+from ..style.legend import _legend
 
 
 def bargrid(data,
@@ -19,6 +20,9 @@ def bargrid(data,
             x_label='',
             y_label='',
             legend=True,
+            legend_out=True,
+            # legend_position=[],
+            # legend_labels=None,
             x_scale='linear',
             y_scale='linear',
             x_limit=None,
@@ -140,6 +144,8 @@ def bargrid(data,
                        col=col,
                        col_wrap=col_wrap,
                        palette=palette,
+                       legend=True,
+                       legend_out=True,
                        size=4,
                        kind='bar')
 
@@ -148,4 +154,5 @@ def bargrid(data,
         _scaler(p, x_scale, y_scale)
 
     # FOOTER STARTS >>>
+    #_legend(data[hue].unique(), legend, legend_labels, legend_position)
     _footer(p, x_label, y_label, save=save)
