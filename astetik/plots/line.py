@@ -33,6 +33,7 @@ def line(data,
          x_label='',
          y_label='',
          legend=False,
+         legend_position=[],
          x_scale='linear',
          y_scale=None,
          x_limit=None,
@@ -145,16 +146,14 @@ def line(data,
 
     outliers :: Remove outliers using either 'zscore' or 'iqr'
 
+    legend_position | list | optionally pass legend `loc` and `ncol` values.
+
     '''
 
     # START OF PLOT SPECIFIC >>>
 
     if x == None:
         x = list(data.columns.values)
-        try:
-            x.remove(y)
-        except ValueError:
-            pass
 
     if isinstance(x, list) is False:
         x = [x]
@@ -209,8 +208,8 @@ def line(data,
                      alpha=1)
 
     # SCALING
-    if x_scale != 'linear' or y_scale != 'linear':
-        _scaler(p, x_scale, y_scale)
+    #if x_scale != 'linear' or y_scale != 'linear':
+    #    _scaler(p, x_scale, y_scale)
 
     # # # # PLOT ENDS # # # #
     if median_line:
@@ -231,13 +230,17 @@ def line(data,
         _limiter(data=data, x=x, y='_R_E_S_', x_limit=None, y_limit=y_limit)
 
     # HEADER
-    _thousand_sep(p, ax, data, x[0], y)
+    _thousand_sep(p, ax, data, y, x[0])
     _titles(title, sub_title=sub_title)
     _footer(p, x_label, y_label, save=save)
 
     if legend != False:
         if legend_labels != None:
             x = legend_labels
-        plt.legend(x, loc=1, ncol=1, bbox_to_anchor=(1.35, 1.0))
+
+        if len(legend_position) == 0:
+            plt.legend(x, loc=1, ncol=1, bbox_to_anchor=(1.35, 1.0))
+        else:
+            plt.legend(x, loc=legend_position[0], ncol=legend_position[1])
 
     ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8, integer=True))

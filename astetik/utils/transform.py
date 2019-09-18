@@ -28,7 +28,10 @@ def groupby_func(data, func):
     elif func == 'freq':
         out = data.agg(lambda x: x.value_counts().index[0])
 
-    out = out.reset_index()
+    try:
+        out = out.reset_index()
+    except UnboundLocalError:
+        raise ValueError('No group_by argument provided to groupby_func()')
 
     return out
 
