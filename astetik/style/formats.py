@@ -17,10 +17,10 @@ def _thousand_sep(p, ax, data, x, y):
 
     # only apply if data is int
     if x != None:
-        if isinstance(data[x][0], int):
+        if isinstance(data[x].iloc[0], int):
             ax.get_xaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')));
 
     # only apply if data is int
     if y != None:
-        if isinstance(data[y][0], int):
+        if isinstance(data[y].iloc[0], int):
             ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')));

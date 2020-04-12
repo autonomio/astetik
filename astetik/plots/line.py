@@ -8,7 +8,7 @@ from ..style.style import params
 from ..style.titles import _titles
 from ..style.template import _header, _footer
 from ..style.legend import _legend
-from ..utils.utils import _limiter
+from ..utils.utils import _limiter, _scaler
 from ..utils.utils import multicol_transform
 from ..utils.datetime import date_handler
 
@@ -35,7 +35,7 @@ def line(data,
          y_label='',
          legend=False,
          legend_position=[],
-         x_scale='linear',
+         x_scale=None,
          y_scale=None,
          x_limit=None,
          y_limit=None,
@@ -209,8 +209,9 @@ def line(data,
                      alpha=1)
 
     # SCALING
-    #if x_scale != 'linear' or y_scale != 'linear':
-    #    _scaler(p, x_scale, y_scale)
+    if y_scale != None or x_scale != None:
+        for i in range(lines):
+            _scaler(p[i], x_scale, y_scale)
 
     # # # # PLOT ENDS # # # #
     if median_line:

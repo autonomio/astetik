@@ -14,6 +14,7 @@ def bar(data,
         multi_color=False,
         group_duplicate=True,
         palette='default',
+        alpha=1,
         style='astetik',
         dpi=72,
         title='',
@@ -143,6 +144,7 @@ def bar(data,
                        palette=palette,
                        aspect=aspect,
                        size=size,
+                       alpha=alpha,
                        kind='bar')
 
     # SCALING AND LIMITS STARTS >>>
