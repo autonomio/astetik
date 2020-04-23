@@ -4,7 +4,7 @@
 
     pip install astetik      # TL;DR
 
-## Why Astetik
+## Why Astetik?
 
 Astetik takes the amazing potential of matplotlib and seaborn, and makes it available through single-line commands. While much of the lower level complexity is made invisible, some completely new features are added. Whatever is added is further taking away from the complexity of the visualizastion workflow.
 
