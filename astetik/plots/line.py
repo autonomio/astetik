@@ -16,6 +16,7 @@ from ..utils.datetime import date_handler
 def line(data,
          x=None,
          y=None,
+         xtick_labels=None,
          highlight_x=None,
          interval=False,
          interval_func=None,
@@ -242,7 +243,12 @@ def line(data,
                     xycoords='data',
                     xytext=(annotate_text_xy[0], annotate_text_xy[1]),
                     textcoords='axes fraction',
-                    arrowprops=dict(facecolor='#888888', shrink=0.05),
+                    color='#888888',
+                    size=15,
+                    arrowprops=dict(facecolor='#888888',
+                                    shrink=0.05,
+                                    color='#888888',
+                                    lw=2),
                     horizontalalignment='right', 
                     verticalalignment='top')
 
@@ -251,13 +257,14 @@ def line(data,
         for i, col in enumerate(x):
 
             ax.annotate(col + ' ' + str(round(data[col][-1:].values[0], 2)),
-                        xy=(45, data[col][-1:].values), 
+                        xy=(len(data[col]), data[col][-1:].values), 
                         xytext=(6, data[col][-1:].values), 
                         color=palette[i], 
                         xycoords='data', 
                         textcoords="offset points",
-                        size=14, va="center")
-
+                        size=14,
+                        va="center")
+        
     # SCALING
     if y_scale != None or x_scale != None:
         for i in range(lines):
@@ -286,4 +293,9 @@ def line(data,
     _footer(p, x_label, y_label, save=save)
     _legend(x, legend, legend_labels, legend_position)
 
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8, integer=True))
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=5, integer=True))
+
+    if xtick_labels is not None:
+        _len_ = len(xtick_labels)
+        _picks_ = list(range(0, _len_, int(_len_ / 7)))
+        plt.xticks(ticks=_picks_, labels=xtick_labels[_picks_])
