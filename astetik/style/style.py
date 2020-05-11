@@ -18,9 +18,9 @@ def styles(dpi):
 
     style_dic = {
             # FONT
-            'font.size': 12,
-            'font.family': 'Verdana',
-            'font.stretch': 'normal',
+            'font.size': 14,
+            'font.family': 'Verdana, Geneva, sans-serif',
+            'font.stretch': 'semi-expanded',
             'font.style': 'normal',
             'font.variant': 'normal',
             'font.weight': 'normal',

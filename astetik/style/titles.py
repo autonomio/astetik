@@ -33,7 +33,6 @@ def _titles(title,
         title = title.replace(' ', '\,')
         title = title.replace('_', '\_')
 
-        # NOTE: it's probably better to draw some lines...
         plt.title(r"$\bf{" + title + "}$" + '\n' + sub_title,
                   loc=location,
                   fontsize=fontsize,

@@ -16,17 +16,25 @@ from ..utils.datetime import date_handler
 def line(data,
          x=None,
          y=None,
+         xtick_labels=None,
+         highlight_x=None,
          interval=False,
          interval_func=None,
          time_frame=None,
          dropna=False,
          median_line=False,
          drawstyle='default',
-         linestyle='solid',
-         linewidth=2,
+         linestyle=None,
+         linewidth=None,
          markerstyle=None,
+         smooth=None,
          legend_labels=None,
+         annotate_line_end=False,
+         annotate_text=None,
+         annotate_xy=(),
+         annotate_text_xy=(),
          palette='default',
+         alpha=1,
          style='astetik',
          dpi=72,
          title='',
@@ -119,6 +127,8 @@ def line(data,
                Or use any cmap, seaborn or matplotlib
                color or palette code, or hex value.
 
+    alpha :: Color saturation (float)
+
     style :: Use one of the three core styles:
                'astetik'     # white
                '538'         # grey
@@ -151,10 +161,9 @@ def line(data,
 
     '''
 
-    # START OF PLOT SPECIFIC >>>
+    data = data.copy(deep=True)
 
-    if x == None:
-        x = list(data.columns.values)
+    # START OF PLOT SPECIFIC >>>
 
     if isinstance(x, list) is False:
         x = [x]
@@ -168,13 +177,16 @@ def line(data,
         data[y] = range(len(data))
 
     if interval != False:
-        data = data.copy(deep=True)
         data = multicol_transform(transform='interval',
                                   data=data,
                                   x=x,
                                   y=y,
                                   func=interval_func,
                                   freq=interval)
+    if smooth is not None:
+
+        from scipy.ndimage import gaussian_filter1d
+        data[x] = data[x].apply(gaussian_filter1d, sigma=smooth)
 
     if markerstyle is None:
         markers = ["o", "+", "x", "|", "1", "8", "s", "p",
@@ -185,6 +197,22 @@ def line(data,
             markers.append(markerstyle)
     # <<< END OF PLOT SPECIFIC
 
+    if linestyle is None:
+        linestyle = ['solid'] * lines
+    elif isinstance(linestyle, str):
+        linestyle = [linestyle] * lines
+
+    if linewidth is None:
+        linewidth = [2] * lines
+    elif isinstance(linewidth, list) is False:
+        linewidth = [linewidth] * lines
+
+    if highlight_x is not None:
+        linestyle = ['--'] * lines
+        linestyle[x.index(highlight_x)] = 'solid'
+        linewidth = [2] * lines
+        linewidth[x.index(highlight_x)] = 4
+    
     # START OF HEADER >>>
     palette = _header(palette, style, n_colors=lines, dpi=dpi)
     # <<< END OF HEADER
@@ -198,16 +226,45 @@ def line(data,
                      data[x[i]],
                      marker=markers[i],
                      drawstyle=drawstyle,
-                     linestyle=linestyle,
+                     linestyle=linestyle[i],
                      c=palette[i],
-                     linewidth=linewidth,
+                     linewidth=linewidth[i],
                      markersize=7,
-                     markeredgewidth=2,
+                     markeredgewidth=1,
                      mfc='white',
                      rasterized=True,
                      aa=True,
-                     alpha=1)
+                     alpha=alpha)
 
+    if len(annotate_xy) > 0:
+
+        ax.annotate(annotate_text,
+                    xy=(annotate_xy[0], annotate_xy[1]),
+                    xycoords='data',
+                    xytext=(annotate_text_xy[0], annotate_text_xy[1]),
+                    textcoords='axes fraction',
+                    color='#888888',
+                    size=15,
+                    arrowprops=dict(facecolor='#888888',
+                                    shrink=0.05,
+                                    color='#888888',
+                                    lw=2),
+                    horizontalalignment='right', 
+                    verticalalignment='top')
+
+    if annotate_line_end:
+
+        for i, col in enumerate(x):
+
+            ax.annotate(col + ' ' + str(round(data[col][-1:].values[0], 2)),
+                        xy=(len(data[col]), data[col][-1:].values), 
+                        xytext=(6, data[col][-1:].values), 
+                        color=palette[i], 
+                        xycoords='data', 
+                        textcoords="offset points",
+                        size=14,
+                        va="center")
+        
     # SCALING
     if y_scale != None or x_scale != None:
         for i in range(lines):
@@ -236,4 +293,9 @@ def line(data,
     _footer(p, x_label, y_label, save=save)
     _legend(x, legend, legend_labels, legend_position)
 
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=8, integer=True))
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=5, integer=True))
+
+    if xtick_labels is not None:
+        _len_ = len(xtick_labels)
+        _picks_ = list(range(0, _len_, int(_len_ / 7)))
+        plt.xticks(ticks=_picks_, labels=xtick_labels[_picks_])
