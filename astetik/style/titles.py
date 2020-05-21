@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 
 def _titles(title,
             sub_title,
-            location='left',
-            fontname='Verdana',
-            fontsize='24'):
+            location='center',
+            fontname='Arial',
+            fontsize='18'):
 
     '''TITLE HANDLER
 
@@ -39,4 +39,8 @@ def _titles(title,
                   fontname=fontname,
                   weight='normal',
                   y=1.03,
-                  color="grey");
+                  color="#342b3b");
+
+
+                  
+

@@ -11,8 +11,12 @@ def bar(data,
         x=None,
         y=None,
         sort=None,
+        order=None,
         multi_color=False,
-        group_duplicate=True,
+        group_by_y=True,
+        orient='h',
+        aspect=1,
+        size=5,
         palette='default',
         alpha=1,
         style='astetik',
@@ -59,7 +63,7 @@ def bar(data,
 
     multi_color :: If True, label values will be used for hue.
 
-    group_duplicate :: If set to False, duplicate values will not be merged.
+    group_by_y :: If set to False, duplicate values will not be merged.
 
     ----------------------
     2.3. COMMON PARAMETERS
@@ -115,15 +119,15 @@ def bar(data,
         x = 'y'
         y = 'x'
 
-    size, aspect = factorplot_sizing(data[x])
+    #size, aspect = factorplot_sizing(data[x])
 
     # merge duplicate items
-    if group_duplicate == True:
+    if group_by_y == True:
         data = data.groupby(y).sum().reset_index()
         data.columns = [y, x]
 
-    if sort != None:
-        data = data.sort_values(y, ascending=sort)
+    if sort is not None:
+        order = data[x].sort_values(ascending=sort)
 
     if multi_color == True:
         n_colors = len(data[x].unique())
@@ -138,13 +142,15 @@ def bar(data,
                       fig_height=None,
                       fig_width=None)
     # <<< HEADER ENDS
-    p = sns.factorplot(data=data,
+    p = sns.catplot(data=data,
                        x=x,
                        y=y,
                        palette=palette,
+                       orient=orient,
                        aspect=aspect,
-                       size=size,
+                       height=size,
                        alpha=alpha,
+                       order=order,
                        kind='bar')
 
     # SCALING AND LIMITS STARTS >>>

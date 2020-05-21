@@ -401,7 +401,7 @@ def multicount_full(df):
 df = create_data()
 
 # run table tests
-test_tables(df)
+#test_tables(df)
 
 # run simple plot tests
 # test_simple_minimal(df)

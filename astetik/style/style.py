@@ -34,6 +34,7 @@ def styles(dpi):
                 'axes.titlesize': 11.0,
                 'axes.titlepad': 10.0,
                 'axes.titleweight': 'normal',
+                'axes.labelpad': 15,
 
             # FIGURE
             'figure.dpi': dpi,
@@ -54,7 +55,7 @@ def styles(dpi):
 
             # LEGEND
             'legend.framealpha': 1,
-            'legend.frameon': True,
+            'legend.frameon': False,
             'legend.handleheight': 2.5,
             'legend.handlelength': 2.5,
             'legend.loc': 'upper right',

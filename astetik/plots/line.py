@@ -264,7 +264,9 @@ def line(data,
                         textcoords="offset points",
                         size=14,
                         va="center")
-        
+
+    plt.gcf().axes[0].yaxis.get_major_formatter().set_scientific(False)
+
     # SCALING
     if y_scale != None or x_scale != None:
         for i in range(lines):
@@ -275,9 +277,9 @@ def line(data,
         if len(x) > 1:
             print("You can only have mean line with single line")
         else:
-            x_mean = data[x].mean()
-            x_mean = np.full(len(data), x_mean)
-            plt.plot(data[y], x_mean)
+            x_median = data[x].median()
+            x_median = np.full(len(data), x_median)
+            plt.plot(data[y], x_median)
 
     # DATETIME FORMAT
     if time_frame != None:
@@ -290,7 +292,7 @@ def line(data,
 
     _thousand_sep(p, ax, data, y, x[0])
     _titles(title, sub_title=sub_title)
-    _footer(p, x_label, y_label, save=save)
+    _footer(p, x_label, y_label, save=save, tight=False)
     _legend(x, legend, legend_labels, legend_position)
 
     ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=5, integer=True))
