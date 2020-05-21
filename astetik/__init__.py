@@ -51,5 +51,3 @@ try:
     del utils
 except:
     pass
-
-__version__ = "1.9.9"
