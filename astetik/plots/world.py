@@ -12,7 +12,7 @@ from ..utils.exceptions import MissingImport
 from ..style.formats import _thousand_sep
 from ..utils.outliers import outliers
 
-shapefile = pkg_resources.resource_filename(__name__, '../extras/countries')
+shapefile = pkg_resources.resource_filename(__name__, '../extras/countries.shp')
 
 
 def world(data,
