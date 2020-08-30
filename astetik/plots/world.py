@@ -12,7 +12,8 @@ from ..utils.exceptions import MissingImport
 from ..style.formats import _thousand_sep
 from ..utils.outliers import outliers
 
-shapefile = pkg_resources.resource_filename(__name__, '../extras/countries.shp')
+shapefile = pkg_resources.resource_filename(__name__,
+        '../extras/countries.shp'stetik/plots/world.py line 15)
 
 
 def world(data,
