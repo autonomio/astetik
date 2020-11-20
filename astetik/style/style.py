@@ -68,7 +68,6 @@ def styles(dpi):
             'savefig.directory': '~',
             'savefig.dpi': 'figure',
             'savefig.edgecolor': 'white',
-            'savefig.facecolor': 'white',
             'savefig.format': 'png',
             'savefig.frameon': False,
             'savefig.jpeg_quality': 95,
