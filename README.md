@@ -1,7 +1,5 @@
 <img width=250 src='https://raw.githubusercontent.com/autonomio/astetik/master/logo.png'>
 
-[![Build Status](https://travis-ci.org/autonomio/astetik.svg?branch=master)](https://travis-ci.org/autonomio/astetik)  [![Coverage Status](https://coveralls.io/repos/github/autonomio/astetik/badge.svg?branch=master)](https://coveralls.io/github/autonomio/astetik?branch=master) [![PEP8](https://img.shields.io/badge/code%20style-pep8-blue.svg)](https://www.python.org/dev/peps/pep-0008/)
-
     pip install astetik      # TL;DR
 
 ## Why Astetik?
