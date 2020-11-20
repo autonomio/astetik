@@ -43,7 +43,6 @@ def _header(palette,
     if style == 'astetik':
         rcParams['figure.facecolor'] = 'white'
         rcParams['axes.facecolor'] = 'white'
-        rcParams['savefig.facecolor'] = 'white'
 
     style_dic = styles(dpi)
     for key in style_dic.keys():
