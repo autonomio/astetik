@@ -1,6 +1,6 @@
-<img width=250 src='https://raw.githubusercontent.com/mikkokotila/astetik/master/logo.png'>
+<img width=250 src='https://raw.githubusercontent.com/autonomio/astetik/master/logo.png'>
 
-[![Build Status](https://travis-ci.org/mikkokotila/astetik.svg?branch=master)](https://travis-ci.org/mikkokotila/astetik)  [![Coverage Status](https://coveralls.io/repos/github/mikkokotila/astetik/badge.svg?branch=master)](https://coveralls.io/github/mikkokotila/astetik?branch=master) [![PEP8](https://img.shields.io/badge/code%20style-pep8-blue.svg)](https://www.python.org/dev/peps/pep-0008/)
+[![Build Status](https://travis-ci.org/autonomio/astetik.svg?branch=master)](https://travis-ci.org/autonomio/astetik)  [![Coverage Status](https://coveralls.io/repos/github/autonomio/astetik/badge.svg?branch=master)](https://coveralls.io/github/autonomio/astetik?branch=master) [![PEP8](https://img.shields.io/badge/code%20style-pep8-blue.svg)](https://www.python.org/dev/peps/pep-0008/)
 
     pip install astetik      # TL;DR
 
@@ -48,7 +48,7 @@ It started from the realization that there was not a single library for Python, 
 
 At the time I was doing a lot of analysis that involved correlation, and ended up doing a simple heatmap plot which took about 20 lines of codes to polish it, and several hours of work having no previous knowledge of matplotlib or seaborn. The first plot looked like this:
 
-<img width=600 src=https://raw.githubusercontent.com/mikkokotila/astetik/master/examples/images/heat_titanic.png>
+<img width=600 src=https://raw.githubusercontent.com/autonomio/astetik/master/examples/images/heat_titanic.png>
 
 The code to run it was (and still is):
 
@@ -56,7 +56,7 @@ The code to run it was (and still is):
 
 Today Astetik include, in addition to the original descriptive table and the heatmap correlation, over 20 unique plots and many unique features to make the daily life of data scientists and visual storytellers more enjoyable. The focus remains on simplicity in both use and aesthetic:
 
-<img width=600 src=https://raw.githubusercontent.com/mikkokotila/astetik/master/examples/images/foon_line.png>
+<img width=600 src=https://raw.githubusercontent.com/autonomio/astetik/master/examples/images/foon_line.png>
 
 The code to produce the above line graph: 
 
