@@ -1,6 +1,6 @@
 <img width=250 src='https://raw.githubusercontent.com/mikkokotila/astetik/master/logo.png'>
 
-[![Build Status](https://travis-ci.org/mikkokotila/astetik.svg?branch=master)](https://travis-ci.org/mikkokotila/astetik)  [![Coverage Status](https://coveralls.io/repos/github/mikkokotila/astetik/badge.svg?branch=master)](https://coveralls.io/github/mikkokotila/astetik?branch=master) [![Dependency Status](https://gemnasium.com/badges/github.com/mikkokotila/astetik.svg)](https://gemnasium.com/github.com/mikkokotila/astetik) [![PEP8](https://img.shields.io/badge/code%20style-pep8-blue.svg)](https://www.python.org/dev/peps/pep-0008/)
+[![Build Status](https://travis-ci.org/mikkokotila/astetik.svg?branch=master)](https://travis-ci.org/mikkokotila/astetik)  [![Coverage Status](https://coveralls.io/repos/github/mikkokotila/astetik/badge.svg?branch=master)](https://coveralls.io/github/mikkokotila/astetik?branch=master) [![PEP8](https://img.shields.io/badge/code%20style-pep8-blue.svg)](https://www.python.org/dev/peps/pep-0008/)
 
     pip install astetik      # TL;DR
 
