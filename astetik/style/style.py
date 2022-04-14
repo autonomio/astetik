@@ -38,10 +38,9 @@ def styles(dpi):
 
             # FIGURE
             'figure.dpi': dpi,
-            'figure.frameon': False,
 
             # GRID
-            'axes.grid': True,          # turn grid lines on and off
+            'axes.grid': True,
             'grid.alpha': .1,
             'grid.color': 'grey',
             'grid.linewidth': 1,
