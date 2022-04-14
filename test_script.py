@@ -221,8 +221,8 @@ def grid_full(df):
 def box_full(df):
 
     ast.box(data=df,
-            x='A',
-            y='even',
+            x='even',
+            y='A',
             hue='odd',
             style='astetik',
             dpi=72,
@@ -415,7 +415,7 @@ swarm_full(df)
 scat_full(df)
 line_full(df)
 grid_full(df)
-#box_full(df)
+box_full(df)
 violin_full(df)
 strip_full(df)
 count_full(df)

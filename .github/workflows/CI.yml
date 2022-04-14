@@ -33,6 +33,5 @@ jobs:
     - name: Tests
       run: |
         export MPLBACKEND=agg
-        pip install tensorflow
         pip install coveralls
         coverage run --source=talos ./test_script.py
