@@ -38,10 +38,9 @@ def styles(dpi):
 
             # FIGURE
             'figure.dpi': dpi,
-            'figure.frameon': False,
 
             # GRID
-            'axes.grid': True,          # turn grid lines on and off
+            'axes.grid': True,
             'grid.alpha': .1,
             'grid.color': 'grey',
             'grid.linewidth': 1,
@@ -69,7 +68,6 @@ def styles(dpi):
             'savefig.dpi': 'figure',
             'savefig.edgecolor': 'white',
             'savefig.format': 'png',
-            'savefig.jpeg_quality': 95,
             'savefig.orientation': 'portrait',
             'savefig.pad_inches': 0.1,
 

@@ -221,8 +221,8 @@ def grid_full(df):
 def box_full(df):
 
     ast.box(data=df,
-            x='A',
-            y='even',
+            x='even',
+            y='A',
             hue='odd',
             style='astetik',
             dpi=72,

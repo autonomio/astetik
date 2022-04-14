@@ -39,6 +39,7 @@ def line(data,
          dpi=72,
          title='',
          sub_title='',
+         titles_align='center',
          x_label='',
          y_label='',
          legend=False,
@@ -142,6 +143,8 @@ def line(data,
     title :: the title of the plot (string value)
 
     sub_title :: a secondary title to be shown below the title
+
+    titles_align :: by default 'center'
 
     x_label :: string value for x-axis label
 
@@ -291,7 +294,7 @@ def line(data,
         _limiter(data=data, x=x, y='_R_E_S_', x_limit=None, y_limit=y_limit)
 
     _thousand_sep(p, ax, data, y, x[0])
-    _titles(title, sub_title=sub_title)
+    _titles(title, sub_title=sub_title, location=titles_align)
     _footer(p, x_label, y_label, save=save, tight=False)
     _legend(x, legend, legend_labels, legend_position)
 
