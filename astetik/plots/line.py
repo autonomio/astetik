@@ -39,6 +39,7 @@ def line(data,
          dpi=72,
          title='',
          sub_title='',
+         titles_align='center',
          x_label='',
          y_label='',
          legend=False,
@@ -142,6 +143,8 @@ def line(data,
     title :: the title of the plot (string value)
 
     sub_title :: a secondary title to be shown below the title
+
+    titles_align :: by default 'center'
 
     x_label :: string value for x-axis label
 
