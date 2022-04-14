@@ -24,7 +24,7 @@ MAINTAINER_EMAIL = 'mailme@mikkokotila.com'
 URL = 'http://mikkokotila.com'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/mikkokotila/pretty'
-VERSION = '1.11.2'
+VERSION = '1.12'
 
 try:
     from setuptools import setup
