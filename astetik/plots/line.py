@@ -291,7 +291,7 @@ def line(data,
         _limiter(data=data, x=x, y='_R_E_S_', x_limit=None, y_limit=y_limit)
 
     _thousand_sep(p, ax, data, y, x[0])
-    _titles(title, sub_title=sub_title)
+    _titles(title, sub_title=sub_title, location=titles_align)
     _footer(p, x_label, y_label, save=save, tight=False)
     _legend(x, legend, legend_labels, legend_position)
 
