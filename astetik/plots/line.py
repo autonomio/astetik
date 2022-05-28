@@ -203,7 +203,7 @@ def line(data,
     elif markerstyle is None:
         markers = ["o", "+", "x", "|", "1", "8", "s", "p",
                    "o", "+", "x", "|", "1", "8", "s", "p"]
-    
+
     elif isinstance(markerstyle, str):
         markers = []
         for i in range(lines):
