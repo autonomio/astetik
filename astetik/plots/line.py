@@ -27,6 +27,8 @@ def line(data,
          linestyle=None,
          linewidth=None,
          markerstyle=None,
+         markersize=7,
+         markeredgewidth=1,
          smooth=None,
          legend_labels=None,
          annotate_line_end=False,
@@ -111,6 +113,10 @@ def line(data,
 
     markerstyle :: ".", ",", "o", "+", "x", "|", "_", "^", "v"
 
+    markersize :: the width of the marker in pixels
+
+    markeredgewidth :: the width of the marker edge in pixels
+
     ----------------------
     2.3. COMMON PARAMETERS
     ----------------------
@@ -191,10 +197,14 @@ def line(data,
         from scipy.ndimage import gaussian_filter1d
         data[x] = data[x].apply(gaussian_filter1d, sigma=smooth)
 
-    if markerstyle is None:
+    if isinstance(markerstyle, list):
+        markers = markerstyle
+
+    elif markerstyle is None:
         markers = ["o", "+", "x", "|", "1", "8", "s", "p",
                    "o", "+", "x", "|", "1", "8", "s", "p"]
-    else:
+    
+    elif isinstance(markerstyle, str):
         markers = []
         for i in range(lines):
             markers.append(markerstyle)
@@ -232,8 +242,8 @@ def line(data,
                      linestyle=linestyle[i],
                      c=palette[i],
                      linewidth=linewidth[i],
-                     markersize=7,
-                     markeredgewidth=1,
+                     markersize=markersize,
+                     markeredgewidth=markeredgewidth,
                      mfc='white',
                      rasterized=True,
                      aa=True,
