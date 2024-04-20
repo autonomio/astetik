@@ -116,7 +116,7 @@ def kde(data,
                                   params()['fig_height']))
 
     p = sns.kdeplot(data=data[x],
-                    data2=data2,
+                    y=data2,
                     shade=True,
                     cut=5,
                     shade_lowest=False,

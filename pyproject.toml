@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "astetik"
+dynamic = ["version"]
+description = "Astetik data visualization and reporting library"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Mikko Kotila", email = "mailme@mikkokotila.com" },
+]
+maintainers = [
+    { name = "Mikko Kotila", email = "mailme@mikkokotila.com" },
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+dependencies = [
+    "geonamescache",
+    "IPython",
+    "numpy",
+    "pandas",
+    "patsy",
+    "scikit-learn",
+    "seaborn",
+    "statsmodels",
+    "wrangle",
+]
+
+[project.urls]
+Download = "https://github.com/mikkokotila/pretty"
+Homepage = "http://mikkokotila.com"
+
+[tool.hatch.version]
+path = "astetik/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/astetik",
+]
