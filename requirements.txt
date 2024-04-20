@@ -6,4 +6,4 @@ pandas
 IPython
 patsy
 statsmodels
-sklearn
+scikit-learn
