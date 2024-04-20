@@ -24,7 +24,7 @@ MAINTAINER_EMAIL = 'mailme@mikkokotila.com'
 URL = 'http://mikkokotila.com'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/mikkokotila/pretty'
-VERSION = '1.13'
+VERSION = '1.14'
 
 try:
     from setuptools import setup
@@ -70,7 +70,7 @@ def check_dependencies():
     try:
         import sklearn
     except ImportError:
-        install_requires.append('sklearn')
+        install_requires.append('scikit-learn')
 
     return install_requires
 

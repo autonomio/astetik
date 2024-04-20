@@ -51,3 +51,5 @@ try:
     del utils
 except:
     pass
+
+__VERSION__ = '1.16'
