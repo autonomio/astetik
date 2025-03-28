@@ -52,4 +52,4 @@ try:
 except:
     pass
 
-__VERSION__ = '1.2'
+__VERSION__ = '1.15'
