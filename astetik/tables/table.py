@@ -1,5 +1,5 @@
 import pandas as pd
-from IPython.core.display import display, HTML
+from IPython.display import display, HTML
 
 
 def table(data,
