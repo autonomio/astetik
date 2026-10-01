@@ -58,6 +58,19 @@ def _head(path: str, expected: str, deadline: float) -> None:
         _fail('Copilot completion requires an open pull request targeting master')
 
 
+
+def _completed_report(review: object) -> None:
+    """Require the provider v2 report structure; verdict text does not imply approval."""
+    body = _field(review, 'body')
+    prefix = (r'\A<!-- ccr-overview-v2 -->\n\n## Copilot review overview\n\n'
+              r'### [^\s][^\n]*\n\n\S')
+    fields = (r'(?m)^\*\*Review effort:\*\* [^\s][^\n]*\n'
+              r'\*\*Findings:\*\* [0-9]+(?: <picture>[^\n]*</picture>)?[ \t]*(?:\n|\Z)')
+    if (not isinstance(body, str) or re.match(prefix, body) is None
+            or re.search(fields, body) is None):
+        _fail('Missing or unrecognized completed Copilot report; review failure cannot pass')
+
+
 def _submitted(review: object, head: str) -> int | None:
     identifier, state = _field(review, 'id'), _field(review, 'state')
     commit, submitted = _field(review, 'commit_id'), _field(review, 'submitted_at')
@@ -90,15 +103,19 @@ def _submitted(review: object, head: str) -> int | None:
 def _reviews(pages: object, head: str, dismissed: str) -> int | None:
     if not isinstance(pages, list) or not pages:
         _fail('Paginated reviews must be a nonempty JSON array of pages')
-    found: int | None = None
+    # GitHub returns review pages chronologically; the last eligible response controls.
+    found: tuple[int, object] | None = None
     for page in cast('list[object]', pages):
         if not isinstance(page, list):
             _fail('Every review page must be a JSON array')
         for review in cast('list[object]', page):
             candidate = _submitted(review, head)
             if candidate is not None and str(candidate) != dismissed:
-                found = candidate
-    return found
+                found = candidate, review
+    if found is None:
+        return None
+    _completed_report(found[1])
+    return found[0]
 
 
 def wait_for_review(repo: str, number: str, head: str, dismissed: str = '',
@@ -126,6 +143,8 @@ def wait_for_review(repo: str, number: str, head: str, dismissed: str = '',
             if identity != (candidate, head, BOT, 'Bot'):
                 _fail('Selected review identity changed during verification')
             confirmed = _submitted(review, head)
+            if confirmed is not None:
+                _completed_report(review)
         _head(path, head, deadline)
         remaining = deadline - time.monotonic()
         if remaining <= 0:

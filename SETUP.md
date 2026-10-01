@@ -90,7 +90,7 @@ These commands inspect configuration names and access; they do not expose secret
 | `RULESET_ID` absent or stale | Establish the actual live id after authorized activation |
 | Audit cannot read `bypass_actors` | Keep the audit blocked; verify caller eligibility, repository selection, token approval/expiration and the exact response. Do not add Administration write automatically |
 | Human approval does not count | Reviewer lacks write access, is the PR author, or violates live review rules |
-| Copilot review unavailable | Required review prerequisite is missing; report the gap rather than dropping the requirement |
+| Copilot review unavailable or PR exceeds its reported file limit | Required review evidence is absent; a bot failure message does not count. Prepare a smaller reviewable scope without dropping the requirement |
 | CodeQL unavailable | Reconcile law, config, workflow, snapshot, and tests in a separately authorized change; never remove one surface alone |
 | Upload or attestation unverified | Leave publication disabled; do not claim release provenance |
 

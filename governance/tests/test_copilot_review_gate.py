@@ -18,11 +18,45 @@ PULL = 'repos/autonomio/astetik/pulls/62'
 REVIEW_ID = 5382652700
 WORKFLOW = Path(__file__).resolve().parents[2] / '.github/workflows/pr_checks_honesty.yml'
 
+# Exact provider bodies: submitted PR62 reviews 5382652700 and 5383146211.
+COMPLETED_REPORT = '''<!-- ccr-overview-v2 -->
+
+## Copilot review overview
+
+### 🔵 Needs a closer look
+
+The ruleset requests Copilot review but does not enforce its completion as required by the repository law.
+
+**Review effort:** Balanced\x20\x20
+**Findings:** 1 <picture><source media="(prefers-color-scheme: dark)" srcset="https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-light.svg"><img src="https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-light.png" alt="High severity" width="62" height="18" align="texttop"></picture>
+
+<details open>
+<summary><strong>Open (1)</strong></summary>
+
+- <picture><source media="(prefers-color-scheme: dark)" srcset="https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-light.svg"><img src="https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-light.png" alt="High severity" width="62" height="18" align="texttop"></picture> [Add required blank lines between top-level definitions](#discussion_r4157501604)
+</details>
+
+<details>
+<summary><strong>Previously missed (1)</strong></summary>
+
+In code that hasn't changed since last review
+
+<details>
+<summary><picture><source media="(prefers-color-scheme: dark)" srcset="https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.svg"><img src="https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.png" alt="Medium severity" width="62" height="18" align="texttop"></picture> Copilot review is requested but not enforced as a merge requirement</summary>
+
+`.github/​rulesets/​master.json:93`
+
+This rule only auto-requests a Copilot review; it does not make completion of that review a merge requirement. Copilot reviews are submitted as comments and cannot satisfy or block the required-approval rule, so the stated law that “automatic Copilot review [is] required” can be bypassed by merging after the human approval and status checks pass. Add a required status check that verifies a Copilot review exists for the current head SHA, or revise the law if automatic requesting is the intended contract.
+</details>
+</details>'''
+CAPACITY_FAILURE = "Copilot wasn't able to review this pull request because it exceeds the maximum number of files (300). Try reducing the number of changed files and requesting a review from Copilot again."
+
 
 def review(**changes: object) -> dict[str, object]:
     """Retain the relevant fields of the actual submitted PR62 Copilot review."""
     return {'id': REVIEW_ID, 'user': {'login': gate.BOT, 'type': 'Bot'},
-            'commit_id': HEAD, 'state': 'COMMENTED', 'submitted_at': '2026-10-01T16:55:02Z'} | changes
+            'commit_id': HEAD, 'state': 'COMMENTED', 'submitted_at': '2026-10-01T16:55:02Z',
+            'body': COMPLETED_REPORT} | changes
 
 
 @dataclass
@@ -90,6 +124,134 @@ def test_submitted_exact_head_bot_review_passes_after_individual_recheck(
     ]
     assert not rest.sleeps
     assert 'PASS' in capsys.readouterr().out
+
+
+
+@pytest.mark.parametrize('body', [
+    CAPACITY_FAILURE, None, '', '   ', 7, {}, [],
+    '<!-- ccr-overview-v2 -->', '## Copilot review overview',
+    '<!-- ccr-overview-v2 -->\n\n## Copilot review overview\n\n### 🔵 Needs a closer look\n\n',
+    '<!-- ccr-overview-v2 -->\n\n## Copilot review overview\n\n### 🔵 Needs a closer look\n\n   \n',
+    '<!-- ccr-overview-v2 -->\n\n## Copilot review overview\n\n### Unknown verdict\n',
+    COMPLETED_REPORT.replace('<!-- ccr-overview-v2 -->', '<!-- ccr-overview-v3 -->'),
+    COMPLETED_REPORT.replace('## Copilot review overview', '## General response'),
+    COMPLETED_REPORT.replace('### 🔵 Needs a closer look', '###   '),
+    COMPLETED_REPORT.replace('**Review effort:** Balanced  \n', ''),
+    COMPLETED_REPORT.replace('**Review effort:** Balanced', '**Review effort:** '),
+    COMPLETED_REPORT.replace('**Review effort:**', '**Effort:**'),
+    '\n'.join(line for line in COMPLETED_REPORT.splitlines() if not line.startswith('**Findings:**')),
+    COMPLETED_REPORT.replace('**Findings:** 1 ', '**Findings:** one '),
+    COMPLETED_REPORT.replace('**Findings:** 1 ', '**Findings:** 1.5 '),
+    COMPLETED_REPORT.replace('**Findings:** 1 ', '**Findings:** -1 '),
+    COMPLETED_REPORT.replace('**Findings:** 1 ', '**Findings:** true '),
+    COMPLETED_REPORT.replace('**Findings:** 1 ', '**Findings:** '),
+    COMPLETED_REPORT.replace('**Findings:**', '**Finding count:**'),
+    '<!-- ccr-overview-v2 -->\n\n## Copilot review overview\n\n### Verdict\n\nReport narrative only.',
+])
+def test_failure_or_unknown_report_body_is_not_completed_review(
+    rest: Rest, body: object, capsys: pytest.CaptureFixture[str],
+) -> None:
+    rest.pages = [[review(body=body)]]
+    with pytest.raises(SystemExit) as caught:
+        gate.wait_for_review('autonomio/astetik', '62', HEAD)
+    assert caught.value.code == 2 and not rest.sleeps and len(rest.calls) == 2
+    captured = capsys.readouterr()
+    assert 'completed Copilot report' in captured.err and 'PASS' not in captured.out
+
+
+def test_missing_report_field_cannot_satisfy_submitted_review(rest: Rest) -> None:
+    evidence = review()
+    del evidence['body']
+    rest.pages = [[evidence]]
+    with pytest.raises(SystemExit) as caught:
+        gate.wait_for_review('autonomio/astetik', '62', HEAD)
+    assert caught.value.code == 2 and not rest.sleeps and len(rest.calls) == 2
+
+
+@pytest.mark.parametrize('body', [
+    CAPACITY_FAILURE, None, '', 'Unknown provider format',
+    COMPLETED_REPORT.replace('### 🔵 Needs a closer look', '###   '),
+    COMPLETED_REPORT.replace('**Review effort:** Balanced  \n', ''),
+    '\n'.join(line for line in COMPLETED_REPORT.splitlines() if not line.startswith('**Findings:**')),
+    COMPLETED_REPORT.replace('**Findings:** 1 ', '**Findings:** 1.5 '),
+    '<!-- ccr-overview-v2 -->\n\n## Copilot review overview\n\n### 🔵 Needs a closer look\n\n',
+    '<!-- ccr-overview-v2 -->\n\n## Copilot review overview\n\n### 🔵 Needs a closer look\n\n   \n',
+])
+def test_individual_review_recheck_requires_completed_report_again(
+    rest: Rest, body: object, capsys: pytest.CaptureFixture[str],
+) -> None:
+    rest.detail = review(body=body)
+    with pytest.raises(SystemExit) as caught:
+        gate.wait_for_review('autonomio/astetik', '62', HEAD)
+    assert caught.value.code == 2 and not rest.sleeps and len(rest.calls) == 3
+    assert rest.calls[-1][4] == f'{PULL}/reviews/{REVIEW_ID}'
+    assert 'PASS' not in capsys.readouterr().out
+
+
+def test_other_observed_completed_verdict_header_satisfies_provider_contract(rest: Rest) -> None:
+    report = COMPLETED_REPORT.replace('### 🔵 Needs a closer look', '### 🟡 Changes recommended')
+    rest.pages, rest.detail = [[review(body=report)]], review(body=report)
+    gate.wait_for_review('autonomio/astetik', '62', HEAD)
+    assert not rest.sleeps and len(rest.calls) == 4
+
+
+
+@pytest.mark.parametrize('verdict', ['🟢 Ready for review', 'A different provider verdict'])
+def test_nonempty_verdict_field_variation_preserves_recognized_v2_structure(
+    rest: Rest, verdict: str,
+) -> None:
+    """Vary a field of the real report; these verdicts are not empirical provider fixtures."""
+    report = COMPLETED_REPORT.replace('### 🔵 Needs a closer look', f'### {verdict}')
+    rest.pages, rest.detail = [[review(body=report)]], review(body=report)
+    gate.wait_for_review('autonomio/astetik', '62', HEAD)
+    assert not rest.sleeps and len(rest.calls) == 4
+
+
+def test_zero_integer_findings_field_variation_remains_a_completed_report(rest: Rest) -> None:
+    """Vary metadata fields without treating a clean verdict as human approval."""
+    report = '\n'.join('**Findings:** 0' if line.startswith('**Findings:**') else line
+                       for line in COMPLETED_REPORT.splitlines())
+    rest.pages, rest.detail = [[review(body=report)]], review(body=report)
+    gate.wait_for_review('autonomio/astetik', '62', HEAD)
+    assert not rest.sleeps and len(rest.calls) == 4
+
+
+
+@pytest.mark.parametrize('paginated', [False, True])
+def test_later_completed_same_head_retry_supersedes_earlier_failure(
+    rest: Rest, paginated: bool,
+) -> None:
+    earlier = review(body=CAPACITY_FAILURE)
+    later = review(id=REVIEW_ID + 1, submitted_at='2026-10-01T17:00:02Z')
+    rest.pages = [[earlier], [later]] if paginated else [[earlier, later]]
+    rest.detail = later
+    gate.wait_for_review('autonomio/astetik', '62', HEAD)
+    assert rest.calls[2][4] == f'{PULL}/reviews/{REVIEW_ID + 1}'
+    assert len(rest.calls) == 4 and not rest.sleeps
+
+
+def test_latest_same_head_failure_cannot_fall_back_to_prior_completed_report(
+    rest: Rest, capsys: pytest.CaptureFixture[str],
+) -> None:
+    later = review(id=REVIEW_ID + 1, body=CAPACITY_FAILURE,
+                   submitted_at='2026-10-01T17:00:02Z')
+    rest.pages = [[review()], [later]]
+    with pytest.raises(SystemExit) as caught:
+        gate.wait_for_review('autonomio/astetik', '62', HEAD)
+    assert caught.value.code == 2 and len(rest.calls) == 2 and not rest.sleeps
+    assert 'PASS' not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('excluded', [False, True])
+def test_dismissed_or_event_excluded_failure_does_not_block_valid_retry(
+    rest: Rest, excluded: bool,
+) -> None:
+    failure = review(body=CAPACITY_FAILURE, state='COMMENTED' if excluded else 'DISMISSED')
+    valid = review(id=REVIEW_ID + 1, submitted_at='2026-10-01T17:00:02Z')
+    rest.pages, rest.detail = [[failure, valid]], valid
+    gate.wait_for_review('autonomio/astetik', '62', HEAD, str(REVIEW_ID) if excluded else '')
+    assert rest.calls[2][4] == f'{PULL}/reviews/{REVIEW_ID + 1}'
+    assert len(rest.calls) == 4 and not rest.sleeps
 
 
 def test_all_pages_are_read_and_later_matching_review_can_pass(rest: Rest) -> None:

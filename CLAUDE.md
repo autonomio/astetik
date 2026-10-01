@@ -30,7 +30,7 @@ Eleven laws. Ten are workflow gates on every PR; the eleventh is branch protecti
 
 8. **CodeQL reports no new Python security anti-patterns.** *(PR Checks CodeQL (python))*
 
-9. **The configuration, the written laws, and the enforced gates agree exactly.** The gates `governance.yml` marks enabled and required, the workflow-gate laws here, and the required status checks on `master` are in three-way bijection — every required check has a law, and every gated law is required. A gate added to the ruleset without a law, or a law whose gate was dropped, fails this gate. The same required gate verifies a submitted, non-dismissed Copilot bot review for the current PR head SHA; missing, stale or unreadable review evidence blocks it. *(pr_checks_honesty)*
+9. **The configuration, the written laws, and the enforced gates agree exactly.** The gates `governance.yml` marks enabled and required, the workflow-gate laws here, and the required status checks on `master` are in three-way bijection — every required check has a law, and every gated law is required. A gate added to the ruleset without a law, or a law whose gate was dropped, fails this gate. The same required gate verifies a submitted, non-dismissed Copilot bot review for the current PR head SHA; missing, stale, unreadable or unrecognized completion evidence blocks it. A submitted capacity-failure message is not a completed review. *(pr_checks_honesty)*
 
 10. **Live branch protection on `master` matches `.github/rulesets/master.json`.** Changing branch protection out-of-band (in the GitHub UI) blocks the next PR until the snapshot is updated in a PR of its own. *(pr_checks_ruleset)*
 
