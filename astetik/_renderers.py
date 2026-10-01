@@ -9,6 +9,7 @@ import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 
+from ._analysis_groups import validate_order as validate_comparison_order
 from ._colors import ColorSystem
 from ._manifest import Manifest
 from ._plot_backend import drawing, scoped_rc
@@ -129,9 +130,11 @@ def _validate_order(data: pd.DataFrame, spec: RendererSpec) -> None:
         if kind in ('compare', 'overlap')
         else spec.get('x')
     )
-    if len(order) != len(set(order)):
+    if kind == 'comparison' and isinstance(category, str):
+        validate_comparison_order(data[category], order)
+    elif len(order) != len(set(order)):
         raise ValueError('order must list distinct category labels.')
-    if not isinstance(category, str) or set(order) != set(levels(data[category])):
+    elif not isinstance(category, str) or set(order) != set(levels(data[category])):
         raise ValueError('order must include every observed category exactly once.')
 
 

@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from ._analysis_groups import identity, matching, observed
 from ._analysis_policy import fail
 from ._analysis_types import AnalysisMethods, AnalysisResult, Contrast, GroupSummary, ProtocolPlan
 from ._types import FloatArray, JsonScalar
@@ -66,10 +67,12 @@ def comparison(data: pd.DataFrame, plan: ProtocolPlan, x: str, y: str, methods: 
                                   else 'Independent subjects with approximately normal within-subject differences.')
     assert plan.groups is not None
     groups = list(plan.groups)
-    actual = data[x].unique().tolist()
-    if set(map(str, actual)) != set(map(str, groups)):
-        fail('GROUPS_MISMATCH', 'The input must contain exactly the declared groups.', observed=actual, declared=groups)
-    samples = [cast(FloatArray, data.loc[data[x] == group, y].to_numpy(dtype=float)) for group in groups]
+    actual = observed(data[x])
+    if set(actual) != {identity(group) for group in groups}:
+        fail('GROUPS_MISMATCH', 'The input must contain exactly the declared groups.', observed=list(actual.values()), declared=groups)
+    samples = [cast(FloatArray, data.loc[matching(data[x], group), y].to_numpy(dtype=float)) for group in groups]
+    if sum(map(len, samples)) != len(data):
+        fail('GROUPS_MISMATCH', 'Every retained observation must belong to exactly one declared group.')
     if min(map(len, samples)) < 2:
         fail('SAMPLE_SIZE', 'Each group needs at least two observations.')
     summary = [_group_summary(group, values, plan.confidence) for group, values in zip(groups, samples)]
