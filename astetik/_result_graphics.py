@@ -55,7 +55,7 @@ def svg(figure: Figure) -> bytes:
 
 
 def graphics(figure: Figure, directory: Path, dpi: int) -> None:
-    with graphics_context({'pdf.compression': 9, 'pdf.fonttype': 42, 'savefig.bbox': None}):
+    with graphics_context({'pdf.compression': 6, 'pdf.fonttype': 42, 'savefig.bbox': None}):
         cast(_FigureWriter, figure).savefig(directory / 'figure.pdf', format='pdf', bbox_inches=None,
                        facecolor=figure.get_facecolor(), edgecolor=figure.get_edgecolor(), transparent=False,
                        metadata={'CreationDate': None, 'ModDate': None, 'Creator': 'Astetik', 'Producer': 'Astetik'})
