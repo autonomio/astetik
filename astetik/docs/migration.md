@@ -1,3 +1,3 @@
 # Migration reference
 
-The canonical [Astetik 2.0 migration reference](https://github.com/autonomio/astetik/blob/967c9be451a4486a86b5cf24d4dc8e74ebbcd66e/docs/Reference/Migration.md) owns API and behavior changes.
+The canonical [Astetik 2.0 migration reference](https://github.com/autonomio/astetik/blob/0bb8795a1c207b75a9275be7ca107a607b8903b0/docs/Reference/Migration.md) owns API and behavior changes.

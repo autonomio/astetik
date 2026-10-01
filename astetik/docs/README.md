@@ -1,4 +1,4 @@
 # Documentation entry point
 
-Canonical documentation lives in [docs/README.md](https://github.com/autonomio/astetik/blob/967c9be451a4486a86b5cf24d4dc8e74ebbcd66e/docs/README.md).
-Read [the first-figure guide](https://github.com/autonomio/astetik/blob/967c9be451a4486a86b5cf24d4dc8e74ebbcd66e/docs/Guides/First-Figure.md) for an installed-package workflow using the shipped country metadata snapshot.
+Canonical documentation lives in [docs/README.md](https://github.com/autonomio/astetik/blob/0bb8795a1c207b75a9275be7ca107a607b8903b0/docs/README.md).
+Read [the first-figure guide](https://github.com/autonomio/astetik/blob/0bb8795a1c207b75a9275be7ca107a607b8903b0/docs/Guides/First-Figure.md) for an installed-package workflow using the shipped country metadata snapshot.
