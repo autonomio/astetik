@@ -146,7 +146,7 @@
     "astetik/_render_shapes.py": 120,
     "astetik/_render_world.py": 120,
     "astetik/_renderers.py": 200,
-    "astetik/_replay.py": 130,
+    "astetik/_replay.py": 150,
     "astetik/_result.py": 120,
     "astetik/_result_atomic.py": 50,
     "astetik/_result_environment.py": 30,
@@ -250,14 +250,16 @@
     "branch": 79
   },
   "runtime": {
-    "max_total_seconds": 180,
+    "max_total_seconds": 270,
     "baseline": {
-      "note": "One local Python 3.13 run with coverage enabled and simultaneous governance/docs verification. This is a measured initial ceiling; no CI observation window is claimed. Slowest work: world export/replay (14.69s).",
+      "note": "First-adoption runtime bound based on the actual Linux run of 625 passing product tests. The earlier 180s estimate came from a smaller local suite. Profiled snapshot traversal, canonical font registry comparisons and PDF compression remove repeated work without omitting assertions. One CI sample does not establish a long-term observation window.",
       "workflow": "pr_checks_tests",
       "job": "pr_checks_tests",
+      "run_id": 36886584050,
+      "commit": "3aeef80bc3ba2056d667c2875cd5ca2455cb77e9",
       "sample_count": 1,
-      "observed_max_seconds": 129.179,
-      "headroom_seconds": 50.821
+      "observed_max_seconds": 217.89,
+      "headroom_seconds": 52.11
     }
   },
   "lint": {
