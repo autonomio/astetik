@@ -36,7 +36,8 @@ def frame_payload(data: pd.DataFrame) -> FramePayload:
         columns.append(column)
     return {'format': 'astetik.data.v1', 'columns': columns,
             'column_index': index_payload(data.columns), 'index': index_payload(data.index),
-            'rows': [[encode_cell(data.iat[row, col]) for col in range(data.shape[1])] for row in range(data.shape[0])],
+            'rows': [[encode_cell(value) for value in row] for row in data.itertuples(index=False, name=None)]
+                    if len(data.columns) else [[] for _ in data.index],
             'attrs': json_object({name: data.attrs[name] for name in ('key', 'row_keys', 'units', 'descriptions') if name in data.attrs})}
 
 
