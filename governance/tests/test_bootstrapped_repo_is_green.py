@@ -55,7 +55,13 @@ def _tree_hashes(root: Path) -> dict[str, str]:
 def bootstrapped(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """A throwaway copy, activated without changing existing package identity."""
     repo = tmp_path_factory.mktemp('derived') / 'repo'
-    shutil.copytree(REPO_ROOT, repo, ignore=_IGNORE)
+    # Installed documentation resolves immutable blobs from retained history;
+    # candidate files still include the current uncommitted test and source edits.
+    subprocess.run(
+        ['git', 'clone', '--shared', '--no-checkout', str(REPO_ROOT), str(repo)],
+        check=True,
+    )
+    shutil.copytree(REPO_ROOT, repo, ignore=_IGNORE, dirs_exist_ok=True)
     before = _tree_hashes(repo)
     result = subprocess.run(
         [
