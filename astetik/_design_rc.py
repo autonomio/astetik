@@ -25,6 +25,7 @@ class RcPolicy(Protocol):
 def rc_settings(policy: RcPolicy, paper: bool = False) -> dict[str, object]:
     """Return rc_context settings; never mutate matplotlib global state."""
     floor = policy.paper["min_fontsize"] if paper else 0
+
     def size(key: Literal["fontsize", "labelsize", "titlesize", "ticksize", "legendsize"]) -> float:
         return max(policy.typography[key], floor)
     colors, axes = policy.colors, policy.axes
