@@ -343,6 +343,39 @@ def test_font_cached_externally_before_manifest_registration_refreshes_exact_byt
         assert repeated.verify()['passed']
 
 
+@pytest.mark.parametrize('registered', [False, True])
+def test_registered_font_aliases_are_removed_when_target_bytes_change(
+    tmp_path: Path, countries: pd.DataFrame, registered: bool,
+) -> None:
+    source = _font_project(tmp_path / 'project', absolute=True)
+    font_path = source.parent / 'assets' / 'regular.ttf'
+    if registered:
+        ast.Manifest.load(source)
+    alias = tmp_path / 'different-name.ttf'
+    alias.symlink_to(font_path)
+    assert font_manager.get_font(str(alias)).family_name == 'Finlandica'
+    font_manager.fontManager.addfont(str(alias))
+    replacement = Path(get_data_path()) / 'fonts' / 'ttf' / 'DejaVuSans.ttf'
+    font_path.write_bytes(replacement.read_bytes())
+    revised = ast.Manifest.load(source)
+    assert revised.font_info['resolved'] == 'DejaVu Sans'
+    assert revised.font_info['sha256'] == file_digest(replacement)
+    matching = [entry for entry in font_manager.fontManager.ttflist
+                if Path(entry.fname).resolve() == font_path.resolve()]
+    assert len(matching) == 1
+    assert matching[0].fname == str(font_path.resolve())
+    assert matching[0].name == 'DejaVu Sans'
+    with ExitStack() as cleanup:
+        result = _render(countries, revised)
+        cleanup.callback(plt.close, result.figure)
+        assert result.verify()['passed']
+        bundle = result.write(tmp_path / 'bundle')
+        repeated = ast.replay(bundle)
+        cleanup.callback(plt.close, repeated.figure)
+        assert repeated.svg_bytes() == result.svg_bytes()
+        assert repeated.result_id == result.result_id
+
+
 @pytest.mark.parametrize('paper', [False, True, 'single', 'double'])
 def test_existing_manifest_with_replaced_font_refuses_before_native_draw(
     tmp_path: Path, countries: pd.DataFrame, monkeypatch: pytest.MonkeyPatch,

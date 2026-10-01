@@ -1,10 +1,10 @@
 """Resolve and fingerprint the exact runtime font selected by a manifest."""
 from __future__ import annotations
 
+import os
 import threading
 from collections.abc import Callable
 from hashlib import sha256
-from pathlib import Path
 from typing import Protocol, cast
 
 from ._font_source import FontSource, select_font
@@ -37,7 +37,8 @@ def resolve_font(typography: Typography, context: FontSource | None = None) -> F
             _REGISTERED_FONTS.pop(path, None)
             cast(_CachedFont, getattr(font_manager, '_get_font')).cache_clear()
             entries = cast(list[_FontEntry], getattr(font_manager.fontManager, 'ttflist'))
-            entries[:] = [entry for entry in entries if Path(entry.fname).resolve() != Path(path)]
+            # Compare canonical strings without constructing a Path for every installed font.
+            entries[:] = [entry for entry in entries if os.path.realpath(entry.fname) != path]
         try:
             resolved = font_manager.FontProperties(fname=path).get_name()
         except (OSError, RuntimeError) as exc:
