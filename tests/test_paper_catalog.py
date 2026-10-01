@@ -2,6 +2,7 @@
 
 import json
 from hashlib import sha256
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -283,13 +284,19 @@ def test_every_public_kind_publishes_and_strictly_replays_complete_evidence(
         'spec.json',
         'manifest.json',
         'marks.json',
+        'font.ttf',
+        'font-notices.txt',
     }
     assert all(
         sha256((bundle / name).read_bytes()).hexdigest() == digest
         for name, digest in receipt['output_files'].items()
     )
+    assert receipt['output_files']['font.ttf'] == receipt['font']['sha256']
+    assert (Path(ast.__file__).parent / 'fonts' / 'OFL.txt').read_text() in (bundle / 'font-notices.txt').read_text()
     reproduced = ast.replay(bundle, strict_environment=True)
     assert reproduced.result_id == original.result_id
+    assert all(reproduced.receipt['font'][field] == original.receipt['font'][field]
+               for field in ('requested', 'resolved', 'sha256', 'fallback'))
     assert reproduced.receipt['source'] == original.receipt['source']
     assert reproduced.receipt['environment'] == original.receipt['environment']
     assert reproduced.receipt['methods'] == original.receipt['methods']

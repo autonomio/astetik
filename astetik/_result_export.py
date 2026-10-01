@@ -1,7 +1,6 @@
-"""Locked staging of complete evidence bundles before atomic publication."""
+"""Unique staging of complete evidence bundles before atomic publication."""
 from __future__ import annotations
 
-import os
 import shutil
 import tempfile
 from collections.abc import Callable
@@ -16,6 +15,7 @@ from ._data import file_digest, frame_payload
 from ._errors import AstetikError
 from ._json import canonical_json, json_digest, json_object
 from ._manifest_types import ManifestDocument
+from ._result_font import retain_font
 from ._result_graphics import graphics
 from ._result_types import VerificationReport
 from ._result_verification import object_mapping
@@ -51,6 +51,7 @@ def _stage(bundle: Bundle, directory: Path, report: VerificationReport) -> None:
     (directory / 'figure.svg').write_bytes(bundle.svg())
     graphics(bundle.figure, directory, dpi)
     bundle.unchanged()
+    retain_font(bundle.receipt, directory)
     receipt = json_object(bundle.receipt)
     receipt['verification'] = json_object(report)
     receipt['export'] = {'png_dpi': dpi, 'svg_text': 'outlined; exact font appearance', 'metadata_timestamps': 'omitted'}
@@ -65,12 +66,6 @@ def publish(bundle: Bundle, destination: Path, report: VerificationReport,
         raise AstetikError('OUTPUT_EXISTS', 'Choose a new output directory; published bundles are never overwritten.',
                            {'path': str(destination)})
     destination.parent.mkdir(parents=True, exist_ok=True)
-    lock = destination.parent / (destination.name + '.astetik-lock')
-    try:
-        descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-    except FileExistsError as error:
-        raise AstetikError('OUTPUT_BUSY', 'Another result is publishing to this destination.', {'path': str(destination)}) from error
-    os.close(descriptor)
     temporary: Path | None = None
     try:
         temporary = Path(tempfile.mkdtemp(prefix='.astetik-', dir=destination.parent))
@@ -85,4 +80,3 @@ def publish(bundle: Bundle, destination: Path, report: VerificationReport,
     finally:
         if temporary is not None:
             shutil.rmtree(temporary)
-        lock.unlink(missing_ok=True)

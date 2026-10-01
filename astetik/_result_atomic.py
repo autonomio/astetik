@@ -27,7 +27,11 @@ class _RelativeRename(Protocol):
 def publish_new(source: Path, destination: Path) -> None:
     """Atomically rename without replacing even an empty existing directory."""
     if sys.platform == 'win32':
-        os.rename(source, destination)
+        try:
+            os.rename(source, destination)
+        except FileExistsError as error:
+            raise AstetikError('OUTPUT_EXISTS', 'Choose a new output directory; published bundles are never overwritten.',
+                               {'path': str(destination)}) from error
         return
     libc = ctypes.CDLL(None, use_errno=True)
     if sys.platform == 'darwin':

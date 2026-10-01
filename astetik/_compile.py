@@ -50,7 +50,7 @@ def design_from(value: object, paper: object) -> Manifest:
             preset=cast(Literal['single', 'double'], paper),
             width_mm=89 if paper == 'single' else 178,
         )
-        manifest = Manifest.from_dict(document)
+        manifest = Manifest.from_dict(document, font_source=manifest.font_info)
     elif not isinstance(paper, bool):
         fail('PAPER_PRESET', 'paper must be a boolean or single/double preset.')
     return manifest

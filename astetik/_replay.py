@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from ._bundle_font import retained_design
 from ._compile import compile_evidence
 from ._data import data_digest, file_digest, frame_from_payload, json_digest
 from ._result import EvidenceResult, environment_fingerprint
@@ -24,6 +25,8 @@ REQUIRED_FILES = {
     'figure.svg',
     'figure.pdf',
     'figure.png',
+    'font.ttf',
+    'font-notices.txt',
 }
 
 
@@ -57,6 +60,8 @@ def _retained(directory: Path) -> JsonObject:
         if Path(name).name != name:
             fail('BUNDLE_PATH', 'Bundle file names must be local base names.')
         path = directory / name
+        if name == 'font.ttf' and path.is_symlink():
+            fail('BUNDLE_PATH', 'The retained font must be a local regular artifact.', file=name)
         if not path.is_file() or file_digest(path) != digest:
             fail('BUNDLE_CHANGED', 'A retained artifact does not match its receipt.', file=name)
     return receipt
@@ -108,7 +113,7 @@ def replay(directory: str | Path, *, strict_environment: object = True) -> Evide
         DEFAULT_OPTIONS,
         SUPPORTED_OPTIONS,
     )
-    manifest = _document(path / 'manifest.json')
+    manifest = retained_design(path, receipt, _document(path / 'manifest.json'))
     result = compile_evidence(data, spec, manifest, replayed_receipt=receipt)
     fields = (
         'input_sha256',

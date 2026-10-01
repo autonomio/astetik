@@ -8,25 +8,16 @@ from types import MappingProxyType
 from typing import Unpack
 
 from ._color_math import (
-    check_categories as check_categories,
-)
-from ._color_math import (
-    color_distance as color_distance,
-)
-from ._color_math import (
-    contrast_ratio as contrast_ratio,
-)
-from ._color_math import (
-    lab_components as lab_components,
-)
-from ._color_math import (
-    normalize_hex as normalize_hex,
-)
-from ._color_math import (
-    rgb_components as rgb_components,
+    check_categories,
+    color_distance,
+    contrast_ratio,
+    lab_components,
+    normalize_hex,
+    rgb_components,
 )
 from ._design_rc import dimensions_for, rc_settings
 from ._font import resolve_font
+from ._font_source import FontSource
 from ._immutable import freeze_mapping
 from ._manifest_load import load_document
 from ._manifest_sections import (
@@ -38,24 +29,11 @@ from ._manifest_sections import (
     paper_section,
     typography_section,
 )
-from ._manifest_types import (
-    Axes as Axes,
-)
-from ._manifest_types import (
-    FontInfo as FontInfo,
-)
-from ._manifest_types import (
-    ManifestDocument as ManifestDocument,
-)
-from ._manifest_types import (
-    ManifestSections,
-)
-from ._manifest_types import (
-    Paper as Paper,
-)
-from ._manifest_types import (
-    Typography as Typography,
-)
+from ._manifest_types import Axes, FontInfo, ManifestDocument, ManifestSections, Paper, Typography
+
+__all__ = ['Axes', 'FontInfo', 'Manifest', 'ManifestDocument', 'Paper', 'Typography',
+           'check_categories', 'color_distance', 'contrast_ratio', 'lab_components',
+           'normalize_hex', 'rgb_components']
 
 _SCHEMA_VERSION = "1.0"
 @dataclass(frozen=True, init=False)
@@ -75,7 +53,7 @@ class Manifest:
     _font_info: FontInfo = field(repr=False, compare=False)
 
     def __init__(self, schema_version: str = _SCHEMA_VERSION,
-                 *positional: Mapping[str, object], **sections: Unpack[ManifestSections]) -> None:
+                 *positional: Mapping[str, object], font_source: FontSource | None = None, **sections: Unpack[ManifestSections]) -> None:
         if schema_version != _SCHEMA_VERSION:
             raise ValueError(f"Unsupported manifest schema_version {schema_version!r}; expected {_SCHEMA_VERSION!r}")
         supplied = bind_sections(positional, sections)
@@ -90,10 +68,10 @@ class Manifest:
         object.__setattr__(self, 'typography', freeze_mapping(typography))
         object.__setattr__(self, 'paper', freeze_mapping(paper))
         object.__setattr__(self, 'axes', freeze_mapping(axes))
-        object.__setattr__(self, '_font_info', freeze_mapping(resolve_font(typography)))
+        object.__setattr__(self, '_font_info', freeze_mapping(resolve_font(typography, font_source)))
 
     @classmethod
-    def from_dict(cls, document: object) -> Manifest:
+    def from_dict(cls, document: object, *, font_source: FontSource | None = None) -> Manifest:
         policy = mapping(document, 'A manifest document')
         unknown = set(policy) - {'schema_version', 'colors', 'categories', 'typography', 'paper', 'axes'}
         if unknown:
@@ -101,7 +79,7 @@ class Manifest:
         schema_version = policy.get('schema_version', _SCHEMA_VERSION)
         if not isinstance(schema_version, str):
             raise ValueError('schema_version must be a string')
-        return cls(schema_version,
+        return cls(schema_version, font_source=font_source,
                    colors=mapping(policy.get('colors', {}), 'colors'),
                    categories=mapping(policy.get('categories', {}), 'categories'),
                    typography=mapping(policy.get('typography', {}), 'typography'),
@@ -110,7 +88,12 @@ class Manifest:
 
     @classmethod
     def load(cls, path: str | Path) -> Manifest:
-        return cls.from_dict(load_document(Path(path)))
+        source = Path(path)
+        document = load_document(source)
+        typography = mapping(document.get('typography', {}), 'typography')
+        declared = typography.get('font_path')
+        context = source.parent / Path(declared).expanduser() if isinstance(declared, str) and declared else None
+        return cls.from_dict(document, font_source=context)
 
     def to_dict(self) -> ManifestDocument:
         return {'schema_version': self.schema_version, 'colors': dict(self.colors),
@@ -126,7 +109,7 @@ class Manifest:
         if document['colors']['positive'] == document['colors']['primary']:
             document['colors']['positive'] = primary
         document['colors']['primary'] = primary
-        return self.from_dict(document)
+        return self.from_dict(document, font_source=self.font_info)
 
     @property
     def font_path(self) -> str:

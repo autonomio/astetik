@@ -32,7 +32,7 @@ def _font_policy(manifest: Mapping[str, object], receipt: JsonObject) -> FontPol
     paper = object_mapping(manifest.get('paper', {}))
     minimum = cast(float, paper.get('min_fontsize', typography.get('minimum_pt', 7 if receipt.get('paper', False) else 6)))
     font = object_mapping(receipt.get('font', manifest.get('font_info', typography.get('font_info', typography.get('font', {})))))
-    path = manifest.get('fontpath', typography.get('font_path')) or font.get('path')
+    path = font.get('path') or manifest.get('fontpath', typography.get('font_path'))
     family = typography.get('font_family') or font.get('resolved', font.get('family'))
     checksum = font.get('sha256', font.get('checksum'))
     return FontPolicy(minimum, cast(str | None, path),

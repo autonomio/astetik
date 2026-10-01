@@ -65,12 +65,4 @@ def load_document(source: Path) -> Mapping[str, object]:
         document = yaml_document(text)
     else:
         raise ValueError('Manifest files must use .json, .toml, .yaml, or .yml')
-    result = dict(mapping(document, 'A manifest document'))
-    typography = result.get('typography')
-    if isinstance(typography, Mapping):
-        policy = dict(cast(Mapping[str, object], typography))
-        font_path = policy.get('font_path')
-        if isinstance(font_path, str) and font_path:
-            policy['font_path'] = str((source.parent / font_path).resolve())
-        result['typography'] = policy
-    return result
+    return dict(mapping(document, 'A manifest document'))
