@@ -22,7 +22,7 @@ Security-relevant repository surfaces also include issue/PR parsers, dependency 
 | Requirement | Declared control | What local adoption does not prove |
 | --- | --- | --- |
 | Reviewed source reaches `master` | Eleven laws, ten contexts, `Protect-Master`, human approval plus Copilot | Activated protection, a successful non-author review, or unavailable review entitlements |
-| Laws/config/checks agree | `pr_checks_honesty` bijection | That declared checks run or are required on GitHub |
+| Laws/config/checks agree | `pr_checks_honesty` bijection and current-head Copilot completion | That declared checks run or are required on GitHub |
 | Live protection matches snapshot | `pr_checks_ruleset`; privileged `audit_master_ruleset` includes bypass actors | Live agreement before credentials and actual checks are verified |
 | Known vulnerabilities remain visible | Python pip-audit; time-limited exceptions; zero-advisory production and development npm audits; update workflows | Absence of unknown vulnerabilities or future advisories |
 | CI privilege is bounded | Minimum declared permissions, SHA-pinned actions, nonpersistent checkout credentials except justified tag push | Live token scopes, secret contents, or safety of a future workflow alteration |

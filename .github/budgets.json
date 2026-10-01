@@ -238,6 +238,7 @@
     "governance/check_test_fallbacks.py": 70,
     "governance/check_test_runtime.py": 170,
     "governance/closeout_evidence.py": 120,
+    "governance/copilot_review_gate.py": 130,
     "governance/fail_loud_gate.py": 390,
     "governance/privileged_ruleset_audit.py": 120,
     "governance/ruleset_gate.py": 190,

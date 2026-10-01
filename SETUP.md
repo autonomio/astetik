@@ -20,7 +20,7 @@ The initial read-only audit found missing protection and broad Actions defaults.
 | GitHub Actions | Run the required checks | Actual successful runs; explicitly review write-token/PR-approval defaults, allowed-action policy, and SHA-pinning policy before activation |
 | `governance` environment | Protect manual labels/ruleset activation | Establish human approval and branch protections for the confirmed `master` dispatch |
 | CodeQL availability | Required Python security analysis | Public-repository availability or appropriate security entitlement; an actual run |
-| Copilot review availability | Automatic review independently of human approval | Live ruleset support and an actual completed review |
+| Copilot review availability | Automatic review independently of human approval | Live auto-request rule plus required `pr_checks_honesty` completion evidence for the current PR head SHA |
 | `mikkokotila` eligible approval | Declared human authority | `mikkokotila` and independent owner `EnergyGuy3` were verified administrators; recheck eligibility for activation |
 | `RULESET_ID` variable | Identify `Protect-Master` | Matches the live ruleset id; never invent a placeholder id |
 | `ruleset-audit` environment | Restrict the audit job to `master` | Created with a `master`-only branch policy; organization-secret access is separate from this job restriction |
@@ -68,7 +68,7 @@ Never print credential values or put them in issues, documentation, or commits.
 3. Confirm one eligible non-author human approval can be obtained independently of automatic Copilot review. An author cannot approve their own PR; administrator access alone does not satisfy that review.
 4. Once explicitly authorized, establish only the missing secrets/variables/environments/settings and apply the reviewed snapshot. Reconcile broad Actions defaults with the adopted least-privilege policy; checked-in action SHA pins and workflow permissions apply to these workflows, not the repository-wide live settings. Record the actual ruleset id in `RULESET_ID`.
 5. Verify live protection against [.github/rulesets/master.json](.github/rulesets/master.json), including `bypass_actors`, strict up-to-date checks, required reviews, all ten contexts, no force-push, and no branch deletion.
-6. Verify a real authorized PR receives all required checks and review requirements. Confirm `pr_checks_honesty` and `pr_checks_ruleset` pass, and the privileged post-merge audit can read the complete protection state.
+6. Verify a real authorized PR receives all required checks and review requirements. Confirm `pr_checks_honesty` verifies a submitted current-head Copilot bot review, `pr_checks_ruleset` passes, and the privileged post-merge audit can read the complete protection state.
 7. Activate release or publication only through the separate [release readiness procedure](docs/Developer/Making-Release.md). Do not infer a published release from a successful static build.
 
 Read-only examples, substituting the actual repository coordinates when necessary:

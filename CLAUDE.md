@@ -30,11 +30,11 @@ Eleven laws. Ten are workflow gates on every PR; the eleventh is branch protecti
 
 8. **CodeQL reports no new Python security anti-patterns.** *(PR Checks CodeQL (python))*
 
-9. **The configuration, the written laws, and the enforced gates agree exactly.** The gates `governance.yml` marks enabled and required, the workflow-gate laws here, and the required status checks on `master` are in three-way bijection — every required check has a law, and every gated law is required. A gate added to the ruleset without a law, or a law whose gate was dropped, fails this gate. *(pr_checks_honesty)*
+9. **The configuration, the written laws, and the enforced gates agree exactly.** The gates `governance.yml` marks enabled and required, the workflow-gate laws here, and the required status checks on `master` are in three-way bijection — every required check has a law, and every gated law is required. A gate added to the ruleset without a law, or a law whose gate was dropped, fails this gate. The same required gate verifies a submitted, non-dismissed Copilot bot review for the current PR head SHA; missing, stale or unreadable review evidence blocks it. *(pr_checks_honesty)*
 
 10. **Live branch protection on `master` matches `.github/rulesets/master.json`.** Changing branch protection out-of-band (in the GitHub UI) blocks the next PR until the snapshot is updated in a PR of its own. *(pr_checks_ruleset)*
 
-11. **No direct push to `master`. No force-push. No branch deletion.** Branch must be up-to-date with `master` before merge. One eligible independent human/code-owner approval and automatic Copilot review required; all review threads resolved. *(branch protection, server-side)*
+11. **No direct push to `master`. No force-push. No branch deletion.** Branch must be up-to-date with `master` before merge. One eligible independent human/code-owner approval required; all review threads resolved. The ruleset automatically requests Copilot on every push; law 9 independently blocks merge until its current-head review completes. *(branch protection, server-side)*
 
 Beyond the gates, `audit_master_ruleset` re-checks the live ruleset on every push to `master` with a privileged token — including `bypass_actors`, which the PR-time ruleset gate (`pr_checks_ruleset`) cannot observe. It is a post-merge alarm, not a merge gate, so it carries no law of its own.
 

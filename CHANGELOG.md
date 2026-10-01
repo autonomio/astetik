@@ -7,3 +7,4 @@
 - Preserve original input positions in summaries and nested provenance after declared exclusions.
 - Adopt eleven repository laws, ten required checks, pinned toolchains, and protected branch enforcement.
 - Eliminate inherited typing and lint diagnostics while retaining scientific rendering and provenance contracts.
+- Require a completed Copilot review for the current PR revision through the protected honesty check.
