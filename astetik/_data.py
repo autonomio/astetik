@@ -52,8 +52,8 @@ def _metadata(input_frame: InputFrame) -> tuple[list[JsonScalar], JsonObject, Js
     if not isinstance(raw_keys, list):
         raise AstetikError('INVALID_METADATA', 'Declare row_keys as a list and units/descriptions as mappings.')
     keys = json_value(cast(list[object], raw_keys))
-    if not isinstance(keys, list) or any(isinstance(key, (dict, list)) for key in keys):
-        raise AstetikError('INVALID_METADATA', 'Declared row keys must be scalar column labels.')
+    if not isinstance(keys, list) or any(not isinstance(key, str) for key in keys):
+        raise AstetikError('INVALID_METADATA', 'Declared row keys must name string columns, as explicit plot specifications do.')
     labels = cast(list[JsonScalar], keys)
     if any(key not in input_frame.data.columns for key in labels):
         raise AstetikError('INVALID_METADATA', 'Declared row keys must exist in the input table.')
