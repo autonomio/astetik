@@ -2,7 +2,7 @@
 
 This runbook owns the transition from Astetik's local governance adoption to verified remote enforcement. It does not authorize that transition. Astetik is an existing repository; do not run the template bootstrap against its scientific package merely to activate settings. The retained manual bootstrap requires dispatch from `master` and an exact repository confirmation; those guards are not authorization.
 
-The initial read-only audit found missing protection and broad Actions defaults. Authorized activation on 2026-10-01 established live `Protect-Master` ruleset `24307128`, recorded it in `RULESET_ID`, and passed the full privileged comparison including an empty `bypass_actors` list. Actions defaults are now read-only with PR approval disabled and full SHA pins required. Allowed actions are GitHub-owned actions and the exact workflow pins for the uv installer, Scorecard, and PyPI publisher. Secret scanning and push protection are enabled. `governance` and `release` require an eligible reviewer, prevent self-review, and accept only `master`; `pypi` applies the same review controls to `v*` tags. The audit credential is isolated in the `master`-only `ruleset-audit` environment. Actual required CI, independent approval, Copilot completion, and the persistent environment-token audit remain distinct verification steps; release/publication opt-in variables remain unset.
+The initial read-only audit found missing protection and broad Actions defaults. Authorized activation on 2026-10-01 established live `Protect-Master` ruleset `24307128`, recorded it in `RULESET_ID`, and passed the full privileged comparison including an empty `bypass_actors` list. Actions defaults are now read-only with PR approval disabled and full SHA pins required. Allowed actions are GitHub-owned actions and the exact workflow pins for the uv installer, Scorecard, and PyPI publisher. Secret scanning and push protection are enabled. `governance` and `release` require an eligible reviewer, prevent self-review, and accept only `master`; `pypi` applies the same review controls to `v*` tags. The `master`-only `ruleset-audit` environment is created, but its persistent audit credential is not yet verified. Actual required CI, independent approval, Copilot completion, and the persistent environment-token audit remain distinct verification steps; release/publication opt-in variables remain unset.
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ The initial read-only audit found missing protection and broad Actions defaults.
 | `mikkokotila` eligible approval | Declared human authority | `mikkokotila` and independent owner `EnergyGuy3` were verified administrators; recheck eligibility for activation |
 | `RULESET_ID` variable | Identify `Protect-Master` | Matches the live ruleset id; never invent a placeholder id |
 | `ruleset-audit` environment | Isolate the privileged audit credential | Created with a `master`-only branch policy; token visibility still requires a successful audit |
-| `RULESET_AUDIT_TOKEN` environment secret | Read live protection including `bypass_actors` | Repository Administration read/write plus Metadata read, scoped to Astetik; the post-merge audit actually succeeds |
+| `RULESET_AUDIT_TOKEN` environment secret | Read live protection including `bypass_actors` | Start with Metadata read only, scoped to Astetik; the exact credential must expose `bypass_actors` and pass the complete audit |
 | `REPO_BOOTSTRAP_TOKEN` secret | Template bootstrap operations | Needed only if separately authorized bootstrap is intentionally used; not required for ordinary Astetik PRs |
 | `.github/labels.json` | Source-controlled issue-label manifest | Validate the local semantic-color manifest; no external label-source repository is required |
 | `RELEASE_ENABLED` variable | Opt in to tag/release creation | Leave unset until remote governance and release readiness are proven |
@@ -33,14 +33,25 @@ The initial read-only audit found missing protection and broad Actions defaults.
 | `pypi` environment and PyPI trusted publisher | OIDC upload identity | Exact repository/workflow/environment registration and environment protections |
 
 The retained manual workflow applies local labels, the reviewed ruleset, and its variable; it does not create a PR or rewrite package source. Its PAT/GitHub App credential requires Issues write for labels, Administration write for rulesets, Variables write for `RULESET_ID`, and Metadata read, scoped to this repository. The built-in `GITHUB_TOKEN` cannot administer rulesets. Do not inherit the template's broader PR/workflow/source-write scopes for operations this workflow does not perform.
-The audit makes read-only API requests, but its fine-grained credential needs repository **Administration: Read and write** plus **Metadata: Read**. GitHub returns `bypass_actors` only with write access to the ruleset; updating a ruleset requires Administration write. This permission combination is therefore required for complete audit visibility. [GitHub ruleset API](https://docs.github.com/en/rest/repos/rules#get-a-repository-ruleset)
+The audit makes only read requests. GitHub documents **Metadata: Read** as the minimum token permission for getting a repository ruleset, and separately restricts `bypass_actors` visibility to callers with write access to the ruleset. These are separate conditions: the endpoint documentation does not prove that a restricted token exposes that field. Start with a Metadata-only token created by a verified administrator and test the exact credential. [GitHub ruleset API](https://docs.github.com/en/rest/repos/rules#get-a-repository-ruleset)
+
+Do not grant Administration write by default to this persistent audit credential. That permission allows changing protection and can authorize deleting the selected repository; repository scoping does not remove those capabilities. If the restricted token cannot observe `bypass_actors`, leave the complete audit blocked and obtain a separately reviewed credential design. Never treat a hidden field as an empty bypass list. [GitHub repository deletion permissions](https://docs.github.com/en/rest/repos/repos#delete-a-repository)
 
 ## Audit token setup
 
-1. Open [the fine-grained token form](https://github.com/settings/personal-access-tokens/new?name=astetik-ruleset-audit&target_name=autonomio&expires_in=30&administration=write&metadata=read). Verify resource owner `autonomio`, a short expiration, repository Administration read/write, and Metadata read.
-2. Under **Repository access**, choose **Only select repositories**, then `astetik`. Generate the token; complete organization approval if GitHub marks it pending. [GitHub token instructions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
-3. Open [Astetik environment settings](https://github.com/autonomio/astetik/settings/environments), select `ruleset-audit`, then **Environment secrets → Add secret**. Name it `RULESET_AUDIT_TOKEN` and enter the token directly there. This environment already has a `master`-only branch policy; token functionality has not been verified. [GitHub environment-secret instructions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets#creating-secrets-for-an-environment)
-4. Once the updated audit workflow is available on `master`, run it and retain a successful comparison including `bypass_actors`; HTTP 200 alone does not prove complete visibility. Renew the secret before token expiration.
+1. Open [the fine-grained token form](https://github.com/settings/personal-access-tokens/new?name=astetik-ruleset-audit&target_name=autonomio&expires_in=30&metadata=read). Verify resource owner `autonomio`, a short expiration, and **Metadata: Read** only; leave Administration and all other permissions unselected.
+2. Under **Repository access**, choose **Only select repositories**, then `astetik`. Generate the token using a verified repository administrator's account; complete organization approval if GitHub marks it pending. [GitHub token instructions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+3. Test the exact token locally with `privileged_ruleset_audit.py` before installing it. The complete audit must succeed and observe the actual `bypass_actors`; HTTP 200 alone is insufficient. Read-only token visibility has not yet been proven. If the field is hidden, stop without broadening permissions.
+4. After successful verification, open [Astetik environment settings](https://github.com/autonomio/astetik/settings/environments), select `ruleset-audit`, then **Environment secrets → Add secret**. Name it `RULESET_AUDIT_TOKEN` and enter only the raw generated token directly there, without quotes or `Bearer`. This environment has a `master`-only branch policy. [GitHub environment-secret instructions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets#creating-secrets-for-an-environment)
+5. Once the updated audit workflow is available on `master`, run it and retain a successful complete comparison. Renew the verified secret before token expiration.
+
+In a local zsh terminal, this prompt keeps the token out of shell history and command arguments:
+
+```bash
+read -s 'astetik_audit_token?Audit token: '
+GH_TOKEN="$astetik_audit_token" .venv/bin/python governance/privileged_ruleset_audit.py --ruleset-file .github/rulesets/master.json --repo autonomio/astetik --ruleset-id 24307128 --output-dir output/governance/token-audit
+unset astetik_audit_token
+```
 
 An administrator can instead use the interactive CLI prompt without placing the token in a command argument:
 
@@ -77,7 +88,7 @@ These commands inspect configuration names and access; they do not expose secret
 | --- | --- |
 | Required checks absent | Verify trigger branches, Actions availability, workflow permissions, and token-trigger behavior; do not declare readiness |
 | `RULESET_ID` absent or stale | Establish the actual live id after authorized activation |
-| Audit cannot read `bypass_actors` | Recheck repository Administration read/write, selected repository, token approval/expiration, and the `ruleset-audit` environment secret; fail visibly |
+| Audit cannot read `bypass_actors` | Keep the audit blocked; verify caller eligibility, repository selection, token approval/expiration and the exact response. Do not add Administration write automatically |
 | Human approval does not count | Reviewer lacks write access, is the PR author, or violates live review rules |
 | Copilot review unavailable | Required review prerequisite is missing; report the gap rather than dropping the requirement |
 | CodeQL unavailable | Reconcile law, config, workflow, snapshot, and tests in a separately authorized change; never remove one surface alone |
