@@ -2,7 +2,7 @@
 
 This runbook owns the transition from Astetik's local governance adoption to verified remote enforcement. It does not authorize that transition. Astetik is an existing repository; do not run the template bootstrap against its scientific package merely to activate settings. The retained manual bootstrap requires dispatch from `master` and an exact repository confirmation; those guards are not authorization.
 
-The initial read-only audit found missing protection and broad Actions defaults. Authorized activation on 2026-10-01 established live `Protect-Master` ruleset `24307128`, recorded it in `RULESET_ID`, and passed the full privileged comparison including an empty `bypass_actors` list. Actions defaults are now read-only with PR approval disabled and full SHA pins required. Allowed actions are GitHub-owned actions and the exact workflow pins for the uv installer, Scorecard, and PyPI publisher. Secret scanning and push protection are enabled. `governance` and `release` require an eligible reviewer, prevent self-review, and accept only `master`; `pypi` applies the same review controls to `v*` tags. The `master`-only `ruleset-audit` environment is created, but its persistent audit credential is not yet verified. Actual required CI, independent approval, Copilot completion, and the persistent environment-token audit remain distinct verification steps; release/publication opt-in variables remain unset.
+The initial read-only audit found missing protection and broad Actions defaults. Authorized activation on 2026-10-01 established live `Protect-Master` ruleset `24307128`, recorded it in `RULESET_ID`, and passed the full privileged comparison including an empty `bypass_actors` list. Actions defaults are now read-only with PR approval disabled and full SHA pins required. Allowed actions are GitHub-owned actions and the exact workflow pins for the uv installer, Scorecard, and PyPI publisher. Secret scanning and push protection are enabled. `governance` and `release` require an eligible reviewer, prevent self-review, and accept only `master`; `pypi` applies the same review controls to `v*` tags. The `master`-only `ruleset-audit` environment is created, but its persistent audit credential is not yet verified. Actual required CI, independent approval, Copilot completion, and the persistent organization-token audit remain distinct verification steps; release/publication opt-in variables remain unset.
 
 ## Prerequisites
 
@@ -23,8 +23,8 @@ The initial read-only audit found missing protection and broad Actions defaults.
 | Copilot review availability | Automatic review independently of human approval | Live ruleset support and an actual completed review |
 | `mikkokotila` eligible approval | Declared human authority | `mikkokotila` and independent owner `EnergyGuy3` were verified administrators; recheck eligibility for activation |
 | `RULESET_ID` variable | Identify `Protect-Master` | Matches the live ruleset id; never invent a placeholder id |
-| `ruleset-audit` environment | Isolate the privileged audit credential | Created with a `master`-only branch policy; token visibility still requires a successful audit |
-| `RULESET_AUDIT_TOKEN` environment secret | Read live protection including `bypass_actors` | Start with Metadata read only, scoped to Astetik; the exact credential must expose `bypass_actors` and pass the complete audit |
+| `ruleset-audit` environment | Restrict the audit job to `master` | Created with a `master`-only branch policy; organization-secret access is separate from this job restriction |
+| `RULESET_AUDIT_TOKEN` organization secret | Share one read-only audit credential across Autonomio repositories | Metadata read only; the exact credential must expose `bypass_actors` and pass the complete audit |
 | `REPO_BOOTSTRAP_TOKEN` secret | Template bootstrap operations | Needed only if separately authorized bootstrap is intentionally used; not required for ordinary Astetik PRs |
 | `.github/labels.json` | Source-controlled issue-label manifest | Validate the local semantic-color manifest; no external label-source repository is required |
 | `RELEASE_ENABLED` variable | Opt in to tag/release creation | Leave unset until remote governance and release readiness are proven |
@@ -39,11 +39,11 @@ Do not grant Administration write by default to this persistent audit credential
 
 ## Audit token setup
 
-1. Open [the fine-grained token form](https://github.com/settings/personal-access-tokens/new?name=astetik-ruleset-audit&target_name=autonomio&expires_in=30&metadata=read). Verify resource owner `autonomio`, a short expiration, and **Metadata: Read** only; leave Administration and all other permissions unselected.
-2. Under **Repository access**, choose **Only select repositories**, then `astetik`. Generate the token using a verified repository administrator's account; complete organization approval if GitHub marks it pending. [GitHub token instructions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+1. Open [the prefilled organization-wide token form](https://github.com/settings/personal-access-tokens/new?name=Autonomio%20ruleset%20audit&description=Read-only%20ruleset%20audit%20for%20Autonomio%20repositories&target_name=autonomio&expires_in=none&metadata=read). Verify resource owner `autonomio` and **Metadata: Read** only; leave Administration and all other permissions unselected. The form requests no expiration, subject to organization policy. A personal token remains tied to its creator even when its resource owner is the organization.
+2. Under **Repository access**, choose **All repositories** for one Autonomio-wide setup. GitHub does not support prefilling that selection. Generate the token using a verified repository administrator's account; complete organization approval if GitHub marks it pending. [GitHub token instructions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 3. Test the exact token locally with `privileged_ruleset_audit.py` before installing it. The complete audit must succeed and observe the actual `bypass_actors`; HTTP 200 alone is insufficient. Read-only token visibility has not yet been proven. If the field is hidden, stop without broadening permissions.
-4. After successful verification, open [Astetik environment settings](https://github.com/autonomio/astetik/settings/environments), select `ruleset-audit`, then **Environment secrets → Add secret**. Name it `RULESET_AUDIT_TOKEN` and enter only the raw generated token directly there, without quotes or `Bearer`. This environment has a `master`-only branch policy. [GitHub environment-secret instructions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets#creating-secrets-for-an-environment)
-5. Once the updated audit workflow is available on `master`, run it and retain a successful complete comparison. Renew the verified secret before token expiration.
+4. After successful verification, open [Autonomio's organization secret form](https://github.com/organizations/autonomio/settings/secrets/actions/new). Name it `RULESET_AUDIT_TOKEN`, enter only the raw generated token without quotes or `Bearer`, and choose **All repositories** as its access policy. Organization-owner access is required. Create the secret once; updating it updates the shared credential. Avoid a same-named repository or environment secret, which would override it. Organization secrets are unavailable to private repositories on GitHub Free. [GitHub organization-secret instructions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets#creating-secrets-for-an-organization)
+5. Once the updated audit workflow is available on `master`, run it and retain a successful complete comparison. Each repository still needs its own ruleset id and audit workflow; token and secret creation are shared. Renew the organization secret when its credential expires or is revoked.
 
 In a local zsh terminal, this prompt keeps the token out of shell history and command arguments:
 
@@ -56,7 +56,7 @@ unset astetik_audit_token
 An administrator can instead use the interactive CLI prompt without placing the token in a command argument:
 
 ```bash
-gh secret set RULESET_AUDIT_TOKEN --env ruleset-audit --repo autonomio/astetik
+gh secret set RULESET_AUDIT_TOKEN --org autonomio --visibility all
 ```
 
 Never print credential values or put them in issues, documentation, or commits.
