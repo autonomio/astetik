@@ -14,6 +14,7 @@ import astetik as ast
 from astetik import _animation, _compile
 from astetik._data import data_digest, file_digest, json_digest, normalize
 from astetik._data_types import Normalized
+from astetik._json import json_object
 from astetik._manifest import Manifest
 from astetik._polars import polars_digest
 from astetik._render_context import Rendered
@@ -116,3 +117,42 @@ def test_retained_normalized_handle_does_not_expand_public_input_types() -> None
     with pytest.raises(ast.AstetikError) as failure:
         ast.render(retained, {'kind': 'count', 'x': 'region'})
     assert failure.value.code == 'INVALID_DATA'
+
+
+@pytest.mark.parametrize(('field', 'value', 'code'), [
+    ('key', False, 'KEY_SCHEMA'), ('key', 0, 'KEY_SCHEMA'), ('key', {}, 'KEY_SCHEMA'),
+    ('units', False, 'SPEC_SCHEMA'), ('units', 0, 'SPEC_SCHEMA'), ('units', [], 'SPEC_SCHEMA'),
+])
+def test_animation_rejects_falsy_invalid_metadata_declarations(field: str, value: object, code: str) -> None:
+    options = {field: value}
+    with pytest.raises(ast.AstetikError) as failure:
+        ast.Animation(_countries().iloc[:1], 'country-code', 'region-code', **options)
+    assert failure.value.code == code
+
+
+@pytest.mark.parametrize('key', [None, []])
+@pytest.mark.parametrize('units', [None, {}])
+def test_animation_preserves_explicit_empty_key_and_unit_mappings(
+    key: list[str] | None, units: dict[str, str] | None, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    data = _countries().iloc[:1]
+    declarations: list[JsonObject] = []
+    resolve = _animation.resolve_spec
+
+    def capture_declaration(value: object) -> PlotSpec:
+        declarations.append(json_object(value))
+        return resolve(value)
+
+    monkeypatch.setattr(_animation, 'resolve_spec', capture_declaration)
+    animation = ast.Animation(data, 'country-code', 'region-code', key=key, units=units)
+    result = animation.poster
+    with ExitStack() as cleanup:
+        cleanup.callback(plt.close, result.figure)
+        assert result.receipt['key'] == (['alpha-3'] if key is None else [])
+        assert result.spec['key'] == result.receipt['key']
+        assert result.receipt['units'] == data.attrs['units']
+        assert declarations[0]['units'] == (data.attrs['units'] if units is None else {})
+        assert declarations[0]['key'] == (['alpha-3'] if key is None else [])
+        assert result.receipt['source']['key'] == ['alpha-3']
+        for mark in result.marks.values():
+            assert mark['source_keys'] == [{'alpha-3': data.iloc[0]['alpha-3']}]

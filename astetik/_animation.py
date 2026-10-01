@@ -39,6 +39,9 @@ class Animation:
         label = bound.get('label_col')
         if label is not None and (not isinstance(label, str) or label not in source):
             raise AstetikError('COLUMN_MISSING', 'Animation label_col must exist.')
+        key_override, unit_override = bound.get('key'), bound.get('units')
+        key = normalized.source['key'] if key_override is None else key_override
+        units = normalized.units if unit_override is None else unit_override
         self._source_digest = data_digest(source)
         self.frames = tuple(
             compile_normalized(
@@ -48,8 +51,8 @@ class Animation:
                     'x': x,
                     'y': y,
                     'paper': bound.get('paper', False),
-                    'key': bound.get('key') or normalized.source.get('key', []),
-                    'units': bound.get('units') or normalized.units,
+                    'key': key,
+                    'units': units,
                     'title': str(source.iloc[index][label]) if isinstance(label, str) else '',
                     'options': {'frame': index, 'plot_type': kind},
                 }),
