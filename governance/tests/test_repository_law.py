@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import re
+import shlex
 from pathlib import Path
 
 import yaml
@@ -111,3 +112,38 @@ def test_config_and_ruleset_are_in_bijection() -> None:
         f'in config only: {sorted(config_contexts - ruleset_contexts)}; '
         f'in ruleset only: {sorted(ruleset_contexts - config_contexts)}'
     )
+
+
+def test_honesty_workflow_runs_only_deterministic_law_checks() -> None:
+    """Honesty enforces the repository bijection without an external model dependency."""
+    workflow = yaml.load(
+        (REPO_ROOT / '.github/workflows/pr_checks_honesty.yml').read_text(encoding='utf-8'),
+        Loader=yaml.BaseLoader,
+    )
+    assert workflow['name'] == 'pr_checks_honesty'
+    assert set(workflow['on']) == {'pull_request'}
+    trigger = workflow['on']['pull_request']
+    assert trigger['branches'] == ['master']
+    assert {'opened', 'synchronize', 'reopened', 'ready_for_review'} <= set(trigger['types'])
+    assert workflow['permissions'] == {'contents': 'read'}
+    assert set(workflow['jobs']) == {'pr_checks_honesty'}
+    job = workflow['jobs']['pr_checks_honesty']
+    assert job['name'] == 'pr_checks_honesty' and 'if' not in job
+    steps = job['steps']
+    assert len(steps) == 4
+    assert all('if' not in step and 'continue-on-error' not in step for step in steps)
+    assert steps[0]['uses'].startswith('actions/checkout@')
+    assert steps[0]['with']['persist-credentials'] == 'false'
+    assert steps[1]['uses'].startswith('actions/setup-python@')
+    assert steps[1]['with']['python-version'] == '3.13'
+    installation = [shlex.split(line) for line in steps[2]['run'].splitlines() if line.strip()]
+    assert installation == [
+        ['python', '-m', 'pip', 'install', '--require-hashes', '-r', path]
+        for path in (
+            'requirements/ci/dev-env.txt', 'requirements/ci/runtime-env.txt',
+            'requirements/ci/build-tools.txt',
+        )
+    ] + [['python', '-m', 'pip', 'install', '--no-build-isolation', '--no-deps', '-e', '.']]
+    assert shlex.split(steps[3]['run']) == [
+        'pytest', 'governance/tests/test_repository_law.py', '-v', '--tb=short',
+    ]

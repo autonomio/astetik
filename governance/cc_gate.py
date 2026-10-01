@@ -90,7 +90,7 @@ def cc_types() -> frozenset[str]:
 # AI/LLM assistant, so the PR title and every non-merge commit message
 # must be free of these markers. Legitimate topical references are scrubbed
 # first (ATTRIBUTION_EXEMPT_RE): the repo's own *.md governance files
-# (CLAUDE.md, AGENTS.md, copilot-instructions.md) and the required GitHub
+# (CLAUDE.md, AGENTS.md, copilot-instructions.md) and the advisory GitHub
 # Copilot review -- those are filenames and a feature, not authorship.
 ATTRIBUTION_EXEMPT_RE: Final[re.Pattern[str]] = re.compile(
     r'\b[\w-]+\.md\b|\bcopilot(?:[ -]code)?[ -]review\b',

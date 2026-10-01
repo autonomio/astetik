@@ -4,7 +4,7 @@ This appendix to [AUTONOMIO_PR_GUIDELINE.md](AUTONOMIO_PR_GUIDELINE.md) owns rep
 
 ## Authority and remote boundaries
 
-- `[repo:review-authority]` `mikkokotila` is the declared human authority, verified as administrator during adoption; `EnergyGuy3` is also a verified administrator/code owner, and the operator's own PR requires an eligible independent owner approval separately from Copilot review.
+- `[repo:review-authority]` `mikkokotila` is the declared human authority, verified as administrator during adoption; `EnergyGuy3` is also a verified administrator/code owner, and the operator's own PR requires an eligible independent owner approval and approval of the latest reviewable push. Automatic Copilot review requests are advisory and do not replace human approval or thread resolution.
 - `[repo:activation]` Local standards are adopted; live branch protection, secrets, workflows, and publishers require [SETUP.md](SETUP.md) readiness evidence before activation.
 - `[repo:protected-branch]` The protected base is `master`; its declared snapshot is `.github/rulesets/master.json`, named `Protect-Master`.
 - `[repo:slice]` PRs satisfy the exact slice title, surfaces, exclusions, significance blocks, and Done Means required by the constitution.

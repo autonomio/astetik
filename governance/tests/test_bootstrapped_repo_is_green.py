@@ -18,7 +18,7 @@ _IGNORE = shutil.ignore_patterns(
     '.git', '.venv', '.venv-lint', '.venv-ruleset', '.venv-ruleset-audit',
     '__pycache__', 'node_modules', '.pytest_cache', '.ruff_cache', 'htmlcov',
     '.hypothesis', 'build', 'dist', '.docusaurus', '.generated',
-    'test-results', 'playwright-report',
+    'test-results', 'playwright-report', 'output',
     '.venv*')
 # `bootstrap_repository.py` names every placeholder because it is the thing
 # that replaces them, and generated site output is rebuilt from sources that

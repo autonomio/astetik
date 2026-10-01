@@ -359,7 +359,7 @@ body:
         - [ ] Capability complete
         - [ ] Tests complete
         - [ ] Regression gate complete
-        - [ ] Required gates green
+        - [ ] Other required gates green for the current PR head; this slice check validates the acceptance record, and GitHub requires all checks before merge
         - [ ] Required docs updated
 
         Merge SHA:
