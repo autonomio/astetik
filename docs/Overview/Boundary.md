@@ -26,8 +26,10 @@ The shipped country metadata supports geographic naming, grouping, and frequency
 
 Notebook-era examples and images are retained in Git history, not as the source of modern API claims. The current Python source, public catalogue, and focused tests are authoritative.
 
-## Roadmap boundary
+## Governance boundary
 
-No future behavior is promised by this documentation. This iteration adopts the documentation system and includes a focused correction of original-row mark provenance, without a broader evidence-compiler redesign. Full repository-governance adoption is separate work; [maintenance](../Developer/README.md) states the checks actually present.
+This change implements the evidence compiler described above, including centralized design, declared scientific protocols, original-row provenance, publication checks, atomic bundles, and exact replay. It also adopts the repository constitution, governance gates, CI workflows, packaging controls, and documentation system.
+
+[Maintenance](../Developer/README.md) describes the checked-in controls. The [activation record](../../SETUP.md) distinguishes verified live protection from local checks, outstanding CI/review/audit proofs, and separately authorized release and publication. Scientific receipts and GitHub enforcement evidence serve different contracts; neither establishes universal study validity or a published 2.0 release.
 
 Next: [first figure](../Guides/First-Figure.md).

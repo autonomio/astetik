@@ -16,6 +16,8 @@ jobs:
     name: Scorecard analysis
     runs-on: ubuntu-latest
     permissions:
+      # Job permissions override the workflow-level read-all default.
+      contents: read
       # Needed for Code scanning upload
       security-events: write
       # Needed for GitHub OIDC token if publish_results is true
