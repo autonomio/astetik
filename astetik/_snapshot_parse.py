@@ -74,8 +74,15 @@ def parse_index(value: object) -> IndexPayload:
                              'values': [parse_cell(item) for item in object_list(raw['values'])]}
     if 'dtype' in raw:
         payload['dtype'] = text(raw['dtype'])
-    if 'level_dtypes' in raw:
-        payload['level_dtypes'] = [text(item) for item in object_list(raw['level_dtypes'])]
+    if 'levels' in raw:
+        payload['levels'] = [parse_index(level) for level in object_list(raw['levels'])]
+    if 'codes' in raw:
+        payload['codes'] = [integer_list(code) for code in object_list(raw['codes'])]
+    if 'sortorder' in raw:
+        sortorder = raw['sortorder']
+        payload['sortorder'] = None if sortorder is None else integer_list([sortorder])[0]
+    if 'category_index' in raw:
+        payload['category_index'] = parse_index(raw['category_index'])
     if 'range' in raw:
         payload['range'] = integer_list(raw['range'])
     if 'categories' in raw:

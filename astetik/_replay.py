@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pandas as pd
+
 from ._compile import compile_evidence
-from ._data import file_digest, json_digest, load_snapshot
+from ._data import data_digest, file_digest, frame_from_payload, json_digest
 from ._result import EvidenceResult, environment_fingerprint
 from ._spec import fail, resolve
 from ._spec_json import read_object
@@ -23,6 +25,18 @@ REQUIRED_FILES = {
     'figure.pdf',
     'figure.png',
 }
+
+
+def _document(path: Path) -> JsonObject:
+    try:
+        return read_object(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError) as error:
+        fail(
+            'BUNDLE_DOCUMENT',
+            'The retained JSON document cannot be read.',
+            file=path.name,
+            reason=str(error),
+        )
 
 
 def _retained(directory: Path) -> JsonObject:
@@ -48,12 +62,36 @@ def _retained(directory: Path) -> JsonObject:
     return receipt
 
 
+def _snapshot(path: Path, expected: object) -> pd.DataFrame:
+    frame = frame_from_payload(_document(path))
+    if data_digest(frame) != expected:
+        fail(
+            'BUNDLE_CHANGED',
+            'The retained snapshot differs from its scientific receipt.',
+            file=path.name,
+        )
+    return frame
+
+
+def _inputs(directory: Path, receipt: JsonObject) -> pd.DataFrame:
+    marks = _document(directory / 'marks.json')
+    if json_digest(marks) != receipt.get('marks_sha256'):
+        fail(
+            'BUNDLE_CHANGED',
+            'Retained marks differ from their scientific receipt.',
+            file='marks.json',
+        )
+    _snapshot(directory / 'summary.json', receipt.get('table_sha256'))
+    return _snapshot(directory / 'input.json', receipt.get('input_sha256'))
+
+
 def replay(directory: str | Path, *, strict_environment: object = True) -> EvidenceResult:
     """Verify a bundle's hashes before reconstructing its scientific result."""
     if not isinstance(strict_environment, bool):
         fail('REPLAY_POLICY', 'strict_environment must be a boolean.')
     path = Path(directory)
     receipt = _retained(path)
+    data = _inputs(path, receipt)
     current = environment_fingerprint()
     if strict_environment and current != receipt.get('environment'):
         fail(
@@ -65,15 +103,13 @@ def replay(directory: str | Path, *, strict_environment: object = True) -> Evide
     from ._catalog import DEFAULT_OPTIONS, KINDS, SUPPORTED_OPTIONS
 
     spec = resolve(
-        read_object((path / 'spec.json').read_text(encoding='utf-8')),
+        _document(path / 'spec.json'),
         KINDS,
         DEFAULT_OPTIONS,
         SUPPORTED_OPTIONS,
     )
-    manifest = read_object((path / 'manifest.json').read_text(encoding='utf-8'))
-    result = compile_evidence(
-        load_snapshot(path / 'input.json'), spec, manifest, replayed_receipt=receipt
-    )
+    manifest = _document(path / 'manifest.json')
+    result = compile_evidence(data, spec, manifest, replayed_receipt=receipt)
     fields = (
         'input_sha256',
         'table_sha256',

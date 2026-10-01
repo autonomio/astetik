@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import cast
+from typing import NoReturn, cast
 
 from ._types import JsonObject, JsonValue
 
@@ -21,6 +21,20 @@ def json_object(value: object) -> JsonObject:
     return result
 
 
+def _unique_fields(pairs: list[tuple[str, JsonValue]]) -> JsonObject:
+    result: JsonObject = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f'Duplicate JSON field {key!r}.')
+        result[key] = value
+    return result
+
+
+def _reject_constant(value: str) -> NoReturn:
+    raise ValueError(f'Nonfinite JSON constant {value!r} is not permitted.')
+
+
 def read_object(text: str) -> JsonObject:
     """Read a retained finite object without granting its content execution."""
-    return json_object(cast(object, json.loads(text)))
+    parsed = json.loads(text, object_pairs_hook=_unique_fields, parse_constant=_reject_constant)
+    return json_object(cast(object, parsed))

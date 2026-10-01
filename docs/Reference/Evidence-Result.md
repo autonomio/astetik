@@ -74,7 +74,7 @@ Publication uses an atomic no-overwrite directory step. Existing or competing de
 
 ## Replay
 
-`astetik.replay(directory, strict_environment=True)` is the default. It verifies the receipt seal and complete artifact inventory before reconstruction. Strict mode requires matching recorded runtime source hashes, Python/implementation and dependency versions, platform/architecture, and FreeType version/build identity. It checks recomputed scientific fields, result identity, and exact regenerated SVG bytes.
+`astetik.replay(directory, strict_environment=True)` is the default. It verifies the receipt seal and complete artifact inventory before reconstruction. Retained JSON documents reject duplicate keys and nonfinite constants. Input/summary snapshots and mark bindings must match their scientific receipt digests; resealing the raw file inventory cannot conceal contradictory sidecars. Strict mode requires matching recorded runtime source hashes, Python/implementation and dependency versions, platform/architecture, and FreeType version/build identity. It checks recomputed scientific fields, result identity, and exact regenerated SVG bytes.
 
 `strict_environment=False` explicitly permits recomputation in a changed environment. The receipt/inventory hashes, numerical output, marks, methods, caption, analysis, observation accounting, units, and keys still must match. It does not require exact regenerated SVG equality or claim identical environment identity.
 

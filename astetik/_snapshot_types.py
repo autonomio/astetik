@@ -53,7 +53,9 @@ Cell: TypeAlias = AbsentCell | StringCell | BoolCell | DurationCell | SequenceCe
 # `class` is a reserved Python identifier; the functional form preserves the wire key.
 IndexPayload = TypedDict('IndexPayload', {
     'class': str, 'names': list[Cell], 'values': list[Cell],
-    'dtype': NotRequired[str], 'level_dtypes': NotRequired[list[str]],
+    'dtype': NotRequired[str], 'levels': NotRequired[list['IndexPayload']],
+    'codes': NotRequired[list[list[int]]], 'sortorder': NotRequired[int | None],
+    'category_index': NotRequired['IndexPayload'],
     'range': NotRequired[list[int]], 'categories': NotRequired[list[Cell]],
     'ordered': NotRequired[bool],
 })

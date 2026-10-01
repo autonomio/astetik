@@ -143,7 +143,7 @@
     "astetik/_render_shapes.py": 120,
     "astetik/_render_world.py": 120,
     "astetik/_renderers.py": 200,
-    "astetik/_replay.py": 100,
+    "astetik/_replay.py": 130,
     "astetik/_result.py": 120,
     "astetik/_result_atomic.py": 40,
     "astetik/_result_environment.py": 30,
@@ -156,12 +156,12 @@
     "astetik/_result_verification.py": 70,
     "astetik/_shape_backend.py": 30,
     "astetik/_snapshot.py": 70,
-    "astetik/_snapshot_index.py": 50,
-    "astetik/_snapshot_parse.py": 90,
+    "astetik/_snapshot_index.py": 70,
+    "astetik/_snapshot_parse.py": 100,
     "astetik/_snapshot_types.py": 50,
     "astetik/_source_file.py": 50,
     "astetik/_spec.py": 160,
-    "astetik/_spec_json.py": 20,
+    "astetik/_spec_json.py": 30,
     "astetik/_spec_types.py": 50,
     "astetik/_table.py": 110,
     "astetik/_types.py": 10,
@@ -242,8 +242,8 @@
     "governance/version_gate.py": 410
   },
   "coverage": {
-    "line": 86,
-    "branch": 77
+    "line": 87,
+    "branch": 78
   },
   "runtime": {
     "max_total_seconds": 180,
