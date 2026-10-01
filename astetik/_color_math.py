@@ -37,6 +37,7 @@ def lab_components(value: str) -> tuple[float, float, float]:
     xyz = ((0.4124564 * red + 0.3575761 * green + 0.1804375 * blue) / 0.95047,
            0.2126729 * red + 0.7151522 * green + 0.0721750 * blue,
            (0.0193339 * red + 0.1191920 * green + 0.9503041 * blue) / 1.08883)
+
     def f(v: float) -> float:
         return v ** (1 / 3) if v > (6 / 29) ** 3 else v / (3 * (6 / 29) ** 2) + 4 / 29
     x, y, z = (f(v) for v in xyz)

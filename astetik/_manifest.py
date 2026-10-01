@@ -36,6 +36,8 @@ __all__ = ['Axes', 'FontInfo', 'Manifest', 'ManifestDocument', 'Paper', 'Typogra
            'normalize_hex', 'rgb_components']
 
 _SCHEMA_VERSION = "1.0"
+
+
 @dataclass(frozen=True, init=False)
 class Manifest:
     """One immutable policy shared by every plot and publication export.
