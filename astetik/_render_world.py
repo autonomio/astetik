@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import itertools
+from contextlib import closing
 from hashlib import sha256
 from pathlib import Path
 from typing import Protocol, cast
@@ -49,10 +50,10 @@ def world(context: RenderContext) -> None:
         else Normalize(domain.min(), domain.max())
     )
     cmap = colors.sequential()
-    reader = geometry_reader(str(Path(__file__).parent / 'extras' / 'countries.shp'))
-    field_names = [str(f[0]) for f in reader.fields[1:]]
-    codefield = field_names.index('ADM0_A3')
-    records = list(reader.iterShapeRecords())
+    with closing(geometry_reader(str(Path(__file__).parent / 'extras' / 'countries.shp'))) as reader:
+        field_names = [str(f[0]) for f in reader.fields[1:]]
+        codefield = field_names.index('ADM0_A3')
+        records = list(reader.iterShapeRecords())
     available = {geometry_code(r, codefield) for r in records}
     unknown = sorted(set(codes) - available)
     if unknown:
@@ -110,7 +111,6 @@ def world(context: RenderContext) -> None:
             for suffix in ('shp', 'shx', 'dbf')
         },
     )
-    reader.close()
 
 
 class ScalarNormalizer(Protocol):
