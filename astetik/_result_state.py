@@ -16,7 +16,7 @@ from ._types import JsonObject, JsonValue
 def semantic_identity(receipt: JsonObject) -> str:
     environment = json_object(receipt['environment'])
     font = json_object(receipt.get('font', {}))
-    return json_digest({'input': receipt['input_sha256'], 'table': receipt['table_sha256'],
+    return json_digest({'source': receipt.get('source'), 'input': receipt['input_sha256'], 'table': receipt['table_sha256'],
                         'spec': receipt['spec_sha256'], 'manifest': receipt['manifest_sha256'],
                         'methods': receipt.get('methods', receipt.get('analysis', {})),
                         'upstream': receipt.get('upstream_receipt', receipt.get('upstream')),

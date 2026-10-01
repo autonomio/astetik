@@ -14,7 +14,7 @@ An ordinary `astetik.render()` or `astetik.plot()` call returns `EvidenceResult`
 | `spec`, `manifest` | Resolved declarations and portable design |
 | `receipt` | Scientific, provenance, and environment records |
 | `marks` | Mark-id mapping for observations, aggregates, cells, or evaluated curves |
-| `result_id` | Digest identifying the bound scientific result and recorded runtime/design |
+| `result_id` | Digest identifying the bound scientific result, source declaration, and recorded runtime/design |
 | `inspect(mark_id)` | Returns a copy of a mark's values, computation, source rows and keys |
 | `diff(other)` | Reports changed inputs, methods, values, and design |
 | `verify()` | Returns a publication report without writing a bundle |
@@ -39,6 +39,8 @@ print(result.verify()["passed"])
 ## Receipt boundary
 
 The receipt records source metadata, verified upstream receipt when supplied, units, descriptions, keys, input/used/excluded observation accounting, exclusion reason, plot and analysis methods, numerical analysis, computed caption, actual font, environment identity, and input/table/specification/manifest/mark digests.
+
+The result identity binds the complete source declaration, including recorded origin, path, and file digest when present. Replay retains that historical declaration without requiring the original file to remain available.
 
 Scientific assumptions remain declared. Hashes and seals detect mismatches against retained evidence; they are not external signatures proving authorship or the truth of input data.
 
@@ -76,9 +78,9 @@ Publication stages each bundle in its own temporary directory and uses an atomic
 
 ## Replay
 
-`astetik.replay(directory, strict_environment=True)` is the default. It verifies the receipt seal and complete artifact inventory before reconstruction. Retained JSON documents reject duplicate keys and nonfinite constants. Input/summary snapshots and mark bindings must match their scientific receipt digests; resealing the raw file inventory cannot conceal contradictory sidecars. Strict mode requires matching recorded runtime source hashes, Python/implementation and dependency versions, platform/architecture, and FreeType version/build identity. It checks recomputed scientific fields, result identity, and exact regenerated SVG bytes.
+`astetik.replay(directory, strict_environment=True)` is the default. It verifies the receipt seal and complete artifact inventory before reconstruction. Retained JSON documents reject duplicate keys and nonfinite constants. Input/summary snapshots and mark bindings must match their scientific receipt digests. Both CSV companions must equal the readable output regenerated from their validated JSON snapshots with the export dialect. The retained receipt must match its semantic result identity, including the source declaration; resealing the raw inventory cannot conceal contradictory companions or source claims. Strict mode requires matching recorded runtime source hashes, Python/implementation and dependency versions, platform/architecture, and FreeType version/build identity. It checks recomputed scientific fields, result identity, and exact regenerated SVG bytes.
 
-`strict_environment=False` explicitly permits recomputation in a changed environment. The receipt/inventory hashes, numerical output, marks, methods, caption, analysis, observation accounting, units, and keys still must match. It does not require exact regenerated SVG equality or claim identical environment identity.
+`strict_environment=False` explicitly permits recomputation in a changed environment. The receipt/inventory hashes, retained semantic identity, source declaration, both CSV companions, numerical output, marks, methods, caption, analysis, observation accounting, units, and keys still must match. It does not require exact regenerated SVG equality or claim identical environment identity.
 
 These modes verify different bounded contracts. Retain the recorded environment for an exact replay claim; the package does not recreate an environment from a receipt automatically.
 

@@ -31,23 +31,26 @@ def reseal(directory, changed_file):
     (directory / 'receipt.json').write_text(canonical_json(receipt) + '\n')
 
 
-@pytest.mark.parametrize('filename', ['marks.json', 'summary.json'])
+@pytest.mark.parametrize('filename', ['marks.json', 'summary.json', 'input.csv', 'summary.csv'])
 @pytest.mark.parametrize('strict', [True, False])
 def test_resealed_scientific_sidecars_must_match_semantic_receipt(bundle, filename, strict):
     directory, original = bundle
     path = directory / filename
-    document = json.loads(path.read_text())
-    if filename == 'marks.json':
-        next(iter(document.values()))['values']['n'] += 1000
+    if path.suffix == '.csv':
+        path.write_bytes(path.read_bytes() + b'# RESEALED_CORRUPTION\n')
     else:
-        position = next(
-            index
-            for index, column in enumerate(document['columns'])
-            if column['name']['value'] == 'n'
-        )
-        cell = document['rows'][0][position]
-        cell['value'] = str(int(cell['value']) + 1000)
-    path.write_text(canonical_json(document) + '\n')
+        document = json.loads(path.read_text())
+        if filename == 'marks.json':
+            next(iter(document.values()))['values']['n'] += 1000
+        else:
+            position = next(
+                index
+                for index, column in enumerate(document['columns'])
+                if column['name']['value'] == 'n'
+            )
+            cell = document['rows'][0][position]
+            cell['value'] = str(int(cell['value']) + 1000)
+        path.write_text(canonical_json(document) + '\n')
     reseal(directory, filename)
     with pytest.raises(ast.AstetikError) as caught:
         ast.replay(directory, strict_environment=strict)
