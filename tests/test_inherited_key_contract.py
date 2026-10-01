@@ -28,11 +28,25 @@ def test_nonstring_inherited_keys_fail_before_producing_unreplayable_evidence(co
 
 
 @pytest.mark.parametrize('field', ['key', 'row_keys'])
-def test_string_inherited_keys_match_explicit_keys_and_strictly_replay(countries, field, tmp_path):
-    countries.attrs[field] = ['alpha-3']
+@pytest.mark.parametrize('keys', [['alpha-3', 'alpha-3'], ['region', 'alpha-3', 'region']])
+def test_duplicate_inherited_keys_fail_before_compilation(countries, field, keys):
+    countries.attrs[field] = keys.copy()
+    original = countries.copy(deep=True)
+    with pytest.raises(ast.AstetikError) as caught:
+        ast.render(countries, {'kind': 'count', 'x': 'region'})
+    assert caught.value.code == 'INVALID_METADATA'
+    assert 'distinct' in str(caught.value)
+    pd.testing.assert_frame_equal(countries, original)
+    assert countries.attrs[field] == keys
+
+
+@pytest.mark.parametrize('field', ['key', 'row_keys'])
+@pytest.mark.parametrize('keys', [['alpha-3'], ['alpha-3', 'region']])
+def test_string_inherited_keys_match_explicit_keys_and_strictly_replay(countries, field, keys, tmp_path):
+    countries.attrs[field] = keys.copy()
     inherited = ast.render(countries, {'kind': 'count', 'x': 'region'})
-    explicit = ast.render(countries, {'kind': 'count', 'x': 'region', 'key': ['alpha-3']})
-    assert inherited.spec['key'] == ['alpha-3']
+    explicit = ast.render(countries, {'kind': 'count', 'x': 'region', 'key': keys})
+    assert inherited.spec['key'] == keys
     assert inherited.marks == explicit.marks
     assert inherited.receipt['input_sha256'] == explicit.receipt['input_sha256']
     bundle = inherited.write(tmp_path / 'country-evidence')
