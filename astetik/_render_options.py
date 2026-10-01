@@ -89,7 +89,7 @@ _VALIDATORS: dict[str, tuple[Callable[[object], bool], str]] = {
         'gridsize must be an integer of at least 16.',
     ),
     'cut': (
-        lambda v: isinstance(v, (int, float)) and bool(np.isfinite(v)) and v >= 0,
+        lambda v: not isinstance(v, bool) and isinstance(v, (int, float)) and bool(np.isfinite(v)) and v >= 0,
         'cut must be a finite nonnegative number.',
     ),
     'estimator': (
@@ -98,11 +98,11 @@ _VALIDATORS: dict[str, tuple[Callable[[object], bool], str]] = {
     ),
     'errorbar': (lambda v: v in (None, 'sd', 'se'), "errorbar must be None, 'sd', or 'se'."),
     'jitter': (
-        lambda v: isinstance(v, (int, float)) and 0 <= v <= 0.4,
+        lambda v: not isinstance(v, bool) and isinstance(v, (int, float)) and 0 <= v <= 0.4,
         'jitter must be a number between 0 and 0.4.',
     ),
     'col_wrap': (
-        lambda v: v is None or (isinstance(v, int) and v >= 1),
+        lambda v: v is None or (not isinstance(v, bool) and isinstance(v, int) and v >= 1),
         'col_wrap must be a positive integer.',
     ),
 }
