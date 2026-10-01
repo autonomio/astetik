@@ -10,8 +10,9 @@ from typing import Unpack, cast
 from PIL import Image
 
 from ._animation_spec import AnimationFields, AnimationReceipt, bind, plot_kind
+from ._compile import compile_normalized
 from ._data import canonical_json, data_digest, file_digest, json_digest, normalize
-from ._entry import render
+from ._entry import resolve_spec
 from ._errors import AstetikError
 from ._result_atomic import publish_new
 
@@ -40,9 +41,9 @@ class Animation:
             raise AstetikError('COLUMN_MISSING', 'Animation label_col must exist.')
         self._source_digest = data_digest(source)
         self.frames = tuple(
-            render(
-                data,
-                {
+            compile_normalized(
+                normalized,
+                resolve_spec({
                     'kind': 'animate',
                     'x': x,
                     'y': y,
@@ -51,7 +52,7 @@ class Animation:
                     'units': bound.get('units') or normalized.units,
                     'title': str(source.iloc[index][label]) if isinstance(label, str) else '',
                     'options': {'frame': index, 'plot_type': kind},
-                },
+                }),
                 bound.get('manifest'),
             )
             for index in range(len(source))

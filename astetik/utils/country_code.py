@@ -26,4 +26,4 @@ def country_to_code(country: str) -> str:
     """Resolve an exact retained country/area name or fail on an unknown identity."""
     return _lookup('name', country, 'alpha-3')
 
-__all__ = ['_lookup', 'code_to_country', 'country_to_code']
+__all__ = ['code_to_country', 'country_to_code']

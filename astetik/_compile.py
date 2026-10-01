@@ -151,6 +151,21 @@ def compile_evidence(
     inherited_key: bool = False,
     replayed_receipt: JsonObject | None = None,
 ) -> EvidenceResult:
+    return compile_normalized(
+        normalize(data), spec, manifest,
+        inherited_key=inherited_key, replayed_receipt=replayed_receipt,
+    )
+
+
+def compile_normalized(
+    normalized: Normalized,
+    spec: PlotSpec,
+    manifest: object = None,
+    *,
+    inherited_key: bool = False,
+    replayed_receipt: JsonObject | None = None,
+) -> EvidenceResult:
+    """Compile retained input without rereading its caller-owned origin."""
     try:
         design = design_from(manifest, spec['paper'])
     except AstetikError:
@@ -158,7 +173,6 @@ def compile_evidence(
     except (ValueError, TypeError, OSError) as error:
         fail('MANIFEST_CONTRACT', 'The design manifest is invalid.', reason=str(error))
     spec['paper'] = bool(spec['paper'])
-    normalized = normalize(data)
     observations = prepare(normalized, spec, inherited_key=inherited_key)
     validate_measurements(observations, spec, design)
     validate_axes(observations.frame, spec)

@@ -28,11 +28,11 @@ def axes(kwargs: dict[str, object]) -> None:
     for dimension in ('x', 'y'):
         scale = kwargs.pop(f'{dimension}_scale', None)
         limits = kwargs.pop(f'{dimension}_limit', None)
-        if scale or limits:
+        if scale is not None or limits is not None:
             policy = mapping(result.get(dimension, {}), 'axis policy')
-            if scale:
+            if scale is not None:
                 policy['scale'] = scale
-            if limits:
+            if limits is not None:
                 policy['limits'] = limits
             result[dimension] = policy
     if result:

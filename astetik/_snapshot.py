@@ -12,6 +12,7 @@ from ._json import json_digest, json_object
 from ._snapshot_index import index_payload, restore_index
 from ._snapshot_parse import parse_snapshot
 from ._snapshot_types import ColumnPayload, FramePayload
+from ._spec_json import read_object
 
 
 def column_from_values(values: list[object], dtype: str | pd.CategoricalDtype) -> pd.DataFrame:
@@ -63,9 +64,8 @@ def frame_from_payload(value: object) -> pd.DataFrame:
 
 
 def load_snapshot(path: str | Path) -> pd.DataFrame:
-    import json
     try:
-        payload: object = json.loads(Path(path).read_text(encoding='utf-8'))
+        payload = read_object(Path(path).read_text(encoding='utf-8'))
     except (OSError, ValueError) as error:
         raise AstetikError('INVALID_SNAPSHOT', 'Use an existing typed input.json snapshot.') from error
     return frame_from_payload(payload)
