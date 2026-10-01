@@ -243,7 +243,7 @@
   },
   "coverage": {
     "line": 86,
-    "branch": 76
+    "branch": 77
   },
   "runtime": {
     "max_total_seconds": 180,
