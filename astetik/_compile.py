@@ -35,7 +35,7 @@ def design_from(value: object, paper: object) -> Manifest:
     if value is None:
         manifest = Manifest()
     elif isinstance(value, Manifest):
-        manifest = value
+        manifest = Manifest.from_dict(value.to_dict(), font_source=value.font_info)
     elif isinstance(value, dict):
         manifest = Manifest.from_dict(cast(object, value))
     elif isinstance(value, (str, Path)):

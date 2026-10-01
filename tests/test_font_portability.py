@@ -10,7 +10,10 @@ from typing import NoReturn
 
 import pandas as pd
 import pytest
+from matplotlib import font_manager, get_data_path
 from matplotlib import pyplot as plt
+from matplotlib.backend_bases import RendererBase
+from matplotlib.figure import Figure
 
 import astetik as ast
 from astetik import _replay
@@ -236,3 +239,124 @@ def test_serialized_relative_font_requires_its_declared_resolution_context(tmp_p
     reconstructed = ast.Manifest.from_dict(manifest.to_dict(), font_source=manifest.font_info)
     assert reconstructed.to_dict() == manifest.to_dict()
     assert reconstructed.font_info == manifest.font_info
+
+
+@pytest.mark.parametrize('atomic', [False, True])
+def test_same_path_font_replacement_refreshes_actual_face_without_stale_registrations(
+    tmp_path: Path, countries: pd.DataFrame, atomic: bool,
+) -> None:
+    source = _font_project(tmp_path / 'project', absolute=True)
+    initial = ast.Manifest.load(source)
+    font_path = Path(initial.font_path)
+    replacement = Path(get_data_path()) / 'fonts' / 'ttf' / 'DejaVuSans.ttf'
+    with ExitStack() as cleanup:
+        original = _render(countries, initial)
+        cleanup.callback(plt.close, original.figure)
+        if atomic:
+            staged = font_path.with_suffix('.replacement.ttf')
+            shutil.copyfile(replacement, staged)
+            staged.replace(font_path)
+        else:
+            font_path.write_bytes(replacement.read_bytes())
+        revised = ast.Manifest.load(source)
+        assert initial.font_info['resolved'] == 'Finlandica'
+        assert revised.font_info['resolved'] == 'DejaVu Sans'
+        assert revised.font_info['sha256'] == file_digest(replacement)
+        assert revised.font_info['sha256'] != initial.font_info['sha256']
+        assert revised.font_info['fallback'] is False
+        for _ in range(2):
+            assert ast.Manifest.load(source).font_info == revised.font_info
+        matching = [entry for entry in font_manager.fontManager.ttflist
+                    if Path(entry.fname).resolve() == font_path.resolve()]
+        assert len(matching) == 1
+        assert matching[0].name == 'DejaVu Sans'
+        with pytest.raises(ValueError, match='Retained font identity'):
+            initial.with_primary('#235B60')
+        with pytest.raises(ast.AstetikError) as changed:
+            original.write(tmp_path / 'stale')
+        assert changed.value.code == 'RESULT_CHANGED'
+        assert not (tmp_path / 'stale').exists()
+        refreshed = _render(countries, revised, 'double')
+        cleanup.callback(plt.close, refreshed.figure)
+        bundle = refreshed.write(tmp_path / 'fresh')
+        replayed = ast.replay(bundle)
+        cleanup.callback(plt.close, replayed.figure)
+        assert replayed.result_id == refreshed.result_id
+        assert replayed.svg_bytes() == refreshed.svg_bytes()
+        assert replayed.verify()['passed']
+        assert replayed.receipt['font']['resolved'] == 'DejaVu Sans'
+        assert replayed.receipt['font']['sha256'] == file_digest(replacement)
+
+
+def test_invalid_same_path_font_replacement_rejects_before_rendering(
+    tmp_path: Path, countries: pd.DataFrame,
+) -> None:
+    source = _font_project(tmp_path / 'project')
+    initial = ast.Manifest.load(source)
+    original_bytes = Path(initial.font_path).read_bytes()
+    Path(initial.font_path).write_bytes(b'not a valid font')
+    with pytest.raises(ValueError, match='Cannot read typography font'):
+        ast.Manifest.load(source)
+    with pytest.raises(ast.AstetikError) as failure:
+        ast.render(countries, {'kind': 'scat', 'x': 'country-code', 'y': 'country-code'}, source)
+    assert failure.value.code == 'MANIFEST_CONTRACT'
+    Path(initial.font_path).write_bytes(original_bytes)
+    restored = ast.Manifest.load(source)
+    assert restored.font_info == initial.font_info
+    matching = [entry for entry in font_manager.fontManager.ttflist
+                if Path(entry.fname).resolve() == Path(initial.font_path).resolve()]
+    assert len(matching) == 1
+    with ExitStack() as cleanup:
+        result = _render(countries, restored)
+        cleanup.callback(plt.close, result.figure)
+        assert result.verify()['passed']
+
+
+@pytest.mark.parametrize('warm', ['face', 'properties'])
+def test_font_cached_externally_before_manifest_registration_refreshes_exact_bytes(
+    tmp_path: Path, countries: pd.DataFrame, warm: str,
+) -> None:
+    source = _font_project(tmp_path / 'project', absolute=True)
+    font_path = source.parent / 'assets' / 'regular.ttf'
+    if warm == 'face':
+        assert font_manager.get_font(str(font_path)).family_name == 'Finlandica'
+    else:
+        assert font_manager.FontProperties(fname=str(font_path)).get_name() == 'Finlandica'
+    font_manager.fontManager.addfont(str(font_path))
+    replacement = Path(get_data_path()) / 'fonts' / 'ttf' / 'DejaVuSans.ttf'
+    font_path.write_bytes(replacement.read_bytes())
+    manifest = ast.Manifest.load(source)
+    assert manifest.font_info['resolved'] == 'DejaVu Sans'
+    assert manifest.font_info['sha256'] == file_digest(replacement)
+    matching = [entry for entry in font_manager.fontManager.ttflist
+                if Path(entry.fname).resolve() == font_path.resolve()]
+    assert len(matching) == 1
+    assert matching[0].name == 'DejaVu Sans'
+    with ExitStack() as cleanup:
+        result = _render(countries, manifest)
+        cleanup.callback(plt.close, result.figure)
+        bundle = result.write(tmp_path / 'bundle')
+        repeated = ast.replay(bundle)
+        cleanup.callback(plt.close, repeated.figure)
+        assert repeated.result_id == result.result_id
+        assert repeated.svg_bytes() == result.svg_bytes()
+        assert repeated.verify()['passed']
+
+
+@pytest.mark.parametrize('paper', [False, True, 'single', 'double'])
+def test_existing_manifest_with_replaced_font_refuses_before_native_draw(
+    tmp_path: Path, countries: pd.DataFrame, monkeypatch: pytest.MonkeyPatch,
+    paper: bool | str,
+) -> None:
+    source = _font_project(tmp_path / 'project')
+    initial = ast.Manifest.load(source)
+    replacement = Path(get_data_path()) / 'fonts' / 'ttf' / 'DejaVuSans.ttf'
+    Path(initial.font_path).write_bytes(replacement.read_bytes())
+
+    def reject_draw(_figure: Figure, _renderer: RendererBase) -> NoReturn:
+        raise AssertionError('A stale manifest reached native drawing')
+
+    monkeypatch.setattr(Figure, 'draw', reject_draw)
+    with pytest.raises(ast.AstetikError) as failure:
+        _render(countries, initial, paper)
+    assert failure.value.code == 'MANIFEST_CONTRACT'
