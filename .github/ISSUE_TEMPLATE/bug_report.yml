@@ -1,0 +1,41 @@
+name: Bug Report
+description: Report reproducible incorrect behavior.
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: State the observed bug and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Provide exact commands, data assumptions, and output.
+      value: |
+        Command:
+        ```
+        ```
+
+        Expected:
+
+        Actual:
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: "Astetik Version"
+      placeholder: "0.22.0"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Python 3.12 on macOS 15"
+    validations:
+      required: true

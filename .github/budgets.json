@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "typing": {
+    "patterns": {
+      "any_annotation": {
+        "pattern": ":\\s*Any\\b",
+        "total": 0
+      },
+      "any_return": {
+        "pattern": "->\\s*Any\\b",
+        "total": 0
+      },
+      "any_import": {
+        "pattern": "from typing import[^\\n]*\\bAny\\b",
+        "total": 0
+      },
+      "cast_any": {
+        "pattern": "cast\\([^)]*\\bAny\\b",
+        "total": 0
+      },
+      "dict_any": {
+        "pattern": "dict\\[[^]]*\\bAny\\b",
+        "total": 0
+      },
+      "list_any": {
+        "pattern": "list\\[\\s*Any\\b",
+        "total": 0
+      },
+      "tuple_any": {
+        "pattern": "tuple\\[[^]]*\\bAny\\b",
+        "total": 0
+      },
+      "type_ignore": {
+        "pattern": "#\\s*type:\\s*ignore",
+        "total": 0
+      },
+      "pyright_ignore": {
+        "pattern": "#\\s*pyright:\\s*ignore",
+        "total": 0
+      },
+      "noqa": {
+        "pattern": "#\\s*noqa",
+        "total": 0
+      }
+    },
+    "any_references": {
+      "total": 0
+    },
+    "pyright_errors": {
+      "total": 0
+    },
+    "pyright_warnings": {
+      "total": 0
+    }
+  },
+  "fail_loud": {
+    "categories": {
+      "bare_except": {
+        "total": 0
+      },
+      "empty_pass": {
+        "total": 0
+      },
+      "empty_ellipsis": {
+        "total": 0
+      },
+      "empty_return_none": {
+        "total": 0
+      },
+      "empty_continue_break": {
+        "total": 0
+      },
+      "contextlib_suppress": {
+        "total": 0
+      },
+      "errors_ignore_kwarg": {
+        "total": 0
+      }
+    }
+  },
+  "modules": {
+    "astetik/__init__.py": 160,
+    "astetik/_analysis.py": 30,
+    "astetik/_analysis_association.py": 40,
+    "astetik/_analysis_comparison.py": 80,
+    "astetik/_analysis_longitudinal.py": 20,
+    "astetik/_analysis_policy.py": 80,
+    "astetik/_analysis_types.py": 70,
+    "astetik/_animation.py": 130,
+    "astetik/_animation_spec.py": 50,
+    "astetik/_api.py": 140,
+    "astetik/_axis_policy.py": 140,
+    "astetik/_catalog.py": 60,
+    "astetik/_cells.py": 110,
+    "astetik/_cli.py": 90,
+    "astetik/_color_math.py": 50,
+    "astetik/_colors.py": 120,
+    "astetik/_columns.py": 60,
+    "astetik/_compile.py": 170,
+    "astetik/_conveniences.py": 140,
+    "astetik/_data.py": 100,
+    "astetik/_data_types.py": 50,
+    "astetik/_design_rc.py": 60,
+    "astetik/_entry.py": 60,
+    "astetik/_errors.py": 20,
+    "astetik/_font.py": 50,
+    "astetik/_immutable.py": 10,
+    "astetik/_json.py": 40,
+    "astetik/_legacy.py": 10,
+    "astetik/_legacy_options.py": 50,
+    "astetik/_manifest.py": 130,
+    "astetik/_manifest_load.py": 70,
+    "astetik/_manifest_sections.py": 140,
+    "astetik/_manifest_types.py": 60,
+    "astetik/_measurements.py": 120,
+    "astetik/_nullable.py": 10,
+    "astetik/_numpy_types.py": 20,
+    "astetik/_observation.py": 120,
+    "astetik/_plot_backend.py": 130,
+    "astetik/_plot_styles.py": 120,
+    "astetik/_polars.py": 50,
+    "astetik/_poster.py": 70,
+    "astetik/_prepared.py": 40,
+    "astetik/_presentation.py": 80,
+    "astetik/_presentation_axes.py": 100,
+    "astetik/_presentation_labels.py": 60,
+    "astetik/_render_categorical.py": 100,
+    "astetik/_render_category_types.py": 30,
+    "astetik/_render_common.py": 110,
+    "astetik/_render_comparison.py": 110,
+    "astetik/_render_context.py": 170,
+    "astetik/_render_correlation.py": 90,
+    "astetik/_render_density.py": 160,
+    "astetik/_render_groups.py": 110,
+    "astetik/_render_histogram.py": 140,
+    "astetik/_render_layout.py": 50,
+    "astetik/_render_options.py": 140,
+    "astetik/_render_panels.py": 140,
+    "astetik/_render_positions.py": 80,
+    "astetik/_render_scalar.py": 20,
+    "astetik/_render_sectors.py": 150,
+    "astetik/_render_series.py": 190,
+    "astetik/_render_shapes.py": 120,
+    "astetik/_render_world.py": 120,
+    "astetik/_renderers.py": 200,
+    "astetik/_replay.py": 100,
+    "astetik/_result.py": 120,
+    "astetik/_result_atomic.py": 40,
+    "astetik/_result_environment.py": 30,
+    "astetik/_result_export.py": 80,
+    "astetik/_result_geometry.py": 80,
+    "astetik/_result_graphics.py": 50,
+    "astetik/_result_state.py": 40,
+    "astetik/_result_text.py": 80,
+    "astetik/_result_types.py": 20,
+    "astetik/_result_verification.py": 70,
+    "astetik/_shape_backend.py": 30,
+    "astetik/_snapshot.py": 70,
+    "astetik/_snapshot_index.py": 50,
+    "astetik/_snapshot_parse.py": 90,
+    "astetik/_snapshot_types.py": 50,
+    "astetik/_source_file.py": 50,
+    "astetik/_spec.py": 160,
+    "astetik/_spec_json.py": 20,
+    "astetik/_spec_types.py": 50,
+    "astetik/_table.py": 110,
+    "astetik/_types.py": 10,
+    "astetik/docs/first_figure.py": 60,
+    "astetik/extras/__init__.py": 10,
+    "astetik/plots/__init__.py": 110,
+    "astetik/plots/animate.py": 10,
+    "astetik/plots/bar.py": 10,
+    "astetik/plots/bargrid.py": 10,
+    "astetik/plots/bartwo.py": 10,
+    "astetik/plots/box.py": 10,
+    "astetik/plots/compare.py": 10,
+    "astetik/plots/corr.py": 10,
+    "astetik/plots/count.py": 10,
+    "astetik/plots/grid.py": 10,
+    "astetik/plots/hist.py": 10,
+    "astetik/plots/kde.py": 10,
+    "astetik/plots/line.py": 10,
+    "astetik/plots/multicount.py": 10,
+    "astetik/plots/multikde.py": 10,
+    "astetik/plots/oned.py": 10,
+    "astetik/plots/overlap.py": 10,
+    "astetik/plots/pie.py": 10,
+    "astetik/plots/regs.py": 10,
+    "astetik/plots/roc.py": 10,
+    "astetik/plots/scat.py": 10,
+    "astetik/plots/strip.py": 10,
+    "astetik/plots/swarm.py": 10,
+    "astetik/plots/twod.py": 10,
+    "astetik/plots/violin.py": 10,
+    "astetik/plots/world.py": 10,
+    "astetik/style/__init__.py": 10,
+    "astetik/style/color_picker.py": 20,
+    "astetik/style/formats.py": 10,
+    "astetik/style/legend.py": 10,
+    "astetik/style/random_colors.py": 10,
+    "astetik/style/sizer.py": 10,
+    "astetik/style/style.py": 20,
+    "astetik/style/template.py": 20,
+    "astetik/style/titles.py": 10,
+    "astetik/tables/__init__.py": 10,
+    "astetik/tables/table.py": 10,
+    "astetik/tables/text.py": 10,
+    "astetik/utils/__init__.py": 10,
+    "astetik/utils/country_code.py": 20,
+    "astetik/utils/datetime.py": 50,
+    "astetik/utils/exceptions.py": 10,
+    "astetik/utils/gui.py": 10,
+    "astetik/utils/load_data.py": 10,
+    "astetik/utils/outliers.py": 10,
+    "astetik/utils/transform.py": 30,
+    "astetik/utils/utils.py": 40,
+    "governance/__init__.py": 10,
+    "governance/_common.py": 370,
+    "governance/_dependency_audit.py": 60,
+    "governance/bootstrap_repository.py": 500,
+    "governance/cc_gate.py": 300,
+    "governance/check_budget_ratchet.py": 120,
+    "governance/check_coverage_floor.py": 120,
+    "governance/check_coverage_ratchet.py": 120,
+    "governance/check_dependency_vulnerabilities.py": 120,
+    "governance/check_diff_coverage.py": 100,
+    "governance/check_docstrings.py": 80,
+    "governance/check_file_size_balance.py": 80,
+    "governance/check_module_budgets.py": 70,
+    "governance/check_module_docstrings.py": 120,
+    "governance/check_no_swallowed_violations.py": 110,
+    "governance/check_ruff_ratchet.py": 110,
+    "governance/check_test_code_ratio.py": 50,
+    "governance/check_test_fallbacks.py": 70,
+    "governance/check_test_runtime.py": 170,
+    "governance/closeout_evidence.py": 120,
+    "governance/fail_loud_gate.py": 390,
+    "governance/privileged_ruleset_audit.py": 120,
+    "governance/ruleset_gate.py": 190,
+    "governance/slice_gate.py": 770,
+    "governance/typing_gate.py": 760,
+    "governance/version_gate.py": 410
+  },
+  "coverage": {
+    "line": 86,
+    "branch": 76
+  },
+  "runtime": {
+    "max_total_seconds": 180,
+    "baseline": {
+      "note": "One local Python 3.13 run with coverage enabled and simultaneous governance/docs verification. This is a measured initial ceiling; no CI observation window is claimed. Slowest work: world export/replay (14.69s).",
+      "workflow": "pr_checks_tests",
+      "job": "pr_checks_tests",
+      "sample_count": 1,
+      "observed_max_seconds": 129.179,
+      "headroom_seconds": 50.821
+    }
+  },
+  "lint": {
+    "configuration": {
+      "target-version": "py311",
+      "line-length": 100,
+      "exclude": [
+        ".git",
+        "__pycache__",
+        "build",
+        "dist",
+        "demo",
+        "governance/tests/fixtures"
+      ],
+      "format": {
+        "quote-style": "single"
+      },
+      "lint": {
+        "allowed-confusables": [
+          "\u03b1"
+        ],
+        "select": [
+          "E",
+          "F",
+          "I",
+          "UP",
+          "RUF",
+          "BLE",
+          "ANN",
+          "C901",
+          "PLR0912",
+          "PLR0913",
+          "PLR0915",
+          "T201",
+          "FIX001",
+          "FIX002",
+          "FIX003",
+          "FIX004",
+          "ERA001",
+          "D200",
+          "D205",
+          "D415",
+          "PIE790"
+        ],
+        "ignore": [
+          "E501"
+        ],
+        "mccabe": {
+          "max-complexity": 10
+        },
+        "pylint": {
+          "max-args": 6,
+          "max-branches": 12,
+          "max-statements": 50
+        },
+        "per-file-ignores": {
+          "astetik/_cli.py": [
+            "T201"
+          ],
+          "astetik/docs/first_figure.py": [
+            "T201"
+          ],
+          "tests/**/*.py": [
+            "S101",
+            "ANN",
+            "BLE001",
+            "PLR0912",
+            "PLR0913",
+            "PLR0915",
+            "D200",
+            "D205",
+            "D415"
+          ],
+          "governance/*.py": [
+            "C901",
+            "PLR0912",
+            "PLR0913",
+            "PLR0915",
+            "T201",
+            "FIX001",
+            "FIX002",
+            "FIX003",
+            "FIX004",
+            "ERA001",
+            "D200",
+            "D205",
+            "D415"
+          ],
+          "scripts/*.py": [
+            "C901",
+            "PLR0912",
+            "PLR0913",
+            "PLR0915",
+            "T201",
+            "D200",
+            "D205",
+            "D415"
+          ],
+          "governance/tests/**/*.py": [
+            "S101",
+            "ANN",
+            "BLE001",
+            "PLR0912",
+            "PLR0913",
+            "PLR0915",
+            "D200",
+            "D205",
+            "D415"
+          ]
+        },
+        "isort": {
+          "known-first-party": [
+            "governance",
+            "astetik"
+          ]
+        }
+      },
+      "per-file-target-version": {
+        "governance/**/*.py": "py313"
+      }
+    },
+    "findings": {}
+  }
+}

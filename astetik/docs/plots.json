@@ -1,0 +1,497 @@
+{
+  "intents": {
+    "association": "association",
+    "comparison": "comparison",
+    "correlation": "corr",
+    "distribution": "hist",
+    "frequency": "count",
+    "geography": "world",
+    "longitudinal": "longitudinal"
+  },
+  "plots": {
+    "animate": {
+      "defaults": {
+        "frame": 0,
+        "plot_type": "bar"
+      },
+      "options": [
+        "frame",
+        "plot_type"
+      ],
+      "paper": true
+    },
+    "association": {
+      "defaults": {
+        "alpha": 0.85,
+        "hue_mode": "auto",
+        "marker": "o",
+        "point_size": 18.0
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "hue_mode",
+        "marker",
+        "point_size"
+      ],
+      "paper": true
+    },
+    "bar": {
+      "defaults": {
+        "alpha": 0.85,
+        "errorbar": null,
+        "estimator": "sum",
+        "orient": "v"
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "errorbar",
+        "estimator",
+        "orient"
+      ],
+      "paper": true
+    },
+    "bargrid": {
+      "defaults": {
+        "alpha": 0.85,
+        "errorbar": null,
+        "estimator": "mean",
+        "orient": "v"
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "errorbar",
+        "estimator",
+        "orient"
+      ],
+      "paper": true
+    },
+    "bartwo": {
+      "defaults": {
+        "alpha": 0.85,
+        "errorbar": null,
+        "estimator": "mean",
+        "orient": "v"
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "errorbar",
+        "estimator",
+        "orient"
+      ],
+      "paper": true
+    },
+    "box": {
+      "defaults": {
+        "alpha": 0.75,
+        "orient": "v",
+        "whis": 1.5,
+        "width": 0.8
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "orient",
+        "whis",
+        "width"
+      ],
+      "paper": true
+    },
+    "compare": {
+      "defaults": {
+        "alpha": 0.85,
+        "point_size": 24.0
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "point_size"
+      ],
+      "paper": true
+    },
+    "comparison": {
+      "defaults": {
+        "alpha": 0.5,
+        "linewidth": 1.25,
+        "point_size": 18.0
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "linewidth",
+        "point_size"
+      ],
+      "paper": true
+    },
+    "corr": {
+      "defaults": {
+        "annot": false,
+        "mask": false,
+        "method": "spearman"
+      },
+      "options": [
+        "annot",
+        "col_wrap",
+        "mask",
+        "method"
+      ],
+      "paper": true
+    },
+    "count": {
+      "defaults": {
+        "alpha": 0.85,
+        "orient": "v"
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "orient"
+      ],
+      "paper": true
+    },
+    "grid": {
+      "defaults": {
+        "alpha": 0.85,
+        "dodge": true,
+        "jitter": 0.12,
+        "orient": "v",
+        "point_size": 18.0
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "dodge",
+        "jitter",
+        "orient",
+        "point_size"
+      ],
+      "paper": true
+    },
+    "hist": {
+      "defaults": {
+        "alpha": 0.85,
+        "bins": "auto",
+        "density": false,
+        "kde": false,
+        "orient": "v"
+      },
+      "options": [
+        "alpha",
+        "bins",
+        "col_wrap",
+        "density",
+        "kde",
+        "orient"
+      ],
+      "paper": true
+    },
+    "kde": {
+      "defaults": {
+        "alpha": 0.3,
+        "bw_method": "scott",
+        "cumulative": false,
+        "cut": 0.0,
+        "fill": true,
+        "gridsize": 128
+      },
+      "options": [
+        "alpha",
+        "bw_method",
+        "col_wrap",
+        "cumulative",
+        "cut",
+        "fill",
+        "gridsize"
+      ],
+      "paper": true
+    },
+    "line": {
+      "defaults": {
+        "alpha": 1.0,
+        "drawstyle": "default",
+        "linestyle": "solid",
+        "linewidth": 1.25,
+        "marker": null,
+        "sort": true
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "drawstyle",
+        "linestyle",
+        "linewidth",
+        "marker",
+        "sort"
+      ],
+      "paper": true
+    },
+    "longitudinal": {
+      "defaults": {
+        "alpha": 1.0,
+        "drawstyle": "default",
+        "linestyle": "solid",
+        "linewidth": 1.25,
+        "marker": null,
+        "sort": true
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "drawstyle",
+        "linestyle",
+        "linewidth",
+        "marker",
+        "sort"
+      ],
+      "paper": true
+    },
+    "multicount": {
+      "defaults": {
+        "alpha": 0.85,
+        "orient": "v"
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "orient"
+      ],
+      "paper": true
+    },
+    "multikde": {
+      "defaults": {
+        "alpha": 0.3,
+        "bw_method": "scott",
+        "cumulative": false,
+        "cut": 0.0,
+        "fill": true,
+        "gridsize": 128
+      },
+      "options": [
+        "alpha",
+        "bw_method",
+        "col_wrap",
+        "cumulative",
+        "cut",
+        "fill",
+        "gridsize"
+      ],
+      "paper": true
+    },
+    "oned": {
+      "defaults": {
+        "linewidth": 0.8
+      },
+      "options": [
+        "col_wrap",
+        "linewidth"
+      ],
+      "paper": true
+    },
+    "overlap": {
+      "defaults": {
+        "alpha": 0.7,
+        "estimator": "mean",
+        "orient": "h"
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "estimator",
+        "orient"
+      ],
+      "paper": true
+    },
+    "pie": {
+      "defaults": {
+        "percent": true,
+        "startangle": 90.0
+      },
+      "options": [
+        "col_wrap",
+        "percent",
+        "startangle"
+      ],
+      "paper": true
+    },
+    "regs": {
+      "defaults": {
+        "alpha": 0.8,
+        "draw_scatter": true,
+        "fit_reg": true,
+        "hue_mode": "auto",
+        "linewidth": 1.25,
+        "marker": "o",
+        "point_size": 18.0
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "draw_scatter",
+        "fit_reg",
+        "hue_mode",
+        "linewidth",
+        "marker",
+        "point_size"
+      ],
+      "paper": true
+    },
+    "roc": {
+      "defaults": {
+        "linewidth": 1.5,
+        "positive_label": 1
+      },
+      "options": [
+        "col_wrap",
+        "linewidth",
+        "positive_label"
+      ],
+      "paper": true
+    },
+    "scat": {
+      "defaults": {
+        "alpha": 0.85,
+        "hue_mode": "auto",
+        "marker": "o",
+        "point_size": 18.0
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "hue_mode",
+        "marker",
+        "point_size"
+      ],
+      "paper": true
+    },
+    "strip": {
+      "defaults": {
+        "alpha": 0.85,
+        "dodge": true,
+        "jitter": 0.12,
+        "orient": "v",
+        "point_size": 18.0
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "dodge",
+        "jitter",
+        "orient",
+        "point_size"
+      ],
+      "paper": true
+    },
+    "swarm": {
+      "defaults": {
+        "alpha": 0.85,
+        "dodge": true,
+        "orient": "v",
+        "point_size": 18.0,
+        "width": 0.8
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "dodge",
+        "orient",
+        "point_size",
+        "width"
+      ],
+      "paper": true
+    },
+    "table": {
+      "defaults": {
+        "digits": 4
+      },
+      "options": [
+        "digits"
+      ],
+      "paper": true
+    },
+    "text": {
+      "defaults": {
+        "digits": 4
+      },
+      "options": [
+        "digits"
+      ],
+      "paper": true
+    },
+    "twod": {
+      "defaults": {
+        "alpha": 0.85,
+        "hue_mode": "auto",
+        "marker": "o",
+        "point_size": 18.0
+      },
+      "options": [
+        "alpha",
+        "col_wrap",
+        "hue_mode",
+        "marker",
+        "point_size"
+      ],
+      "paper": true
+    },
+    "violin": {
+      "defaults": {
+        "alpha": 0.75,
+        "bw_method": "scott",
+        "cut": 0.0,
+        "gridsize": 128,
+        "orient": "v",
+        "split": false,
+        "width": 0.8
+      },
+      "options": [
+        "alpha",
+        "bw_method",
+        "col_wrap",
+        "cut",
+        "gridsize",
+        "orient",
+        "split",
+        "width"
+      ],
+      "paper": true
+    },
+    "world": {
+      "defaults": {
+        "log": false
+      },
+      "options": [
+        "col_wrap",
+        "log"
+      ],
+      "paper": true
+    }
+  },
+  "schema_version": "1.0",
+  "spec_fields": [
+    "analysis",
+    "axes",
+    "col",
+    "columns",
+    "descriptions",
+    "hue",
+    "key",
+    "kind",
+    "labels",
+    "legend",
+    "missing",
+    "missing_reason",
+    "options",
+    "order",
+    "paper",
+    "row",
+    "schema_version",
+    "subtitle",
+    "title",
+    "units",
+    "x",
+    "y"
+  ]
+}

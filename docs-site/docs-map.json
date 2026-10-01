@@ -1,0 +1,237 @@
+{
+  "sections": [
+    {
+      "dir": "overview",
+      "label": "Overview",
+      "position": 1,
+      "slug": "/overview",
+      "description": "Product boundary, system story, and task routing."
+    },
+    {
+      "dir": "guides",
+      "label": "Guides",
+      "position": 2,
+      "slug": "/guides",
+      "description": "End-to-end jobs and operational workflows."
+    },
+    {
+      "dir": "reference",
+      "label": "Reference",
+      "position": 3,
+      "slug": "/reference",
+      "description": "Interfaces, schemas, defaults, outputs, and edge cases."
+    },
+    {
+      "dir": "developer",
+      "label": "Developer",
+      "position": 4,
+      "slug": "/developer",
+      "description": "Contribution, release, documentation, and maintenance."
+    },
+    {
+      "dir": "packages",
+      "label": "Packages",
+      "position": 5,
+      "slug": "/packages",
+      "description": "Package ownership, boundaries, and public entry points."
+    }
+  ],
+  "documents": [
+    {
+      "source": "README.md",
+      "dest": "index.md",
+      "slug": "/",
+      "sidebarLabel": "Home",
+      "title": "Astetik"
+    },
+    {
+      "source": "docs/README.md",
+      "dest": "overview/docs-hub.md",
+      "slug": "/overview/docs-hub",
+      "sidebarLabel": "Docs hub",
+      "sidebarPosition": 1
+    },
+    {
+      "source": "docs/Overview/Boundary.md",
+      "dest": "overview/boundary.md",
+      "slug": "/overview/boundary",
+      "sidebarLabel": "Product boundary",
+      "sidebarPosition": 2
+    },
+    {
+      "source": "docs/Guides/First-Figure.md",
+      "dest": "guides/first-figure.md",
+      "slug": "/guides/first-figure",
+      "sidebarLabel": "First figure",
+      "sidebarPosition": 1
+    },
+    {
+      "source": "docs/Guides/Paper-Figure.md",
+      "dest": "guides/paper-figure.md",
+      "slug": "/guides/paper-figure",
+      "sidebarLabel": "Paper figure",
+      "sidebarPosition": 2
+    },
+    {
+      "source": "docs/Guides/Research-Protocols.md",
+      "dest": "guides/research-protocols.md",
+      "slug": "/guides/research-protocols",
+      "sidebarLabel": "Research protocols",
+      "sidebarPosition": 3
+    },
+    {
+      "source": "docs/Guides/Evidence-Bundle.md",
+      "dest": "guides/evidence-bundle.md",
+      "slug": "/guides/evidence-bundle",
+      "sidebarLabel": "Evidence bundle",
+      "sidebarPosition": 4
+    },
+    {
+      "source": "docs/Reference/Plot-Specification.md",
+      "dest": "reference/plot-specification.md",
+      "slug": "/reference/plot-specification",
+      "sidebarLabel": "Plot specification",
+      "sidebarPosition": 1
+    },
+    {
+      "source": "docs/Reference/Plot-Catalogue.md",
+      "dest": "reference/plot-catalogue.md",
+      "slug": "/reference/plot-catalogue",
+      "sidebarLabel": "Plot catalogue",
+      "sidebarPosition": 2
+    },
+    {
+      "source": "docs/Reference/Manifest.md",
+      "dest": "reference/manifest.md",
+      "slug": "/reference/manifest",
+      "sidebarLabel": "Manifest",
+      "sidebarPosition": 3
+    },
+    {
+      "source": "docs/Reference/Research-Protocols.md",
+      "dest": "reference/research-protocols.md",
+      "slug": "/reference/research-protocols",
+      "sidebarLabel": "Research protocols",
+      "sidebarPosition": 4
+    },
+    {
+      "source": "docs/Reference/Evidence-Result.md",
+      "dest": "reference/evidence-result.md",
+      "slug": "/reference/evidence-result",
+      "sidebarLabel": "Evidence result",
+      "sidebarPosition": 5
+    },
+    {
+      "source": "docs/Reference/Data-and-Prepared.md",
+      "dest": "reference/data-and-prepared.md",
+      "slug": "/reference/data-and-prepared",
+      "sidebarLabel": "Data and Prepared",
+      "sidebarPosition": 6
+    },
+    {
+      "source": "docs/Reference/CLI.md",
+      "dest": "reference/cli.md",
+      "slug": "/reference/cli",
+      "sidebarLabel": "Command line",
+      "sidebarPosition": 7
+    },
+    {
+      "source": "docs/Reference/Migration.md",
+      "dest": "reference/migration.md",
+      "slug": "/reference/migration",
+      "sidebarLabel": "Migration",
+      "sidebarPosition": 8
+    },
+    {
+      "source": "docs/Developer/README.md",
+      "dest": "developer/maintenance.md",
+      "slug": "/developer/maintenance",
+      "sidebarLabel": "Maintenance",
+      "sidebarPosition": 1
+    },
+    {
+      "source": "docs/Developer/Documentation.md",
+      "dest": "developer/documentation.md",
+      "slug": "/developer/documentation",
+      "sidebarLabel": "Documentation",
+      "sidebarPosition": 2
+    },
+    {
+      "source": "docs/Developer/Documentation-System.md",
+      "dest": "developer/documentation-system.md",
+      "slug": "/developer/documentation-system",
+      "sidebarLabel": "Documentation system",
+      "sidebarPosition": 3
+    },
+    {
+      "source": "docs/Developer/Writing-Docstrings.md",
+      "dest": "developer/writing-docstrings.md",
+      "slug": "/developer/writing-docstrings",
+      "sidebarLabel": "Writing docstrings",
+      "sidebarPosition": 4
+    },
+    {
+      "source": "astetik/README.md",
+      "dest": "packages/astetik.md",
+      "slug": "/packages/astetik",
+      "sidebarLabel": "Astetik package",
+      "sidebarPosition": 1
+    },
+    {
+      "source": "docs/Developer/Agent-Workflow.md",
+      "dest": "developer/agent-workflow.md",
+      "slug": "/developer/agent-workflow",
+      "sidebarLabel": "Agent workflow",
+      "sidebarPosition": 5
+    },
+    {
+      "source": "docs/Developer/Configuration.md",
+      "dest": "developer/configuration.md",
+      "slug": "/developer/configuration",
+      "sidebarLabel": "Configuration",
+      "sidebarPosition": 6
+    },
+    {
+      "source": "docs/Developer/Technical-Debt.md",
+      "dest": "developer/technical-debt.md",
+      "slug": "/developer/technical-debt",
+      "sidebarLabel": "Technical debt",
+      "sidebarPosition": 7
+    },
+    {
+      "source": "docs/Developer/Packaging.md",
+      "dest": "developer/packaging.md",
+      "slug": "/developer/packaging",
+      "sidebarLabel": "Packaging",
+      "sidebarPosition": 8
+    },
+    {
+      "source": "docs/Developer/Release-Policy.md",
+      "dest": "developer/release-policy.md",
+      "slug": "/developer/release-policy",
+      "sidebarLabel": "Release policy",
+      "sidebarPosition": 9
+    },
+    {
+      "source": "docs/Developer/Making-Release.md",
+      "dest": "developer/making-release.md",
+      "slug": "/developer/making-release",
+      "sidebarLabel": "Making a release",
+      "sidebarPosition": 10
+    },
+    {
+      "source": "docs/Developer/Semantic-Versioning.md",
+      "dest": "developer/semantic-versioning.md",
+      "slug": "/developer/semantic-versioning",
+      "sidebarLabel": "Semantic versioning",
+      "sidebarPosition": 11
+    },
+    {
+      "source": "docs/Developer/Security-Assurance-Case.md",
+      "dest": "developer/security-assurance-case.md",
+      "slug": "/developer/security-assurance-case",
+      "sidebarLabel": "Security assurance",
+      "sidebarPosition": 12
+    }
+  ]
+}

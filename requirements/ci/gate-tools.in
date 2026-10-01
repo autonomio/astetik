@@ -1,0 +1,2 @@
+# Governance YAML parser; Python 3.13 includes tomllib.
+PyYAML>=6,<7

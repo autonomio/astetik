@@ -1,0 +1,116 @@
+name: pr_checks_fail_loud
+
+# Mechanical fail-loud gate. Seven silent-fallback categories
+# ratcheted against .github/budgets.json. Every PR that
+# raises any category's total fails and is blocked from merge.
+#
+# Categories enforced (governance/fail_loud_gate.py for the exact AST):
+#
+#   1. bare_except           -- `except:` without a type
+#   2. empty_pass            -- `except X: pass`
+#   3. empty_ellipsis        -- `except X: ...`
+#   4. empty_return_none     -- `except X: return` / `return None`
+#   5. empty_continue_break  -- `except X: continue` / `break`
+#   6. contextlib_suppress   -- `contextlib.suppress(...)` calls
+#                               (resolves aliased imports)
+#   7. errors_ignore_kwarg   -- any call with `errors='ignore'`
+#
+# Same base-vs-head discipline as pr_checks_typing: the head budget
+# cannot be weakened in the same PR that gates against it. The
+# workflow fetches the base-ref budget via `git show` and passes it
+# as --base-budget to the gate script.
+
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pr_checks_fail_loud:
+    name: pr_checks_fail_loud
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.event_name == 'pull_request' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: '3.13'
+
+      - name: Install gate toolchain
+        run: pip install --require-hashes -r requirements/ci/gate-tools.txt
+
+      - name: Resolve base ref and fetch base-ref budget
+        id: base
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Mirror pr_checks_typing: if base has the budget, fetch it;
+          # otherwise the head must introduce it (bootstrap path,
+          # verified mechanically via git diff).
+          set -euo pipefail
+          BASE_REV="origin/${{ github.base_ref }}"
+          AUTH="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
+          git -c "http.https://github.com/.extraheader=$AUTH" fetch origin "${{ github.base_ref }}" --depth=1
+          git rev-parse --verify "$BASE_REV" >/dev/null
+
+          # Missing artifacts are accepted only after a verified base-tree read.
+          BASE_REV="$BASE_REV" python - <<'PYCODE'
+          import os
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, 'governance')
+          from _common import git_base_artifact, validate_initial_governance
+
+          ref = os.environ['BASE_REV']
+          banner = 'BASELINE PREPARATION'
+          budget = git_base_artifact(ref, '.github/budgets.json', banner)
+          config = git_base_artifact(ref, 'governance.yml', banner)
+          for filename in ('base_budget.json', 'base_governance.yml'):
+              Path(filename).unlink(missing_ok=True)
+          if budget is None:
+              validate_initial_governance(ref, banner)
+              mode = 'bootstrap'
+          else:
+              if config is None:
+                  raise SystemExit('Protected base budget lacks its governing configuration')
+              Path('base_budget.json').write_text(budget)
+              Path('base_governance.yml').write_text(config)
+              mode = 'compare'
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'mode={mode}\nbase_ref={ref}\n')
+          print(f'Verified baseline mode: {mode}')
+          PYCODE
+
+      - name: Run fail-loud gate
+        run: |
+          set -euo pipefail
+          case "${{ steps.base.outputs.mode }}" in
+            compare)
+              python governance/fail_loud_gate.py --base-budget base_budget.json \
+                --base-config base_governance.yml
+              ;;
+            bootstrap)
+              python governance/fail_loud_gate.py --bootstrap \
+                --bootstrap-base-ref "${{ steps.base.outputs.base_ref }}"
+              ;;
+            *)
+              echo "::error::base step did not set mode; refusing to run gate"
+              exit 2
+              ;;
+          esac

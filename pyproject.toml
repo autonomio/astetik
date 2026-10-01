@@ -1,52 +1,197 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.25,<2"]
 build-backend = "hatchling.build"
 
 [project]
 name = "astetik"
-dynamic = ["version"]
-description = "Astetik data visualization and reporting library"
+version = "2.0.0"
+description = "Scientific visualization with centralized design and verifiable evidence"
 readme = "README.md"
+requires-python = ">=3.11"
 license = "MIT"
-authors = [
-    { name = "Mikko Kotila", email = "mailme@mikkokotila.com" },
-]
-maintainers = [
-    { name = "Mikko Kotila", email = "mailme@mikkokotila.com" },
-]
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY.md"]
+keywords = ["science", "visualization", "provenance", "publication"]
+authors = [{name = "Mikko Kotila", email = "mailme@mikkokotila.com"}]
 classifiers = [
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: MacOS",
-    "Operating System :: POSIX",
-    "Operating System :: Unix",
-    "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3.4",
-    "Programming Language :: Python :: 3.5",
-    "Programming Language :: Python :: 3.6",
-    "Topic :: Multimedia :: Graphics",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
-    "geonamescache",
-    "IPython",
-    "numpy",
-    "pandas",
-    "patsy",
-    "scikit-learn",
-    "seaborn",
-    "statsmodels",
-    "wrangle",
+    "matplotlib>=3.10,<4",
+    "numpy>=2,<3",
+    "pandas>=2.2,<3",
+    "scipy>=1.11,<2",
+    "pyshp>=2.3,<3",
+    "PyYAML>=6,<7",
+    "Pillow>=10,<13",
 ]
+
+[project.optional-dependencies]
+polars = ["polars>=1,<2"]
+dev = [
+    "pytest>=8,<10", "hypothesis>=6.100,<7", "build>=1,<2",
+    "ruff==0.16.1", "pyright==1.1.408", "vulture>=2.14,<3",
+    "coverage[toml]>=7.6,<8", "pip-audit>=2.7,<3",
+    "pandas-stubs>=2.3,<2.4", "scipy-stubs>=1.17,<1.18",
+]
+
+[project.scripts]
+astetik = "astetik._cli:main"
 
 [project.urls]
-Download = "https://github.com/mikkokotila/pretty"
-Homepage = "http://mikkokotila.com"
+Homepage = "https://github.com/autonomio/astetik"
+Repository = "https://github.com/autonomio/astetik"
+Issues = "https://github.com/autonomio/astetik/issues"
 
-[tool.hatch.version]
-path = "astetik/__init__.py"
+[tool.hatch.build.targets.wheel]
+core-metadata-version = "2.4"
+packages = ["astetik"]
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "/astetik",
+core-metadata-version = "2.4"
+include = ["/astetik", "/tests", "/README.md", "/LICENSE", "/docs", "/CHANGELOG.md", "/CONTRIBUTING.md", "/SECURITY.md", "/CITATION.cff", "/THIRD_PARTY.md", "/NOTICE"]
+
+[tool.check-manifest]
+# Consumer source omits repository enforcement and the documentation website.
+ignore = [
+    "governance/*", "governance/**", ".github/*", ".github/**",
+    "docs-site/*", "docs-site/**", "scripts/*", "scripts/**",
+    "AGENTS.md", "CLAUDE.md", "GOVERNANCE.md", "SETUP.md", "governance.yml",
+    "AUTONOMIO_PR_GUIDELINE.md", "AUTONOMIO_REPO_SPECIFICS.md",
+    "CODE_OF_CONDUCT.md", "SUPPORT.md", "MAINTAINERS.md", "AUTHORS",
+    ".markdownlint.json", "requirements.txt", "requirements/*", "requirements/**",
+    "setup.py", "test_local.sh", "test_script.py", "docs/**/.*",
+    "examples/*", "examples/**", "logo.png",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "governance/tests"]
+
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+include = ["astetik"]
+exclude = [
+  "**/__pycache__",
+  "build",
+  "dist",
+  "tests",
+  "demo",
+]
+# governance/ is not type-checked in CI (include is the package), but listing it
+# here lets the editor resolve the gates' bare `import _common` sibling import.
+extraPaths = ["governance"]
+stubPath = "stubs"
+reportMissingImports = "error"
+reportMissingTypeStubs = "error"
+reportUnknownArgumentType = "error"
+reportUnknownMemberType = "error"
+reportUnknownVariableType = "error"
+reportUnknownLambdaType = "error"
+reportUnknownParameterType = "error"
+reportMissingParameterType = "error"
+reportConstantRedefinition = "error"
+reportImportCycles = "error"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+exclude = [
+  ".git",
+  "__pycache__",
+  "build",
+  "dist",
+  "demo",
+  "governance/tests/fixtures",
+]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+allowed-confusables = ["α"]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "RUF",
+  "BLE",
+  "ANN",
+  "C901",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "T201",
+  "FIX001",
+  "FIX002",
+  "FIX003",
+  "FIX004",
+  "ERA001",
+  "D200",
+  "D205",
+  "D415",
+  "PIE790",
+]
+ignore = [
+  "E501",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pylint]
+max-args = 6
+max-branches = 12
+max-statements = 50
+
+[tool.ruff.lint.per-file-ignores]
+"astetik/_cli.py" = ["T201"]
+"astetik/docs/first_figure.py" = ["T201"]
+"tests/**/*.py" = [
+  "S101", "ANN", "BLE001",
+  "PLR0912", "PLR0913", "PLR0915",
+  "D200", "D205", "D415",
+]
+"governance/*.py" = [
+  "C901", "PLR0912", "PLR0913", "PLR0915",
+  "T201",
+  "FIX001", "FIX002", "FIX003", "FIX004",
+  "ERA001", "D200", "D205", "D415",
+]
+"scripts/*.py" = [
+  "C901", "PLR0912", "PLR0913", "PLR0915",
+  "T201",
+  "D200", "D205", "D415",
+]
+"governance/tests/**/*.py" = [
+  "S101", "ANN", "BLE001",
+  "PLR0912", "PLR0913", "PLR0915",
+  "D200", "D205", "D415",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["governance", "astetik"]
+
+[tool.vulture]
+paths = ["astetik"]
+min_confidence = 80
+
+[tool.coverage.run]
+branch = true
+source = ["astetik"]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.coverage.json]
+output = "coverage.json"
+
+[tool.ruff.per-file-target-version]
+"governance/**/*.py" = "py313"

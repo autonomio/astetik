@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use Astetik in published work, cite this software metadata and retain the exact source or artifact identity."
+title: "Astetik"
+type: software
+authors:
+  - family-names: Kotila
+    given-names: Mikko
+repository-code: "https://github.com/autonomio/astetik"
+license: MIT
+version: "2.0.0"

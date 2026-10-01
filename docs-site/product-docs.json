@@ -1,0 +1,9 @@
+{
+  "productId": "astetik",
+  "productName": "Astetik",
+  "tagline": "Scientific figures with explicit methods, a shared design manifest, and replayable evidence.",
+  "siteUrl": "https://autonomio.github.io",
+  "basePath": "/astetik/",
+  "sourceRepoUrl": "https://github.com/autonomio/astetik",
+  "sourceBranch": "master"
+}

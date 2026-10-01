@@ -1,0 +1,2 @@
+# Build backend mirrors [build-system].requires.
+hatchling>=1.25,<2

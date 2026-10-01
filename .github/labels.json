@@ -1,0 +1,42 @@
+[
+  {
+    "name": "bug",
+    "color": "A54532",
+    "description": "Incorrect implemented behavior"
+  },
+  {
+    "name": "enhancement",
+    "color": "2A4A70",
+    "description": "A proposed capability improvement"
+  },
+  {
+    "name": "support",
+    "color": "626B72",
+    "description": "Usage or operational support"
+  },
+  {
+    "name": "security",
+    "color": "A54532",
+    "description": "Security report or remediation"
+  },
+  {
+    "name": "incident",
+    "color": "A54532",
+    "description": "Operational incident"
+  },
+  {
+    "name": "incident-open",
+    "color": "A54532",
+    "description": "Incident awaiting verified closeout"
+  },
+  {
+    "name": "planning",
+    "color": "626B72",
+    "description": "Parent product requirement"
+  },
+  {
+    "name": "slice",
+    "color": "2A4A70",
+    "description": "Mechanically scoped implementation slice"
+  }
+]

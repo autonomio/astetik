@@ -1,0 +1,17 @@
+# Enforcement surfaces: the files whose content decides merge verdicts.
+# With require_code_owner_review enabled on the Protect-Master ruleset, a
+# PR touching these paths cannot merge without an approval from a
+# non-author code owner -- a server-side layer the judged PR's merge
+# ref cannot edit.
+#
+# Deliberately no `*` rule: under require_code_owner_review a global
+# owner would make that owner a required approver for every PR, not
+# just the enforcement surfaces. Ordinary PRs keep the plain
+# one-approval rule.
+
+/CLAUDE.md @mikkokotila @EnergyGuy3
+/governance/ @mikkokotila @EnergyGuy3
+/.github/ @mikkokotila @EnergyGuy3
+/governance.yml @mikkokotila @EnergyGuy3
+/pyproject.toml @mikkokotila @EnergyGuy3
+/requirements/ @mikkokotila @EnergyGuy3

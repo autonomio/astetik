@@ -1,46 +1,14 @@
-import matplotlib.pyplot as plt
+"""Import-compatible v1 helpers with explicit scientific migration errors."""
+from __future__ import annotations
+
+from typing import NoReturn
+
+from .._legacy import migration
 
 
-def _titles(title,
-            sub_title,
-            location='center',
-            fontname='Arial',
-            fontsize='18'):
-
-    '''TITLE HANDLER
-
-    Takes care of the extremely painful task of positioning
-    various titles and labels dynamically regardless of the plot.
-    Or at least that's the idea...
-
-    USE
-    ===
-    _title_handling(p, data, title, sub_title, samplenote, footnote)
-
-    PARAMETERS
-    ==========
-    p :: the figure object
-    data :: the data that is used in the plot
-    title :: title string object or None
-    sub_title :: sub_title string object or None
-    footnote :: string object or None
-    samplenote :: string object or None
-
-    NOTE: At the moment works with one dimensional data.
-
-    '''
-    if len(title) + len(sub_title) > 0:
-        title = title.replace(' ', '\,')
-        title = title.replace('_', '\_')
-
-        plt.title(r"$\bf{" + title + "}$" + '\n' + sub_title,
-                  loc=location,
-                  fontsize=fontsize,
-                  fontname=fontname,
-                  weight='normal',
-                  y=1.03,
-                  color="#342b3b");
+def _titles(*_args: object, **_kwargs: object) -> NoReturn:
+    """Reject the unsupported v1 operation with a machine-readable recovery."""
+    migration('astetik.style.titles._titles', 'Declare design through astetik.Manifest and semantic colours through astetik.ColorSystem.')
 
 
-                  
-
+__all__ = ['_titles']

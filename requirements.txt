@@ -1,9 +1,1 @@
-wrangle
-seaborn
-geonamescache
-numpy
-pandas
-IPython
-patsy
-statsmodels
-scikit-learn
+-e .

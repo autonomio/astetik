@@ -1,12 +1,14 @@
-def _legend(x, legend, legend_labels, legend_position):
+"""Import-compatible v1 helpers with explicit scientific migration errors."""
+from __future__ import annotations
 
-    import matplotlib.pyplot as plt
+from typing import NoReturn
 
-    if legend:
-        if legend_labels != None:
-            x = legend_labels
+from .._legacy import migration
 
-        if len(legend_position) == 0:
-            plt.legend(x, loc=1, ncol=1, bbox_to_anchor=(1.25, 1.0))
-        else:
-            plt.legend(x, loc=legend_position[0], ncol=legend_position[1])
+
+def _legend(*_args: object, **_kwargs: object) -> NoReturn:
+    """Reject the unsupported v1 operation with a machine-readable recovery."""
+    migration('astetik.style.legend._legend', 'Declare design through astetik.Manifest and semantic colours through astetik.ColorSystem.')
+
+
+__all__ = ['_legend']

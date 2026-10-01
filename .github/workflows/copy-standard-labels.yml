@@ -1,0 +1,44 @@
+name: Apply Standard Labels
+
+# Labels are declared locally; upsert the standards without deleting labels
+# already used by this established repository.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_repository:
+        description: Type the full owner/repository to apply its local standard labels.
+        required: true
+        type: string
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  setup:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: governance
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          persist-credentials: false
+
+      - name: Apply local standard labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONFIRM_REPOSITORY: ${{ inputs.confirm_repository }}
+        run: |
+          set -euo pipefail
+          if [ "$CONFIRM_REPOSITORY" != "$GITHUB_REPOSITORY" ]; then
+            echo "::error::repository confirmation does not match the workflow target."
+            exit 1
+          fi
+          jq -c '.[]' .github/labels.json | while IFS= read -r label; do
+            name="$(jq -r '.name' <<< "$label")"
+            color="$(jq -r '.color' <<< "$label")"
+            description="$(jq -r '.description' <<< "$label")"
+            gh label create "$name" --repo "$GITHUB_REPOSITORY" \
+              --color "$color" --description "$description" --force
+          done

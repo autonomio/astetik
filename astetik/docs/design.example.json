@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "colors": {
+    "primary": "#2A4A70",
+    "secondary": "#806A45",
+    "paper": "#F7F7F2",
+    "ink": "#252D33",
+    "muted": "#626B72",
+    "line": "#D4DADD",
+    "negative": "#A54532",
+    "neutral": "#F7F7F2",
+    "positive": "#2A4A70"
+  },
+  "categories": {
+    "control": "primary",
+    "treatment": "secondary"
+  },
+  "typography": {
+    "font": "Finlandica",
+    "font_path": null,
+    "fontsize": 9,
+    "labelsize": 9,
+    "titlesize": 10,
+    "ticksize": 8,
+    "legendsize": 8
+  },
+  "paper": {
+    "preset": "single",
+    "width_mm": 89,
+    "aspect": 1.45,
+    "dpi": 300,
+    "min_fontsize": 7
+  },
+  "axes": {
+    "linewidth": 0.6,
+    "grid": false,
+    "spines": ["left", "bottom"],
+    "tick_direction": "out",
+    "tick_length": 2.5
+  }
+}

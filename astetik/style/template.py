@@ -1,96 +1,19 @@
-import time
-from datetime import datetime
+"""Import-compatible v1 helpers with explicit scientific migration errors."""
+from __future__ import annotations
 
-import seaborn as sns
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import rcParams
-from ..style.color_picker import color_picker, color_blind, _label_to_hex
-from ..utils.utils import _n_decider
-from ..style.style import styles, default_colors
-from ..style.random_colors import randomcolor
+from typing import NoReturn
+
+from .._legacy import migration
 
 
-def _header(palette,
-            style,
-            n_colors,
-            dpi,
-            fig_width=None,
-            fig_height=None):
-
-    if palette == 'random':
-        palette = randomcolor()
-
-    elif style != 'astetik':
-        plt.style.use(style)
-
-    n = _n_decider(n_colors)
-
-    try:
-        if palette.startswith('colorblind'):
-            palette = color_blind(palette)
-    except AttributeError:
-        palette = palette
-
-    else:
-        try:
-            palette = color_picker(palette=palette, n_colors=n)
-        except UnboundLocalError:
-            palette = _label_to_hex(palette, n_colors=n)
-
-    if fig_height != None and fig_width != None:
-        plt.figure(figsize=(fig_width, fig_height))
-
-    if style == 'astetik':
-        rcParams['figure.facecolor'] = 'white'
-        rcParams['axes.facecolor'] = 'white'
-
-    style_dic = styles(dpi)
-    for key in style_dic.keys():
-        rcParams[key] = style_dic[key]
-
-    return palette
+def _header(*_args: object, **_kwargs: object) -> NoReturn:
+    """Reject the unsupported v1 operation with a machine-readable recovery."""
+    migration('astetik.style.template._header', 'Declare design through astetik.Manifest and semantic colours through astetik.ColorSystem.')
 
 
-def _footer(p,
-            xlabel,
-            ylabel,
-            legend=False,
-            n=None,
-            save=False,
-            tight=True,
-            despine=True):
+def _footer(*_args: object, **_kwargs: object) -> NoReturn:
+    """Reject the unsupported v1 operation with a machine-readable recovery."""
+    migration('astetik.style.template._footer', 'Declare design through astetik.Manifest and semantic colours through astetik.ColorSystem.')
 
-    default_color = default_colors()
 
-    # LEGEND STARTS >>>
-    if legend != False:
-        plt.legend(loc='upper right', bbox_to_anchor=(1.3, 0.9), ncol=1)
-
-    # HANDLE LABELS
-    plt.xlabel(xlabel, color=default_color)
-    plt.ylabel(ylabel, color=default_color)
-
-    # DESPINE THE FIGURE
-    if despine == True:
-        try:
-            p.spines['bottom'].set_color('black')
-        except:
-            pass
-        sns.despine(left=True, right=True, top=True)
-
-    # FORCE TIGHT LAYOUT
-    if tight == True:
-        plt.tight_layout()
-
-    # SAVING THE PLOT
-    if save != False:
-
-        if isinstance(save, str):
-            filename = save
-        
-        else:
-            dt = datetime.now()
-            time_stamp = time.strftime('%Y%m%d_%H%M%S_' + str(dt.microsecond))
-            filename = "astetik_" + time_stamp + ".png"
-        
-        plt.savefig(filename, dpi=72)
+__all__ = ['_footer', '_header']
