@@ -64,7 +64,7 @@ Numeric hue has explicit auto/categorical/continuous modes for scatter-family ki
 
 `astetik.animate(data, x=..., y=..., frame=N, plot_type="bar", ...)` produces one native `EvidenceResult`. It records the selected source row, observation key, and source field for each quantity. The two measurement columns must share a declared unit; category bindings use those column names.
 
-`astetik.Animation(data, x, y, label_col=None, plot_type="bar", filename=None, *, paper=False, manifest=None, units=None, frame=0, key=None)` constructs frame results in input row order. `poster` exposes the selected `EvidenceResult`. `write(new_directory, duration_ms=500)` publishes a GIF, verified per-frame bundles, and an animation receipt. Supported frame representations are bar and pie; duration must be an integer of at least 20 ms. Supplying `filename` explicitly publishes during construction.
+`astetik.Animation(data, x, y, label_col=None, plot_type="bar", filename=None, *, paper=False, manifest=None, units=None, frame=0, key=None)` constructs frame results in input row order. `poster` exposes the selected `EvidenceResult`. `write(new_directory, duration_ms=500)` publishes a GIF, verified per-frame bundles, and an animation receipt. Supported frame representations are bar and pie; duration must be an integer of at least 20 ms. Supplying `filename` explicitly publishes during construction. `Animation` reads and normalizes input once; every frame retains the same input digest, source and preparation metadata, and later caller-input changes do not alter constructed frames.
 
 This is display of supplied frame observations, not trajectory inference or automatic interpolation of missing measurements.
 
