@@ -7,12 +7,12 @@ import sys
 from pathlib import Path
 
 _REPOSITORY = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(_REPOSITORY))
-
-import astetik as ast  # noqa: E402 -- intentionally load this checkout after adding its root
 
 
 def main(argv: list[str] | None = None) -> int:
+    sys.path.insert(0, str(_REPOSITORY))
+    import astetik as ast
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Fail if the committed catalogue differs from the API")
     parser.add_argument("--output", type=Path, default=_REPOSITORY / "astetik" / "docs" / "plots.json")
