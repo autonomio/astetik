@@ -20,8 +20,8 @@ The initial read-only audit found missing protection and broad Actions defaults.
 | GitHub Actions | Run the required checks | Actual successful runs; explicitly review write-token/PR-approval defaults, allowed-action policy, and SHA-pinning policy before activation |
 | `governance` environment | Protect manual labels/ruleset activation | Establish human approval and branch protections for the confirmed `master` dispatch |
 | CodeQL availability | Required Python security analysis | Public-repository availability or appropriate security entitlement; an actual run |
-| Automatic Copilot request | Advisory review independently of required human approval | Verify the live auto-request rule; service availability and completion are not required status checks |
-| `mikkokotila` eligible approval | Declared human authority | `mikkokotila` and independent owner `EnergyGuy3` were verified administrators; recheck eligibility for activation |
+| Automatic Copilot request | Advisory review independently of required approval | Verify the live auto-request rule; service availability and completion are not required status checks |
+| Eligible approval | `mikkokotila` remains the declared human authority; `bit-mis` reviews independently | `mikkokotila` is a verified administrator; `bit-mis` repository write access was verified on 2026-10-02. Recheck author, latest-pusher, and base-branch code-owner eligibility |
 | `RULESET_ID` variable | Identify `Protect-Master` | Matches the live ruleset id; never invent a placeholder id |
 | `ruleset-audit` environment | Restrict the audit job to `master` | Created with a `master`-only branch policy; organization-secret access is separate from this job restriction |
 | `RULESET_AUDIT_TOKEN` organization secret | Share one read-only audit credential across Autonomio repositories | Metadata read only; the exact credential must expose `bypass_actors` and pass the complete audit |
@@ -29,7 +29,7 @@ The initial read-only audit found missing protection and broad Actions defaults.
 | `.github/labels.json` | Source-controlled issue-label manifest | Validate the local semantic-color manifest; no external label-source repository is required |
 | `RELEASE_ENABLED` variable | Opt in to tag/release creation | Leave unset until remote governance and release readiness are proven |
 | `PYPI_PUBLISH_ENABLED` variable | Opt in to publication | Leave unset until publisher and release readiness are proven |
-| `release` environment | Protect tag/release creation | Explicit approval/branch protections for the authorized release |
+| `release` environment | Protect signing and tag/release publication jobs | On 2026-10-02, reviewers were verified as `mikkokotila` and `bit-mis`, with self-review prevention and the exact `master`-only branch policy retained. `EnergyGuy3` is the recovery backup |
 | `pypi` environment and PyPI trusted publisher | OIDC upload identity | Exact repository/workflow/environment registration and environment protections |
 
 The retained manual workflow applies local labels, the reviewed ruleset, and its variable; it does not create a PR or rewrite package source. Its PAT/GitHub App credential requires Issues write for labels, Administration write for rulesets, Variables write for `RULESET_ID`, and Metadata read, scoped to this repository. The built-in `GITHUB_TOKEN` cannot administer rulesets. Do not inherit the template's broader PR/workflow/source-write scopes for operations this workflow does not perform.
@@ -65,10 +65,10 @@ Never print credential values or put them in issues, documentation, or commits.
 
 1. Inspect the exact local candidate and run its declared checks. Verify the eleven laws, ten required contexts, configuration, and `Protect-Master` snapshot agree.
 2. Read live repository settings, rulesets, collaborator access, Actions permissions, environments, variables, enabled security features, and publisher registration. Record missing prerequisites; a local snapshot is not evidence that settings are active.
-3. Confirm one eligible non-author human/code-owner approval and approval of the latest reviewable push can be obtained independently of advisory Copilot review. An author cannot approve their own PR; administrator access alone does not satisfy that review.
+3. Confirm one eligible non-author reviewer/code-owner approval and approval of the latest reviewable push can be obtained independently of advisory Copilot review. An author cannot approve their own PR; administrator access alone does not satisfy that review.
 4. Once explicitly authorized, establish only the missing secrets/variables/environments/settings and apply the reviewed snapshot. Reconcile broad Actions defaults with the adopted least-privilege policy; checked-in action SHA pins and workflow permissions apply to these workflows, not the repository-wide live settings. Record the actual ruleset id in `RULESET_ID`.
 5. Verify live protection against [.github/rulesets/master.json](.github/rulesets/master.json), including `bypass_actors`, strict up-to-date checks, required reviews, all ten contexts, no force-push, and no branch deletion.
-6. Verify a real authorized PR receives all required checks and review requirements. Confirm all ten required contexts succeed, `pr_checks_honesty` checks the laws/configuration/ruleset bijection, and `pr_checks_ruleset` passes. Verify human/code-owner and latest-push approvals, resolved review threads, and complete protection visibility for the privileged post-merge audit.
+6. Verify a real authorized PR receives all required checks and review requirements. Confirm all ten required contexts succeed, `pr_checks_honesty` checks the laws/configuration/ruleset bijection, and `pr_checks_ruleset` passes. Verify eligible code-owner and latest-push approvals, resolved review threads, and complete protection visibility for the privileged post-merge audit.
 7. Activate release or publication only through the separate [release readiness procedure](docs/Developer/Making-Release.md). Do not infer a published release from a successful static build.
 
 Read-only examples, substituting the actual repository coordinates when necessary:
@@ -82,6 +82,10 @@ gh secret list --repo autonomio/astetik
 
 These commands inspect configuration names and access; they do not expose secret values or activate anything.
 
+GitHub evaluates [CODEOWNERS from the PR base branch](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners). A newly listed owner becomes eligible only after the ownership change merges; that migration needs an eligible existing owner other than its author and latest pusher.
+
+PR review approves source before merge. A `release` environment approval is a separate GitHub Actions authorization before a signing or publication job runs: open the paused workflow run, select **Review deployments**, select `release`, then **Approve and deploy**. An eligible reviewer other than the workflow initiator approves it; no private signing-key unlock is required by this environment gate. Changing this reviewer list does not activate release or PyPI publication.
+
 ## Failure handling
 
 | Symptom | Meaning and response |
@@ -89,8 +93,8 @@ These commands inspect configuration names and access; they do not expose secret
 | Required checks absent | Verify trigger branches, Actions availability, workflow permissions, and token-trigger behavior; do not declare readiness |
 | `RULESET_ID` absent or stale | Establish the actual live id after authorized activation |
 | Audit cannot read `bypass_actors` | Keep the audit blocked; verify caller eligibility, repository selection, token approval/expiration and the exact response. Do not add Administration write automatically |
-| Human approval does not count | Reviewer lacks write access, is the PR author, or violates live review rules |
-| Copilot review unavailable, quota exhausted, or file limit exceeded | Advisory review is unavailable; this does not add a required gate or satisfy human approval. Keep all ten required contexts, human/code-owner and latest-push approvals, and thread resolution in force |
+| Required approval does not count | Reviewer lacks write access, is the PR author or latest pusher, is absent from base-branch CODEOWNERS for an owned path, or violates live review rules |
+| Copilot review unavailable, quota exhausted, or file limit exceeded | Advisory review is unavailable; this does not add a required gate or satisfy required approval. Keep all ten required contexts, eligible code-owner and latest-push approvals, and thread resolution in force |
 | CodeQL unavailable | Reconcile law, config, workflow, snapshot, and tests in a separately authorized change; never remove one surface alone |
 | Upload or attestation unverified | Leave publication disabled; do not claim release provenance |
 

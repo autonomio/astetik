@@ -2,7 +2,7 @@
 
 Mikko Kotila (`mikkokotila`) is the primary maintainer. He owns product scope, issue priority, security triage, release approval, and merge decisions subject to the [constitution](CLAUDE.md). The existing author contact is `mailme@mikkokotila.com`; [SECURITY.md](SECURITY.md) owns the verified private reporting route.
 
-`EnergyGuy3` is the backup for repository administration and release access, and an eligible independent code owner. Both accounts' GitHub administrator permissions were independently verified on 2026-10-02. The primary maintainer's own PR requires an eligible independent owner approval; advisory Copilot review does not replace it.
+`bit-mis` is the independent code owner for enforcement surfaces, with repository write access verified on 2026-10-02. The configured approving authority is `mikkokotila`; both the primary maintainer and recovery backup `EnergyGuy3` had GitHub administrator permissions independently verified on 2026-10-02. The primary maintainer's own PR requires an eligible independent owner approval; advisory Copilot review does not replace it. `EnergyGuy3` remains the release/PyPI recovery backup, without a required PR-review or signing-approval role.
 
 ## Continuity
 
