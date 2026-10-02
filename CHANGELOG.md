@@ -1,3 +1,8 @@
+# v2.0.1
+
+- Assign enforcement-surface ownership to bit-mis and retain EnergyGuy3 as the release/PyPI recovery backup.
+- Distinguish PR review from protected signing and publication job approval.
+
 # v2.0.0
 
 - Compile plots and scientific protocols through explicit specifications and a centralized design manifest.

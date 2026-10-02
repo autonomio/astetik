@@ -21,7 +21,7 @@ Security-relevant repository surfaces also include issue/PR parsers, dependency 
 
 | Requirement | Declared control | What local adoption does not prove |
 | --- | --- | --- |
-| Reviewed source reaches `master` | Eleven laws, ten contexts, `Protect-Master`, independent human/code-owner and latest-push approval, resolved threads | Activated protection or a successful eligible non-author approval; advisory Copilot requests do not replace either |
+| Reviewed source reaches `master` | Eleven laws, ten contexts, `Protect-Master`, independent reviewer/code-owner and latest-push approval, resolved threads | Activated protection or a successful eligible non-author approval; advisory Copilot requests do not replace either |
 | Laws/config/checks agree | Deterministic `pr_checks_honesty` bijection | That declared checks run or are required on GitHub |
 | Live protection matches snapshot | `pr_checks_ruleset`; privileged `audit_master_ruleset` includes bypass actors | Live agreement before credentials and actual checks are verified |
 | Known vulnerabilities remain visible | Python pip-audit; time-limited exceptions; zero-advisory production and development npm audits; update workflows | Absence of unknown vulnerabilities or future advisories |
@@ -50,6 +50,6 @@ The first exercises local contracts. The second lists remote declarations only; 
 
 The strict typing and lint baselines are zero after verified repair; module shape has the restored template ceiling. The adopted product test-density threshold remains explicitly recorded in the technical-debt register. Property tests explore bounded/generated input spaces and do not substitute for a coverage-guided native fuzzing claim. Runtime input validation and receipt checks do not prove the researcher's sampling, independence, causal interpretation, or study validity.
 Authorized activation hardened the live Actions defaults: read-only token, PR approval disabled, selected fully pinned actions, and protected environments. The privileged live ruleset comparison passed, including its empty bypass list. Successful required CI, independent review, and the persistent audit credential remain separate proofs. [SETUP.md](../../SETUP.md) owns the verified activation state and remaining prerequisites.
-A static site build does not prove deployed headers, redirects, availability, or transport policy. Maintainer continuity and eligible independent owner review remain operational responsibilities; `mikkokotila`'s own PR needs another eligible owner such as verified administrator `EnergyGuy3`, and self-approval cannot satisfy the ruleset.
+A static site build does not prove deployed headers, redirects, availability, or transport policy. Maintainer continuity and eligible independent owner review remain operational responsibilities. `mikkokotila`'s own PR needs the eligible code owner `bit-mis`, whose repository write access was verified on 2026-10-02; self-approval cannot satisfy the ruleset. `EnergyGuy3` is the verified administrator and release/PyPI recovery backup, without a required PR-review or signing-approval role.
 
 Next: [security policy](../../SECURITY.md), [release policy](Release-Policy.md), or [maintenance](README.md).
