@@ -1,5 +1,7 @@
 # Astetik
 
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15154/badge)](https://www.bestpractices.dev/en/projects/15154)
+
 Astetik, an Autonomio project, compiles scientific figures, numerical output, and provenance from a declared plot specification and design manifest.
 
 It owns validation, rendering, explicit statistical protocols, publication checks, and evidence bundles. Data preparation and the validity of a study design remain outside that boundary; see [product scope](docs/Overview/Boundary.md).

@@ -1,3 +1,9 @@
+# v2.0.2
+
+- Isolate publication validation and separate distribution builds from signing privileges.
+- Publish vulnerability response, access continuity, roadmap, and verifiable release-signature practices.
+- Link the actual OpenSSF Best Practices record and synchronize source metadata.
+
 # v2.0.0
 
 - Compile plots and scientific protocols through explicit specifications and a centralized design manifest.
