@@ -1,3 +1,8 @@
+# v2.0.3
+
+- Verify transient HEAD failures through safe GET requests and bounded retry delays.
+- Retain actionable HTTP diagnostics and isolate release-test fixtures from source version changes.
+
 # v2.0.0
 
 - Compile plots and scientific protocols through explicit specifications and a centralized design manifest.

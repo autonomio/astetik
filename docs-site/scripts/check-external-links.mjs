@@ -4,6 +4,7 @@ import http from 'node:http';
 import https from 'node:https';
 import net from 'node:net';
 import path from 'node:path';
+import timers from 'node:timers/promises';
 import {fileURLToPath} from 'node:url';
 
 import {resolveRepositoryFile} from './repository-paths.mjs';
@@ -109,17 +110,36 @@ export function isPublicAddress(address) {
   );
 }
 
+function displayUrl(url) {
+  const parsed = new URL(url);
+  return `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
+}
+
+function reportResponse(url, method, response) {
+  const status = response.statusCode;
+  if (method === 'HEAD' && status >= 200 && status < 300) {
+    return;
+  }
+  const fields = [
+    ['request-id', response.headers['x-github-request-id'] ?? response.headers['x-request-id']],
+    ['retry-after', response.headers['retry-after']],
+  ].filter(([, value]) => value !== undefined)
+    .map(([name, value]) => ` ${name}=${JSON.stringify(String(value).slice(0, 160))}`)
+    .join('');
+  process.stderr.write(`External link ${method} ${displayUrl(url)} returned ${status}${fields}\n`);
+}
+
 export async function assertPublicUrl(url) {
   const parsed = new URL(url);
   if (!['http:', 'https:'].includes(parsed.protocol)) {
-    throw new Error(`${url} must use HTTP or HTTPS`);
+    throw new Error(`${displayUrl(url)} must use HTTP or HTTPS`);
   }
   if (parsed.username || parsed.password) {
-    throw new Error(`${url} must not contain credentials`);
+    throw new Error(`${displayUrl(url)} must not contain credentials`);
   }
   const hostname = parsed.hostname.replace(/^\[|\]$/g, '').toLowerCase();
   if (hostname === 'localhost' || hostname.endsWith('.localhost')) {
-    throw new Error(`${url} resolves to a non-public destination`);
+    throw new Error(`${displayUrl(url)} resolves to a non-public destination`);
   }
   const family = net.isIP(hostname);
   const addresses = family
@@ -129,7 +149,7 @@ export async function assertPublicUrl(url) {
     addresses.length === 0
     || addresses.some(({address}) => !isPublicAddress(address))
   ) {
-    throw new Error(`${url} resolves to a non-public destination`);
+    throw new Error(`${displayUrl(url)} resolves to a non-public destination`);
   }
   return {addresses, parsed};
 }
@@ -157,7 +177,10 @@ async function requestOnce(url, method) {
         method,
         signal: AbortSignal.timeout(15000),
       },
-      resolve
+      (response) => {
+        reportResponse(url, method, response);
+        resolve(response);
+      }
     );
     outgoing.on('error', reject);
     outgoing.end();
@@ -174,11 +197,11 @@ async function request(url, method) {
     const location = response.headers.location;
     response.resume();
     if (!location) {
-      throw new Error(`${currentUrl} redirected without a location`);
+      throw new Error(`${displayUrl(currentUrl)} redirected without a location`);
     }
     currentUrl = new URL(location, currentUrl).href;
   }
-  throw new Error(`${url} exceeded five redirects`);
+  throw new Error(`${displayUrl(url)} exceeded five redirects`);
 }
 
 // Statuses that mean "not now" rather than "this link is wrong". Retrying the
@@ -192,7 +215,7 @@ const RETRY_BASE_MS = 500;
 
 async function attemptLink(url) {
   const response = await request(url, 'HEAD');
-  if (response.statusCode === 405) {
+  if (response.statusCode === 405 || RETRYABLE_STATUS.has(response.statusCode)) {
     response.resume();
     const getResponse = await request(url, 'GET');
     getResponse.resume();
@@ -202,7 +225,7 @@ async function attemptLink(url) {
   return response.statusCode;
 }
 
-export async function checkLink(url, attempt = async (u) => attemptLink(u), sleep = null) {
+export async function checkLink(url, attempt = async (u) => attemptLink(u), sleep = timers.setTimeout) {
   let lastStatus = null;
   for (let tries = 1; tries <= MAX_ATTEMPTS; tries += 1) {
     let status;
@@ -214,9 +237,7 @@ export async function checkLink(url, attempt = async (u) => attemptLink(u), slee
       if (tries === MAX_ATTEMPTS) {
         throw error;
       }
-      if (sleep) {
-        await sleep(RETRY_BASE_MS * tries);
-      }
+      await sleep(RETRY_BASE_MS * tries);
       continue;
     }
     if (status >= 200 && status < 300) {
@@ -226,11 +247,9 @@ export async function checkLink(url, attempt = async (u) => attemptLink(u), slee
     if (!RETRYABLE_STATUS.has(status) || tries === MAX_ATTEMPTS) {
       break;
     }
-    if (sleep) {
-      await sleep(RETRY_BASE_MS * tries);
-    }
+    await sleep(RETRY_BASE_MS * tries);
   }
-  throw new Error(`${url} returned ${lastStatus}`);
+  throw new Error(`${displayUrl(url)} returned ${lastStatus}`);
 }
 
 async function main() {
