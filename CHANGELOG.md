@@ -1,3 +1,8 @@
+# v2.0.1
+
+- Align the README with Autonomio product structure, runnable first success, and verified status badges.
+- Synchronize version metadata and immutable installed documentation links.
+
 # v2.0.0
 
 - Compile plots and scientific protocols through explicit specifications and a centralized design manifest.
