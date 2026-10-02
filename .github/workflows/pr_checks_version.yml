@@ -137,15 +137,36 @@ jobs:
             --pr-author "${{ github.event.pull_request.user.login }}" \
             "${HISTORICAL_VERSION_ARGS[@]}"
 
-      - name: Recheck budget and coverage markers on metadata edits
+      - name: Recheck budget, coverage and runtime markers on metadata edits
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           BASE_REF: ${{ github.base_ref }}
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          git show "origin/$BASE_REF:.github/budgets.json" > base_budget.json
+          set -euo pipefail
+          ADOPTION_ARGS=()
+          MODE="$(BASE_REV="origin/$BASE_REF" python - <<'PYCODE'
+          import os
+          import sys
+          sys.path.insert(0, 'governance')
+          from _common import git_base_artifact, validate_initial_governance
+          ref = os.environ['BASE_REV']
+          budget = git_base_artifact(ref, '.github/budgets.json', 'RATCHET PREPARATION')
+          config = git_base_artifact(ref, 'governance.yml', 'RATCHET PREPARATION')
+          if budget is None:
+              validate_initial_governance(ref, 'RATCHET PREPARATION')
+              print('bootstrap')
+          else:
+              if config is None:
+                  raise SystemExit('Protected base budget lacks its governing configuration')
+              print('compare')
+          PYCODE
+          )"
+          if [ "$MODE" = "bootstrap" ]; then
+            ADOPTION_ARGS=(--bootstrap)
+          fi
+          python governance/check_budget_ratchet.py --base-ref "origin/$BASE_REF" --pr-number "$PR_NUMBER" "${ADOPTION_ARGS[@]}"
+          python governance/check_coverage_ratchet.py --base-ref "origin/$BASE_REF" --pr-number "$PR_NUMBER" "${ADOPTION_ARGS[@]}"
           printf '%s' "$PR_BODY" > pr_body.txt
-          python governance/check_budget_ratchet.py --base-file base_budget.json --pr-body-file pr_body.txt
-          python governance/check_coverage_ratchet.py --base-file base_budget.json --pr-body-file pr_body.txt
           python governance/check_test_runtime.py --check-ratchet-only --base-ref "origin/$BASE_REF" --pr-body-file pr_body.txt
