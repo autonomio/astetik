@@ -82,8 +82,8 @@ Next: [maintenance](README.md), [technical debt](Technical-Debt.md), or [setup r
 governance contracts append coverage afterward. Lint consumes the successful
 producer's immutable artifact ID from the same workflow run. Its receipt binds
 the tested commit, run, attempt, lockfiles and coverage bytes; absent or changed
-evidence fails. Rerun the entire workflow when a new attempt needs fresh
-coverage. The separate comment publisher never checks out pull-request code.
+evidence fails. A failed consumer can rerun against the original successful producer attempt
+and immutable artifact ID. The separate comment publisher never checks out pull-request code.
 
 Scientific contracts run once per PR, across all three supported Python
 versions; branch pushes run them only on `master`. Each lane checks installed
