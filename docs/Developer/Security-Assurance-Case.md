@@ -55,7 +55,7 @@ The following ten principles are the [OpenSSF secure-design prerequisite](https:
 
 ## Verification and retained evidence
 
-For the merged 2.0 source baseline, [1099 product tests and coverage](https://github.com/autonomio/astetik/actions/runs/36914931313) passed with 4444 of 4945 statements covered (89.87%). [Packaging](https://github.com/autonomio/astetik/actions/runs/36914931308) produced two bit-identical distributions and verified installed-wheel imports outside the checkout on Python 3.11, 3.12 and 3.13. These runs identify their exact source candidate; later changes require new evidence.
+For the merged 2.0 source baseline, [test suite and coverage](https://github.com/autonomio/astetik/actions/runs/36914931313) passed with 4444 of 4945 statements covered (89.87%). [Packaging](https://github.com/autonomio/astetik/actions/runs/36914931308) produced two bit-identical distributions and verified installed-wheel imports outside the checkout on Python 3.11, 3.12 and 3.13. These runs identify their exact source candidate; later changes require new evidence.
 
 The merged-master [scientific and documentation checks](https://github.com/autonomio/astetik/actions/runs/36969583737), [CodeQL](https://github.com/autonomio/astetik/actions/runs/36969583672), and [privileged ruleset audit](https://github.com/autonomio/astetik/actions/runs/36969583756) succeeded. The last checked the full protection payload, including bypass actors, using the actual audit credential. No token permission flags or secret contents follow from that success.
 
