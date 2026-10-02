@@ -35,6 +35,29 @@ gh attestation verify ARTIFACT --repo autonomio/astetik
 
 Compare its SHA-256 with retained publish evidence. A failed or missing attestation blocks a provenance claim; do not invent one in release prose.
 
+## Legacy distribution signing
+
+The latest published PyPI version is 1.16 from 2024-04-20. Its retained wheel and source distribution match the index SHA-256 values, and all 55 package files match tag `v1.16` at `11fb4ab8defa2799b0bcc4760620fb715377e93c`. This comparison does not establish a reproducible historical build.
+
+The existing maintainer OpenPGP primary fingerprint is `7814DF8A4969D30D2EBD795B2DBB46FE27DFCA48`, with identity `Mikko Kotila <mailme@mikkokotila.com>`, matching project metadata and that release's author. Private signing material stays on the maintainer's local machine, separate from GitHub and PyPI distribution. Its use requires the maintainer to unlock the existing key; no new signing identity or copied private key is needed.
+
+For retrospective approval, sign the unchanged index artifacts, then attach their detached signatures, public key, checksums and verification instructions to the existing release. Such signatures record approval at signing time. They do not claim signing in 2024, sign the old Git tag, or establish historical build provenance. The signatures remain pending until this procedure succeeds; unsigned legacy bytes must not be presented as signed.
+
+Once those assets are actually present, users retrieve the public key and signatures from the release and confirm the full fingerprint against this reviewed policy:
+
+```bash
+gh release download v1.16 --repo autonomio/astetik \
+  --pattern 'astetik-1.16*' --pattern maintainer-public-key.asc --pattern SHA256SUMS
+gpg --show-keys --with-fingerprint maintainer-public-key.asc
+# Confirm the full primary fingerprint above before importing.
+gpg --import maintainer-public-key.asc
+gpg --verify astetik-1.16-py2.py3-none-any.whl.asc astetik-1.16-py2.py3-none-any.whl
+gpg --verify astetik-1.16.tar.gz.asc astetik-1.16.tar.gz
+shasum -a 256 -c SHA256SUMS
+```
+
+Both signatures must verify for that full fingerprint, and both checksums must report `OK`. Users may instead download the wheel/source from PyPI and verify the same detached signatures. The expected SHA-256 values are `850fca54fa5c72b78e1f19c4cf1599d69870bb2a02bc4bf450297a5c317bb835` for the wheel and `c43fcdc927c66aee498241c1948958e87fc8df8651bd4baf4483510d639859cd` for the source distribution. GitHub-generated source archives are distinct bytes and are outside these signatures.
+
 ## Recovery
 
 Read the actual failed step before retrying. An existing tag makes tag creation idempotent; a partial upload burns the version and requires a new version. Do not blindly rerun the complete publish path for filenames PyPI has accepted.
