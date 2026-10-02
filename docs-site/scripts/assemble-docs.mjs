@@ -181,6 +181,16 @@ function buildFrontMatter(doc) {
 }
 
 function resolveDocLink(fromSource, target, mappedAsRoute = false) {
+  const repositoryPrefix = `${repoBlobBaseUrl}/`;
+  if (target?.startsWith(repositoryPrefix)) {
+    const [sourcePath, fragment] = target.slice(repositoryPrefix.length).split('#');
+    if (mappingBySource.has(sourcePath)) {
+      target = path.posix.relative(path.posix.dirname(normalizePath(fromSource)), sourcePath);
+      if (fragment) {
+        target += `#${fragment}`;
+      }
+    }
+  }
   if (!target || /^(https?:|mailto:|#|\/)/.test(target)) {
     return target;
   }

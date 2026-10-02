@@ -17,7 +17,7 @@
 <div align="center">
   <a href="https://github.com/autonomio/astetik/actions/workflows/scorecard-analysis.yml"><img src="https://github.com/autonomio/astetik/actions/workflows/scorecard-analysis.yml/badge.svg?branch=master&amp;event=push" alt="OpenSSF Scorecard analysis workflow" /></a>
   <a href="https://pypi.org/project/astetik/"><img src="https://img.shields.io/pypi/v/astetik?label=pypi" alt="PyPI version" /></a>
-  <a href="docs/README.md"><img src="https://img.shields.io/badge/docs-manual-blue" alt="Astetik documentation" /></a>
+  <a href="https://github.com/autonomio/astetik/blob/master/docs/README.md"><img src="https://img.shields.io/badge/docs-manual-blue" alt="Astetik documentation" /></a>
   <a href="https://github.com/autonomio/astetik/actions/workflows/ci.yml"><img src="https://github.com/autonomio/astetik/actions/workflows/ci.yml/badge.svg?branch=master&amp;event=push" alt="Master scientific contracts and documentation" /></a>
 </div>
 
@@ -41,13 +41,13 @@ checks, and evidence bundles. Researchers own data preparation, sampling, study
 design, method selection, and interpretation. Astetik does not infer those decisions
 or establish independence, causality, or scientific suitability.
 
-The [product boundary](docs/Overview/Boundary.md) defines that responsibility.
+The [product boundary](https://github.com/autonomio/astetik/blob/master/docs/Overview/Boundary.md) defines that responsibility.
 Imports do not change notebook-global plotting styles; design is applied within
 the declared rendering workflow.
 
 ## Capabilities
 
-The [plot catalogue](docs/Reference/Plot-Catalogue.md) covers **30 kinds**, each with
+The [plot catalogue](https://github.com/autonomio/astetik/blob/master/docs/Reference/Plot-Catalogue.md) covers **30 kinds**, each with
 a paper path, including animation posters and table/text evidence.
 
 | Research task | Supported capability |
@@ -61,7 +61,7 @@ a paper path, including animation posters and table/text evidence.
 
 Color binds to meaning and category identity across figures. Set your study's primary
 with `manifest.with_primary("#235B60")`; primary-bound categories update together.
-The [manifest reference](docs/Reference/Manifest.md) owns palette, contrast,
+The [manifest reference](https://github.com/autonomio/astetik/blob/master/docs/Reference/Manifest.md) owns palette, contrast,
 typography, and physical-size rules.
 
 ## First successful figure
@@ -118,14 +118,14 @@ Expected result: Africa 60, Americas 57, Asia 51, Europe 51, and Oceania 29, fol
 by the absolute path of `country-regions`. Of the 249 retained geographic entries,
 248 contribute; Antarctica (`ATA`) has no region and is explicitly excluded and
 accounted for. These counts describe the shipped snapshot, not a current geopolitical
-reference or a scientific inference. The [first-figure guide](docs/Guides/First-Figure.md)
+reference or a scientific inference. The [first-figure guide](https://github.com/autonomio/astetik/blob/master/docs/Guides/First-Figure.md)
 owns the source and observation accounting.
 
 `render` returns an `EvidenceResult`: a figure, numerical table, declarations, receipt,
 and mark-to-observation origins. `paper="double"` selects a 178 mm figure; use
 `paper="single"` for 89 mm, or `paper=True` for the manifest's declared preset.
 Verification checks the final physical artifact before publication. The
-[paper-figure guide](docs/Guides/Paper-Figure.md) covers design revisions and failures.
+[paper-figure guide](https://github.com/autonomio/astetik/blob/master/docs/Guides/Paper-Figure.md) covers design revisions and failures.
 
 ## Retain the evidence
 
@@ -146,8 +146,8 @@ astetik catalog
 astetik replay country-regions
 ```
 
-The [bundle guide](docs/Guides/Evidence-Bundle.md) covers inspection, publication,
-and replay; the [command-line reference](docs/Reference/CLI.md) defines JSON output
+The [bundle guide](https://github.com/autonomio/astetik/blob/master/docs/Guides/Evidence-Bundle.md) covers inspection, publication,
+and replay; the [command-line reference](https://github.com/autonomio/astetik/blob/master/docs/Reference/CLI.md) defines JSON output
 and structured failures.
 
 ## Risk Boundary
@@ -161,23 +161,23 @@ they do not establish authorship or the truth of observations.
 Publication checks cover declared dimensions, visible type sizes, font/glyph identity,
 clipping, and selected tick/table collisions. Journal-specific requirements and other
 graphical collisions remain the researcher's responsibility. The
-[evidence reference](docs/Reference/Evidence-Result.md) defines these bounded contracts.
+[evidence reference](https://github.com/autonomio/astetik/blob/master/docs/Reference/Evidence-Result.md) defines these bounded contracts.
 
 ## Choose the next task
 
 | Job | Start here |
 | --- | --- |
-| Create and inspect a first figure | [First figure](docs/Guides/First-Figure.md) |
-| Use final paper dimensions and study colors | [Paper figure](docs/Guides/Paper-Figure.md) |
-| Declare a method for measured study data | [Research protocols](docs/Guides/Research-Protocols.md) |
-| Select a plot and its supported options | [Plot catalogue](docs/Reference/Plot-Catalogue.md) |
-| Integrate verified prepared data | [Data and Prepared](docs/Reference/Data-and-Prepared.md) |
-| Retain, inspect, and repeat evidence | [Evidence bundle](docs/Guides/Evidence-Bundle.md) |
-| Integrate Python or a command-line agent | [Specification](docs/Reference/Plot-Specification.md); [command line](docs/Reference/CLI.md) |
-| Replace an older notebook call | [Migration](docs/Reference/Migration.md) |
-| Navigate the whole manual | [Documentation hub](docs/README.md) |
+| Create and inspect a first figure | [First figure](https://github.com/autonomio/astetik/blob/master/docs/Guides/First-Figure.md) |
+| Use final paper dimensions and study colors | [Paper figure](https://github.com/autonomio/astetik/blob/master/docs/Guides/Paper-Figure.md) |
+| Declare a method for measured study data | [Research protocols](https://github.com/autonomio/astetik/blob/master/docs/Guides/Research-Protocols.md) |
+| Select a plot and its supported options | [Plot catalogue](https://github.com/autonomio/astetik/blob/master/docs/Reference/Plot-Catalogue.md) |
+| Integrate verified prepared data | [Data and Prepared](https://github.com/autonomio/astetik/blob/master/docs/Reference/Data-and-Prepared.md) |
+| Retain, inspect, and repeat evidence | [Evidence bundle](https://github.com/autonomio/astetik/blob/master/docs/Guides/Evidence-Bundle.md) |
+| Integrate Python or a command-line agent | [Specification](https://github.com/autonomio/astetik/blob/master/docs/Reference/Plot-Specification.md); [command line](https://github.com/autonomio/astetik/blob/master/docs/Reference/CLI.md) |
+| Replace an older notebook call | [Migration](https://github.com/autonomio/astetik/blob/master/docs/Reference/Migration.md) |
+| Navigate the whole manual | [Documentation hub](https://github.com/autonomio/astetik/blob/master/docs/README.md) |
 
-Agents start with the [scientific workflow](docs/Developer/Agent-Workflow.md),
+Agents start with the [scientific workflow](https://github.com/autonomio/astetik/blob/master/docs/Developer/Agent-Workflow.md),
 `ast.catalog()`, and `ast.select(intent)`. Installed documentation entry points live
 beside `astetik.__file__` under `docs/`. Structured `AstetikError` fields support
 recovery by correcting declarations rather than substituting a method.
@@ -186,29 +186,29 @@ recovery by correcting declarations rather than substituting a method.
 
 ## Contributing
 
-Start with [CONTRIBUTING.md](CONTRIBUTING.md) and
-[developer setup and validation](docs/Developer/README.md). Propose work through
+Start with [CONTRIBUTING.md](https://github.com/autonomio/astetik/blob/master/CONTRIBUTING.md) and
+[developer setup and validation](https://github.com/autonomio/astetik/blob/master/docs/Developer/README.md). Propose work through
 [Autonomio Astetik issues](https://github.com/autonomio/astetik/issues).
 
 ## Support
 
-Use [SUPPORT.md](SUPPORT.md) for bug reports, feature requests, and usage questions.
+Use [SUPPORT.md](https://github.com/autonomio/astetik/blob/master/SUPPORT.md) for bug reports, feature requests, and usage questions.
 Include Astetik and Python versions, the specification, manifest, result identifier,
 and full relevant error. Use small shareable actual data for a reproduction.
 
 ## Vulnerabilities
 
-Use [SECURITY.md](SECURITY.md) for supported source and the private reporting route.
+Use [SECURITY.md](https://github.com/autonomio/astetik/blob/master/SECURITY.md) for supported source and the private reporting route.
 Arrange a private channel with the maintainer when private vulnerability reporting
 is unavailable. Do not put exploitable details or credentials in public issues.
 
 ## Citations
 
-Use [CITATION.cff](CITATION.cff) for software citation metadata. A reproducible
+Use [CITATION.cff](https://github.com/autonomio/astetik/blob/master/CITATION.cff) for software citation metadata. A reproducible
 research citation should identify Astetik, its exact version or source commit,
 and the retained specification, manifest, and result identifier. No DOI is supplied.
 
 ## License
 
-[MIT License](LICENSE). [Third-party notices](THIRD_PARTY.md) retain template
+[MIT License](https://github.com/autonomio/astetik/blob/master/LICENSE). [Third-party notices](https://github.com/autonomio/astetik/blob/master/THIRD_PARTY.md) retain template
 attribution and Finlandica's separate font license.

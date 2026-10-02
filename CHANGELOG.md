@@ -1,6 +1,7 @@
 # v2.0.1
 
 - Align the README with Autonomio product structure, runnable first success, and verified status badges.
+- Keep README links usable on GitHub and PyPI while routing canonical documentation within the site.
 - Synchronize version metadata and immutable installed documentation links.
 
 # v2.0.0
