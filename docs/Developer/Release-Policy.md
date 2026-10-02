@@ -42,7 +42,7 @@ Compare its SHA-256 with retained publish evidence. Inspect `verificationResult.
 
 The latest published PyPI version is 1.16 from 2024-04-20. Its retained wheel and source distribution match the index SHA-256 values, and all 55 package files match tag `v1.16` at `11fb4ab8defa2799b0bcc4760620fb715377e93c`. This comparison does not establish a reproducible historical build.
 
-The fixed manual workflow [sign_legacy_release.yml](../../.github/workflows/sign_legacy_release.yml) provides keyless retrospective approval. It requires the reviewed workflow on protected `master`, the unchanged source tag, exact stable release identity, both fixed PyPI URLs and index digests, and matching downloaded bytes. A read-only runner performs that verification in isolated Python. A separate runner under the existing protected `release` environment signs only the retained wheel and sdist with a short-lived Sigstore identity. A third protected runner verifies both signatures and the approval predicate, then attaches those same bytes and their shared bundle to the existing release without replacing assets. It never builds, creates a tag/release, uploads to PyPI, enables a publisher, or requires a local private key.
+The fixed manual workflow [sign_legacy_release.yml](../../.github/workflows/sign_legacy_release.yml) provides keyless retrospective approval. It requires the reviewed workflow on protected `master`, the unchanged source tag, exact stable release identity, both fixed PyPI URLs and index digests, and matching downloaded bytes. A read-only runner performs that verification in isolated Python. A separate runner under the existing protected `release` environment signs only the two fixed reviewed digest subjects with a short-lived Sigstore identity; no project checkout/execution or incoming distribution transfer runs with its signing credentials. A third protected runner verifies both signatures and the approval predicate, then attaches those same bytes and their shared bundle to the existing release without replacing assets. It never builds, creates a tag/release, uploads to PyPI, enables a publisher, or requires a local private key.
 
 The custom predicate `urn:autonomio:astetik:legacy-approval:v1` binds the exact artifact URLs, digests and sizes to tag `v1.16`, source commit `11fb4ab8defa2799b0bcc4760620fb715377e93c`, and the trusted approving workflow revision. Its `historical_build_provenance` is explicitly `false`. Signing records approval at execution time; it does not claim a 2024 signature, a signed historical tag, or a reproducible historical build. Signatures remain pending until an actual approved run publishes and verifies them.
 
@@ -58,6 +58,8 @@ Both signing and asset publication require their existing `release` environment 
 For an actually published bundle, download the unchanged distributions and signature from the existing release. Set `RUN_ID` to the inspected successful approval run and confirm its `headSha` is the reviewed protected workflow revision before verification:
 
 ```bash
+(
+set -euo pipefail
 gh release download v1.16 --repo autonomio/astetik \
   --pattern 'astetik-1.16*'
 WORKFLOW_SHA="$(gh run view "$RUN_ID" --repo autonomio/astetik --json headSha --jq .headSha)"
@@ -88,6 +90,7 @@ for artifact in astetik-1.16-py2.py3-none-any.whl astetik-1.16.tar.gz; do
       .artifacts["astetik-1.16.tar.gz"].sha256 == "c43fcdc927c66aee498241c1948958e87fc8df8651bd4baf4483510d639859cd")
   ' "$artifact.verification.json"
 done
+)
 ```
 
 Require both checksum checks, both signature verifications and both predicate comparisons to succeed. The CLI recomputes each artifact digest and verifies the signed subject, exact workflow certificate identity, GitHub OIDC issuer, protected execution ref/revision, signature, certificate chain and transparency evidence. The certificate source SHA identifies the approving workflow; the historical source SHA belongs in the signed predicate. Users may download the same wheel/sdist bytes from PyPI. GitHub-generated source archives are distinct bytes outside this approval.

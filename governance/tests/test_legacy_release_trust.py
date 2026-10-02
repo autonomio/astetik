@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -219,13 +220,20 @@ def test_signer_and_publisher_retain_only_verified_same_run_bytes() -> None:
     assert publisher['needs'] == ['verify_legacy', 'sign_legacy']
     assert signer['permissions'] == {'contents': 'read', 'id-token': 'write', 'attestations': 'write'}
     assert publisher['permissions'] == {'contents': 'write'}
-    assert all('run' not in step and 'checkout' not in step['uses'] for step in signer['steps'])
+    assert len(signer['steps']) == 3
+    assert set(signer['steps'][0]) == {'name', 'run'}
+    assert all('run' not in step and 'checkout' not in step['uses'] for step in signer['steps'][1:])
     assert all('checkout' not in step.get('uses', '') for step in publisher['steps'])
-    assert signer['steps'][0]['with'] == publisher['steps'][0]['with'] == {
+    assert publisher['steps'][0]['with'] == {
         'name': 'legacy-verified-distributions', 'path': 'legacy',
     }
     assert signer['steps'][1]['uses'] == 'actions/attest@daf44fb950173508f38bd2406030372c1d1162b1'
-    assert signer['steps'][1]['with']['predicate'] == '${{ needs.verify_legacy.outputs.approval }}'
+    assert signer['steps'][1]['with'] == {
+        'subject-checksums': 'legacy-reviewed.sha256',
+        'predicate-type': 'urn:autonomio:astetik:legacy-approval:v1',
+        'predicate': '${{ needs.verify_legacy.outputs.approval }}',
+    }
+    assert all('download-artifact' not in step.get('uses', '') for step in signer['steps'])
     assert signer['steps'][2]['with']['path'] == '${{ steps.attest.outputs.bundle-path }}'
     assert publisher['steps'][1]['with'] == {'name': 'legacy-approval-bundle', 'path': 'bundle'}
     source = _program('publish_legacy')
@@ -298,3 +306,52 @@ def test_publisher_verifies_actual_bytes_and_predicate_before_upload(
     for name, expected in approval['artifacts'].items():
         assert (legacy.path / 'legacy' / name).read_bytes() == legacy.downloads[expected['url']]
     assert (legacy.path / 'legacy' / 'astetik-1.16.legacy-approval.sigstore.json').read_bytes() == (bundle_dir / 'attestation.json').read_bytes()
+
+
+@pytest.mark.parametrize('failure', ['checksum', 'signature', 'predicate'])
+def test_documented_verifier_stops_on_first_failed_check(tmp_path: Path, failure: str) -> None:
+    source = (ROOT / 'docs/Developer/Release-Policy.md').read_text()
+    recipe = next(block.split('```', 1)[0] for block in source.split('```bash\n')[1:]
+                  if 'gh release download v1.16' in block)
+    executable_dir = tmp_path / 'bin'
+    executable_dir.mkdir()
+    witness = tmp_path / 'calls'
+    for name, program in {
+        'gh': 'echo "gh $*" >> "$WITNESS"\n'
+              'if [ "$1" = run ]; then echo "$SHA"; fi\n'
+              'if [ "$1 $2" = "attestation verify" ] && [ "$FAILURE" = signature ]; then exit 1; fi\n',
+        'shasum': 'echo checksum >> "$WITNESS"\nif [ "$FAILURE" = checksum ]; then exit 1; fi\n',
+        'jq': 'echo predicate >> "$WITNESS"\nif [ "$FAILURE" = predicate ]; then exit 1; fi\n',
+    }.items():
+        executable = executable_dir / name
+        executable.write_text('#!/bin/sh\n' + program + 'exit 0\n')
+        executable.chmod(0o755)
+    result = subprocess.run(
+        ['bash', '-c', recipe], cwd=tmp_path, text=True, capture_output=True, check=False,
+        env=os.environ | {'PATH': f'{executable_dir}{os.pathsep}{os.environ["PATH"]}',
+                          'WITNESS': str(witness), 'FAILURE': failure, 'SHA': SHA, 'RUN_ID': 'unit-fixture'},
+    )
+    assert result.returncode != 0, result.stderr
+    calls = witness.read_text()
+    assert calls.count('attestation verify') <= 1
+    assert NAMES[1] not in calls
+    if failure == 'checksum':
+        assert 'attestation' not in calls
+    if failure == 'signature':
+        assert 'predicate' not in calls.splitlines()
+
+
+def test_changed_distribution_transfer_cannot_change_fixed_signed_subjects(tmp_path: Path) -> None:
+    signer = _workflow()['jobs']['sign_legacy']
+    (tmp_path / 'legacy').mkdir()
+    for name in NAMES:
+        (tmp_path / 'legacy' / name).write_bytes(b'unit-fixture corrupted transfer')
+    result = subprocess.run(
+        ['bash', '-euo', 'pipefail', '-c', signer['steps'][0]['run']], cwd=tmp_path,
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert (tmp_path / 'legacy-reviewed.sha256').read_text() == ''.join(
+        f'{digest}  {name}\n' for name, digest in zip(NAMES, EXPECTED_DIGESTS, strict=True)
+    )
+    assert '${{' not in signer['steps'][0]['run'] and '$' not in signer['steps'][0]['run']

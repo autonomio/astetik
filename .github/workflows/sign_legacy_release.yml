@@ -155,18 +155,17 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - name: Download verified distributions
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
-        with:
-          name: legacy-verified-distributions
-          path: legacy
+      - name: Declare fixed reviewed subjects
+        run: |
+          printf '%s\n' \
+            '850fca54fa5c72b78e1f19c4cf1599d69870bb2a02bc4bf450297a5c317bb835  astetik-1.16-py2.py3-none-any.whl' \
+            'c43fcdc927c66aee498241c1948958e87fc8df8651bd4baf4483510d639859cd  astetik-1.16.tar.gz' \
+            > legacy-reviewed.sha256
       - name: Sign retrospective approval
         id: attest
         uses: actions/attest@daf44fb950173508f38bd2406030372c1d1162b1  # v3.0.0
         with:
-          subject-path: |
-            legacy/astetik-1.16-py2.py3-none-any.whl
-            legacy/astetik-1.16.tar.gz
+          subject-checksums: legacy-reviewed.sha256
           predicate-type: urn:autonomio:astetik:legacy-approval:v1
           predicate: ${{ needs.verify_legacy.outputs.approval }}
       - name: Retain signature bundle
