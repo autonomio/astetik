@@ -4,12 +4,12 @@
 
 ## Canonical public documentation
 
-- [Product home](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/README.md) owns first success.
-- [Specification](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Reference/Plot-Specification.md) owns the Python/JSON declaration contract.
-- [Catalogue](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Reference/Plot-Catalogue.md) owns representations and numerical defaults.
-- [Manifest](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Reference/Manifest.md) owns centralized design and color.
-- [Data](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Reference/Data-and-Prepared.md) owns normalization and Prepared compatibility.
-- [Evidence](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Reference/Evidence-Result.md) owns inspection, publication, and replay.
+- [Product home](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/README.md) owns first success.
+- [Specification](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Reference/Plot-Specification.md) owns the Python/JSON declaration contract.
+- [Catalogue](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Reference/Plot-Catalogue.md) owns representations and numerical defaults.
+- [Manifest](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Reference/Manifest.md) owns centralized design and color.
+- [Data](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Reference/Data-and-Prepared.md) owns normalization and Prepared compatibility.
+- [Evidence](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Reference/Evidence-Result.md) owns inspection, publication, and replay.
 
 ## Public entry points
 
@@ -25,9 +25,9 @@ The package exports `Manifest`, `ColorSystem`, `EvidenceResult`, `AstetikError`,
 
 ## Ownership and adjacent boundaries
 
-The compiler validates and renders declarations. It does not acquire research data, perform arbitrary preparation, infer a scientifically valid method, or establish causal truth. Preparation remains a caller or compatible Wrangle responsibility; the [adapter contract](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Reference/Data-and-Prepared.md#compatible-prepared-contract) is narrower than general Wrangle API compatibility.
+The compiler validates and renders declarations. It does not acquire research data, perform arbitrary preparation, infer a scientifically valid method, or establish causal truth. Preparation remains a caller or compatible Wrangle responsibility; the [adapter contract](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Reference/Data-and-Prepared.md#compatible-prepared-contract) is narrower than general Wrangle API compatibility.
 
-Runtime dependencies are Matplotlib, NumPy, pandas, SciPy, pyshp, PyYAML, and Pillow. Polars input/Prepared support is optional through the `polars` extra. Parquet reader dependencies follow the [data input contract](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Reference/Data-and-Prepared.md). Current versions and bounds are authoritative in [project metadata](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/pyproject.toml).
+Runtime dependencies are Matplotlib, NumPy, pandas, SciPy, pyshp, PyYAML, and Pillow. Polars input/Prepared support is optional through the `polars` extra. Parquet reader dependencies follow the [data input contract](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Reference/Data-and-Prepared.md). Current versions and bounds are authoritative in [project metadata](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/pyproject.toml).
 
 ## Source orientation
 
@@ -47,6 +47,6 @@ Runtime dependencies are Matplotlib, NumPy, pandas, SciPy, pyshp, PyYAML, and Pi
 
 Imports do not set notebook-global plotting styles. Rendering and export bind declared style and actual fonts. Later evidence mutation blocks verified publication. Use a new destination for each published result and retain the recorded environment for exact replay.
 
-The old helper-file presence is not a promise of historical public behavior. Use current exports and the [migration reference](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Reference/Migration.md).
+The old helper-file presence is not a promise of historical public behavior. Use current exports and the [migration reference](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Reference/Migration.md).
 
-Next: [first figure](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Guides/First-Figure.md), or [maintenance](https://github.com/autonomio/astetik/blob/8d117af583fca7ee2136f81bd9c3c8ffbb2b4292/docs/Developer/README.md).
+Next: [first figure](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Guides/First-Figure.md), or [maintenance](https://github.com/autonomio/astetik/blob/121dbc7b1fab420fd53d429a2d1a85f8856f67f6/docs/Developer/README.md).
