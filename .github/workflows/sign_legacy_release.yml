@@ -1,0 +1,253 @@
+name: Approve Legacy 1.16 Distributions
+
+# Manual retrospective approval of fixed existing bytes; never rebuild or upload to PyPI.
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Approve unchanged PyPI 1.16 artifacts retrospectively
+        required: true
+        type: choice
+        options: [v1.16]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: legacy-approval-v1.16
+  cancel-in-progress: false
+
+jobs:
+  verify_legacy:
+    if: github.ref == 'refs/heads/master' && github.repository == 'autonomio/astetik'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      approval: ${{ steps.verify.outputs.approval }}
+      workflow_sha: ${{ steps.verify.outputs.workflow_sha }}
+    steps:
+      - name: Checkout trusted workflow history
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: '3.13'
+      - name: Verify unchanged legacy identity and bytes
+        id: verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          python -I - <<'PYCODE'
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          import urllib.request
+          from pathlib import Path
+
+          REPOSITORY = 'autonomio/astetik'
+          TAG = 'v1.16'
+          SOURCE = '11fb4ab8defa2799b0bcc4760620fb715377e93c'
+          WORKFLOW = f'{REPOSITORY}/.github/workflows/sign_legacy_release.yml@refs/heads/master'
+          ARTIFACTS = {
+              'astetik-1.16-py2.py3-none-any.whl': {
+                  'url': 'https://files.pythonhosted.org/packages/1e/e1/a0f19c716a4c935f1c31e2a3e18edaded99e003e2db31b807b5a1bedb597/astetik-1.16-py2.py3-none-any.whl',
+                  'sha256': '850fca54fa5c72b78e1f19c4cf1599d69870bb2a02bc4bf450297a5c317bb835',
+                  'size': 5406334,
+              },
+              'astetik-1.16.tar.gz': {
+                  'url': 'https://files.pythonhosted.org/packages/7c/38/7de8d21c959167d760a8c6be2f9785c0f1b40b4788a4ed7dd6667221c55b/astetik-1.16.tar.gz',
+                  'sha256': 'c43fcdc927c66aee498241c1948958e87fc8df8651bd4baf4483510d639859cd',
+                  'size': 5375929,
+              },
+          }
+
+          def verify_context():
+              required = {
+                  'GITHUB_EVENT_NAME': 'workflow_dispatch', 'GITHUB_REF': 'refs/heads/master',
+                  'GITHUB_REPOSITORY': REPOSITORY, 'GITHUB_WORKFLOW_REF': WORKFLOW,
+                  'RELEASE_TAG': TAG,
+              }
+              if any(os.environ[key] != value for key, value in required.items()):
+                  raise SystemExit('Legacy approval requires this fixed repository, master workflow and tag')
+              workflow_sha = os.environ['GITHUB_WORKFLOW_SHA']
+              if (re.fullmatch(r'[0-9a-f]{40}', workflow_sha) is None
+                      or os.environ['GITHUB_SHA'] != workflow_sha):
+                  raise SystemExit('Workflow source SHA must identify this protected execution')
+              tagged = subprocess.check_output(['git', 'rev-parse', f'refs/tags/{TAG}^{{commit}}'], text=True).strip()
+              if tagged != SOURCE:
+                  raise SystemExit('Legacy tag must retain its known source commit')
+              for ancestor, descendant in ((SOURCE, workflow_sha), (workflow_sha, 'refs/remotes/origin/master')):
+                  if subprocess.run(['git', 'merge-base', '--is-ancestor', ancestor, descendant], check=False).returncode != 0:
+                      raise SystemExit('Legacy source and workflow must belong to protected master history')
+              release = json.loads(subprocess.check_output(['gh', 'api', f'repos/{REPOSITORY}/releases/tags/{TAG}'], text=True))
+              if (release['id'] != 152049185 or release['tag_name'] != TAG
+                      or release['draft'] or release['prerelease']
+                      or release['html_url'] != f'https://github.com/{REPOSITORY}/releases/tag/{TAG}'):
+                  raise SystemExit('Legacy approval requires the exact published stable release')
+              return workflow_sha
+
+          def verify_index(metadata):
+              if metadata['info']['name'] != 'astetik' or metadata['info']['version'] != '1.16':
+                  raise SystemExit('Legacy index package/version identity changed')
+              files = metadata['urls']
+              if len(files) != len(ARTIFACTS) or {file['filename'] for file in files} != set(ARTIFACTS):
+                  raise SystemExit('Legacy index artifact inventory changed')
+              for file in files:
+                  expected = ARTIFACTS[file['filename']]
+                  if (file['url'] != expected['url'] or file['digests']['sha256'] != expected['sha256']
+                          or file['size'] != expected['size'] or file['yanked']):
+                      raise SystemExit('Legacy index artifact metadata changed')
+
+          def download_artifacts():
+              destination = Path('legacy')
+              destination.mkdir()
+              for name, expected in ARTIFACTS.items():
+                  with urllib.request.urlopen(expected['url'], timeout=30) as response:
+                      data = response.read(expected['size'] + 1)
+                  if len(data) != expected['size'] or hashlib.sha256(data).hexdigest() != expected['sha256']:
+                      raise SystemExit('Downloaded legacy distribution digest or size changed')
+                  (destination / name).write_bytes(data)
+
+          def main():
+              workflow_sha = verify_context()
+              with urllib.request.urlopen('https://pypi.org/pypi/astetik/1.16/json', timeout=30) as response:
+                  metadata = json.loads(response.read(1024 * 1024))
+              verify_index(metadata)
+              download_artifacts()
+              approval = {
+                  'approval': 'retrospective approval of unchanged published distributions',
+                  'historical_build_provenance': False,
+                  'repository': f'https://github.com/{REPOSITORY}', 'tag': TAG,
+                  'source_commit': SOURCE, 'workflow_commit': workflow_sha,
+                  'artifacts': ARTIFACTS,
+              }
+              with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+                  output.write(f'approval={json.dumps(approval, separators=(",", ":"))}\n')
+                  output.write(f'workflow_sha={workflow_sha}\n')
+              print('Verified unchanged PyPI 1.16 bytes and protected workflow/source identity')
+
+          if __name__ == '__main__':
+              main()
+          PYCODE
+      - name: Retain verified distributions
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: legacy-verified-distributions
+          path: legacy
+          if-no-files-found: error
+
+  sign_legacy:
+    needs: verify_legacy
+    if: github.ref == 'refs/heads/master' && github.repository == 'autonomio/astetik'
+    environment: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download verified distributions
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
+        with:
+          name: legacy-verified-distributions
+          path: legacy
+      - name: Sign retrospective approval
+        id: attest
+        uses: actions/attest@daf44fb950173508f38bd2406030372c1d1162b1  # v3.0.0
+        with:
+          subject-path: |
+            legacy/astetik-1.16-py2.py3-none-any.whl
+            legacy/astetik-1.16.tar.gz
+          predicate-type: urn:autonomio:astetik:legacy-approval:v1
+          predicate: ${{ needs.verify_legacy.outputs.approval }}
+      - name: Retain signature bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: legacy-approval-bundle
+          path: ${{ steps.attest.outputs.bundle-path }}
+          if-no-files-found: error
+
+  publish_legacy:
+    needs: [verify_legacy, sign_legacy]
+    if: github.ref == 'refs/heads/master' && github.repository == 'autonomio/astetik'
+    environment: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download verified distributions
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
+        with:
+          name: legacy-verified-distributions
+          path: legacy
+      - name: Download signature bundle
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
+        with:
+          name: legacy-approval-bundle
+          path: bundle
+      - name: Verify signatures and publish existing-release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_SHA: ${{ needs.verify_legacy.outputs.workflow_sha }}
+          APPROVAL: ${{ needs.verify_legacy.outputs.approval }}
+        run: |
+          set -euo pipefail
+          python -I - <<'PYCODE'
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          from pathlib import Path
+
+          workflow_sha = os.environ['WORKFLOW_SHA']
+          if (os.environ['GITHUB_REF'] != 'refs/heads/master'
+                  or os.environ['GITHUB_REPOSITORY'] != 'autonomio/astetik'
+                  or os.environ['GITHUB_WORKFLOW_REF'] != 'autonomio/astetik/.github/workflows/sign_legacy_release.yml@refs/heads/master'
+                  or workflow_sha != os.environ['GITHUB_WORKFLOW_SHA']
+                  or workflow_sha != os.environ['GITHUB_SHA']
+                  or re.fullmatch(r'[0-9a-f]{40}', workflow_sha) is None):
+              raise SystemExit('Legacy publication requires this protected master workflow')
+          approval = json.loads(os.environ['APPROVAL'])
+          bundles = list(Path('bundle').iterdir())
+          if len(bundles) != 1 or not bundles[0].is_file():
+              raise SystemExit('Exactly one generated signature bundle is required')
+          release = json.loads(subprocess.check_output(['gh', 'api', 'repos/autonomio/astetik/releases/tags/v1.16'], text=True))
+          if (release['id'] != 152049185 or release['tag_name'] != 'v1.16'
+                  or release['draft'] or release['prerelease']):
+              raise SystemExit('Publication requires the unchanged stable legacy release')
+          assets = []
+          for name, expected in approval['artifacts'].items():
+              artifact = Path('legacy') / name
+              if hashlib.sha256(artifact.read_bytes()).hexdigest() != expected['sha256']:
+                  raise SystemExit('Artifact digest changed after verification')
+              verified = json.loads(subprocess.check_output([
+                  'gh', 'attestation', 'verify', str(artifact), '--repo', 'autonomio/astetik',
+                  '--bundle', str(bundles[0]), '--cert-identity',
+                  'https://github.com/autonomio/astetik/.github/workflows/sign_legacy_release.yml@refs/heads/master',
+                  '--cert-oidc-issuer', 'https://token.actions.githubusercontent.com',
+                  '--signer-digest', workflow_sha, '--source-digest', workflow_sha,
+                  '--source-ref', 'refs/heads/master', '--deny-self-hosted-runners',
+                  '--predicate-type', 'urn:autonomio:astetik:legacy-approval:v1', '--format', 'json',
+              ], text=True))
+              if len(verified) != 1 or verified[0]['verificationResult']['statement']['predicate'] != approval:
+                  raise SystemExit('Verified retrospective approval predicate changed')
+              assets.append(artifact)
+          bundle = Path('legacy') / 'astetik-1.16.legacy-approval.sigstore.json'
+          bundle.write_bytes(bundles[0].read_bytes())
+          assets.append(bundle)
+          subprocess.run([
+              'gh', 'release', 'upload', 'v1.16', '--repo', 'autonomio/astetik',
+              *map(str, assets),
+          ], check=True)
+          print('Published unchanged legacy artifacts and verified retrospective approval; no assets replaced')
+          PYCODE

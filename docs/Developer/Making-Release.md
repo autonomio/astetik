@@ -19,6 +19,8 @@ This page owns the release sequence after the controls in [Release Policy](Relea
 5. Verify wheel/sdist identity, artifact digest summary, actual GitHub release-source attestations using the [specified verifier and field comparisons](Release-Policy.md#deliverables-and-boundaries), and the index's accepted files. Complete citation release metadata only when the release date is established.
 6. Report actual tag, commit, release, artifacts, and verification results. Leave an unproven step explicitly unresolved.
 
+The unchanged 1.16 distributions use the separately approved [keyless legacy procedure](Release-Policy.md#legacy-distribution-signing). That path adds retrospective signature evidence to the existing release and does not reuse the normal build or PyPI upload path.
+
 ## Observable result and failures
 
 Success means an actual authorized release with the exact retained artifact/provenance evidence, not merely a source version or a green skipped job. A missing variable, publisher, release/tag match, required review, or live rule proof prevents the corresponding step.
