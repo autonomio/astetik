@@ -158,7 +158,7 @@ def test_pr_checks_lint_runs_pinned_ruff_on_tools_and_tests_tools() -> None:
     # (ruff + every gate script + no-soft-fail). A future slice may
     # split or rename this; doing so requires updating the slice body's
     # Tests table in lockstep.
-    workflow = LINT_WORKFLOW.read_text(encoding='utf-8')
+    workflow = LINT_WORKFLOW.read_text(encoding='utf-8').split('  publish_coverage_comment:')[0]
 
     assert '--require-hashes -r requirements/ci/dev-env.txt' in workflow
     assert '--require-hashes -r requirements/ci/runtime-env.txt' in workflow
@@ -169,7 +169,9 @@ def test_pr_checks_lint_runs_pinned_ruff_on_tools_and_tests_tools() -> None:
     assert '.venv-lint/bin/python governance/check_ruff_ratchet.py' in workflow
     assert '--base-ref "origin/${{ github.base_ref }}"' in workflow
     assert '--source="${{ steps.package.outputs.coverage_source }}"' in workflow
-    assert '-m pytest tests/ governance/tests/ -q' in workflow
+    assert '-m pytest governance/tests/ -q' in workflow
+    assert 'governance/coverage_evidence.py --verify' in workflow
+    assert 'artifact-ids: ${{ needs.pr_checks_tests.outputs.coverage_artifact }}' in workflow
     assert 'continue-on-error' not in workflow
     # Hard-mechanical gate surfaces from slice #11 — each invocation
     # must appear verbatim somewhere in the workflow.

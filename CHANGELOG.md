@@ -1,3 +1,8 @@
+# v2.0.1
+
+- Consolidate CI coverage, installed-wheel checks and dependency audits while preserving scientific acceptance and required check names.
+- Cancel superseded source checks, bound documentation execution and group and stagger dependency updates.
+
 # v2.0.0
 
 - Compile plots and scientific protocols through explicit specifications and a centralized design manifest.

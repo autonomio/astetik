@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import subprocess
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -15,7 +16,8 @@ release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 HEAD = '1' * 40
 OTHER = '2' * 40
-TAG = 'v2.0.0'
+VERSION = tomllib.loads((SCRIPT.parents[1] / 'pyproject.toml').read_text())['project']['version']
+TAG = f'v{VERSION}'
 
 
 def _responses(monkeypatch: pytest.MonkeyPatch, responses: list[tuple[int, str, str]]) -> list[list[str]]:
