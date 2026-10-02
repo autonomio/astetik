@@ -18,6 +18,14 @@ OTHER = '2' * 40
 TAG = 'v2.0.0'
 
 
+@pytest.fixture(autouse=True)
+def release_source(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Keep mocked release identity independent of the checkout's current version."""
+    (tmp_path / 'pyproject.toml').write_text(f'[project]\nversion = "{TAG[1:]}"\n')
+    (tmp_path / 'CHANGELOG.md').write_text(f'# {TAG}\n\nFix verified release handling.\n')
+    monkeypatch.setattr(release, 'REPO_ROOT', tmp_path)
+
+
 def _responses(monkeypatch: pytest.MonkeyPatch, responses: list[tuple[int, str, str]]) -> list[list[str]]:
     replies = iter(responses)
     calls: list[list[str]] = []
