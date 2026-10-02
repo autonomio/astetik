@@ -5,6 +5,7 @@ import http from 'node:http';
 import https from 'node:https';
 import test from 'node:test';
 import timers from 'node:timers/promises';
+import {inspect} from 'node:util';
 
 import {
   checkLink,
@@ -215,4 +216,25 @@ test('rejects a definitive GET failure after a transient HEAD', async (context) 
   await assert.rejects(() => checkLink('https://example.test/get-missing'), /returned 404/);
   assert.deepEqual(transport.calls.map(({method}) => method), ['HEAD', 'GET']);
   assert.deepEqual(transport.delays, []);
+});
+
+
+test('redacts malformed URLs and redirect errors', async (context) => {
+  const transport = safeTransport(context, Array.from({length: MAX_ATTEMPTS}, () => [
+    {status: 503},
+    {status: 302, headers: {location: 'https://[invalid]/?token=redirect-probe-secret'}},
+  ]).flat());
+  const sanitized = (error) => {
+    assert.match(error.message, /URL is invalid/);
+    assert.doesNotMatch(inspect(error), /original-probe-secret|redirect-probe-secret|entry-probe-secret/);
+    return true;
+  };
+  await assert.rejects(
+    () => checkLink('https://example.test/document?token=original-probe-secret'),
+    sanitized,
+  );
+  const calls = transport.calls.length;
+  await assert.rejects(() => checkLink('https://[invalid]/?token=entry-probe-secret'), sanitized);
+  assert.equal(transport.calls.length, calls, 'An invalid entry URL must fail before any connection');
+  assert.doesNotMatch(transport.diagnostics.join(''), /original-probe-secret|redirect-probe-secret|entry-probe-secret/);
 });

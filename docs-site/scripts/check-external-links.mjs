@@ -110,8 +110,17 @@ export function isPublicAddress(address) {
   );
 }
 
+function parseUrl(url, base) {
+  try {
+    return new URL(url, base);
+  } catch {
+    // Native URL errors retain raw input/base fields, including credentials.
+    throw new Error('External link URL is invalid');
+  }
+}
+
 function displayUrl(url) {
-  const parsed = new URL(url);
+  const parsed = parseUrl(url);
   return `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
 }
 
@@ -130,7 +139,7 @@ function reportResponse(url, method, response) {
 }
 
 export async function assertPublicUrl(url) {
-  const parsed = new URL(url);
+  const parsed = parseUrl(url);
   if (!['http:', 'https:'].includes(parsed.protocol)) {
     throw new Error(`${displayUrl(url)} must use HTTP or HTTPS`);
   }
@@ -199,7 +208,7 @@ async function request(url, method) {
     if (!location) {
       throw new Error(`${displayUrl(currentUrl)} redirected without a location`);
     }
-    currentUrl = new URL(location, currentUrl).href;
+    currentUrl = parseUrl(location, currentUrl).href;
   }
   throw new Error(`${displayUrl(url)} exceeded five redirects`);
 }
