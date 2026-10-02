@@ -1,0 +1,45 @@
+{
+  "name": "astetik-docs-site",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "prepare-docs": "node ./scripts/assemble-docs.mjs",
+    "lint": "node ./scripts/lint-markdown.mjs",
+    "check:external-links": "node ./scripts/check-external-links.mjs",
+    "security:audit": "node ./scripts/audit-security.mjs",
+    "build": "npm run prepare-docs && docusaurus build",
+    "verify:build": "node ./scripts/verify-build.mjs",
+    "test:unit": "node --test ./tests/*.test.mjs",
+    "test:browser": "playwright test",
+    "check": "npm run lint && npm run test:unit && npm run check:external-links && npm run prepare-docs && docusaurus build --no-minify && npm run verify:build && npm run test:browser",
+    "start": "npm run prepare-docs && docusaurus start --host 0.0.0.0",
+    "serve": "docusaurus serve --dir build --host 127.0.0.1 --port 3100 --no-open",
+    "clear": "docusaurus clear"
+  },
+  "dependencies": {
+    "@docusaurus/core": "3.10.2",
+    "@docusaurus/preset-classic": "3.10.2",
+    "@easyops-cn/docusaurus-search-local": "0.55.3",
+    "prism-react-renderer": "2.4.1",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "overrides": {
+    "fast-uri": "3.1.8",
+    "js-yaml@^4": "4.3.2",
+    "markdown-it": "14.3.2",
+    "serialize-javascript": "7.1.2",
+    "uuid": "11.1.1",
+    "websocket-driver": "0.7.5",
+    "brace-expansion@^1": "1.1.21"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "@playwright/test": "1.61.1",
+    "markdownlint-cli2": "0.18.1"
+  },
+  "license": "MIT"
+}

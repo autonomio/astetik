@@ -1,26 +1,14 @@
-def _thousand_sep(p, ax, data, x, y):
+"""Import-compatible v1 helpers with explicit scientific migration errors."""
+from __future__ import annotations
 
-    '''Handles thousand separatos for tick labels.
+from typing import NoReturn
 
-    p | fig object | matplotlib figure object
-    ax | axis object | a single axis object
-    data | df | pandas dataframe with data
-    x | str | column name for x
-    y | str | column name for y
+from .._legacy import migration
 
-    NOTE: If x is list (e.g. hist or line) then x should be x[0].
-          For example _thousand_sep(p, ax, data, x[0], y)
 
-    '''
+def _thousand_sep(*_args: object, **_kwargs: object) -> NoReturn:
+    """Reject the unsupported v1 operation with a machine-readable recovery."""
+    migration('astetik.style.formats._thousand_sep', 'Declare design through astetik.Manifest and semantic colours through astetik.ColorSystem.')
 
-    from matplotlib import ticker
 
-    # only apply if data is int
-    if x != None:
-        if isinstance(data[x].iloc[0], int):
-            ax.get_xaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')));
-
-    # only apply if data is int
-    if y != None:
-        if isinstance(data[y].iloc[0], int):
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')));
+__all__ = ['_thousand_sep']

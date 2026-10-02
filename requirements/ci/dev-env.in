@@ -1,0 +1,2 @@
+# Tools derive from the project extras; Polars remains covered on supported runtimes.
+.[dev,polars]

@@ -1,0 +1,19 @@
+name: Security Report
+description: Read the security policy before reporting sensitive details.
+labels:
+  - security
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not submit exploitable details or credentials through public issues.
+
+        Follow [SECURITY.md](https://github.com/autonomio/astetik/blob/master/SECURITY.md).
+        The policy explains when GitHub private reporting is available and how to arrange a private channel otherwise.
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Acknowledgement
+      options:
+        - label: I have read SECURITY.md and will arrange an available private channel before sharing sensitive details.
+          required: true

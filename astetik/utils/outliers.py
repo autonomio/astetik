@@ -1,23 +1,11 @@
-import scipy.stats as sc
+"""Import-compatible v1 helpers with explicit scientific migration errors."""
+from __future__ import annotations
+
+from typing import NoReturn
+
+from .._legacy import migration
 
 
-def outliers(data, col, mode='zscore', threshold=3):
-
-    '''OUTLIER FILTERING
-
-    NOTE: this will automatically also drop nans from the dataset.
-
-    '''
-
-    # avoid destruction
-    data = data.copy(deep=True)
-    data = data[data[col].isna() == False]
-
-    if mode == 'zscore':
-        data['zscore'] = sc.zscore(data[col].astype(float))
-        data = data[data.zscore < 3][data.zscore > -3].drop('zscore', axis=1)
-
-    if mode == 'iqr':
-        data = data[data[col] < sc.iqr(data[col]) * threshold]
-
-    return data
+def outliers(*_args: object, **_kwargs: object) -> NoReturn:
+    """Reject the unsupported v1 operation with a machine-readable recovery."""
+    migration('astetik.utils.outliers.outliers', 'Use an explicit preparation step with retained input and receipt before astetik.render.')

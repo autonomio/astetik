@@ -1,4 +1,5 @@
-#!/bin/bash
-
-export MPLBACKEND=agg
-python test_script.py
+#!/bin/sh
+set -eu
+python -m pytest
+python scripts/build_catalog.py --check
+python -m build

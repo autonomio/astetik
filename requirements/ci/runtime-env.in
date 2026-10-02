@@ -1,0 +1,8 @@
+# Runtime dependencies mirror [project.dependencies].
+matplotlib>=3.10,<4
+numpy>=2,<3
+pandas>=2.2,<3
+scipy>=1.11,<2
+pyshp>=2.3,<3
+PyYAML>=6,<7
+Pillow>=10,<13

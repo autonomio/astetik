@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security reporting policy
+    url: https://github.com/autonomio/astetik/blob/master/SECURITY.md
+    about: Follow SECURITY.md to select an available private reporting channel.

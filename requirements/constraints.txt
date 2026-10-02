@@ -1,0 +1,43 @@
+# Resolver envelope: the human-readable version range every compiled,
+# hash-pinned set under requirements/ci/ is compiled from.
+#
+# The compiled `*.txt` sets are what CI installs; they are several hundred
+# lines of hashes and are not reviewable as a policy. This file is the policy:
+# the supported range for each tool, in one place a reviewer can read.
+#
+# Scientific dependencies follow the supported package compatibility floor.
+
+# Gate toolchain
+pyyaml>=6.0,<7
+tomli>=2.0,<3; python_version < '3.11'
+
+# Lint and type.
+#
+# ruff and pyright are pinned exactly, in `pyproject.toml`, so they are absent
+# here on purpose. A range restating an exact pin documents nothing and is a
+# second place a bump has to find -- and the mechanical way to write one is
+# wrong as often as not: `pyright>=1.1` reads like a floor while admitting every
+# release in the only series pyright has ever published.
+vulture>=2.14,<3
+
+# Test and coverage
+pytest>=8,<10
+coverage[toml]>=7,<8
+
+# Build and packaging
+build>=1,<2
+setuptools>=78,<84
+hatchling>=1.25,<2
+wheel>=0.45,<1
+
+# Supply chain
+pip-audit>=2.7,<3
+
+# Scientific runtime and optional dataframe adapter
+matplotlib>=3.10,<4
+numpy>=2,<3
+pandas>=2.2,<3
+scipy>=1.11,<2
+pyshp>=2.3,<3
+Pillow>=10,<13
+polars>=1,<2
