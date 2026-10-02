@@ -1,6 +1,6 @@
 name: Publish Package to PyPI
 
-# Publishes the released version at protected master with signed provenance.
+# Publishes a verified release from protected master history with signed source identity.
 #
 # Disabled unless the repository variable PYPI_PUBLISH_ENABLED is 'true'. The
 # operator enables it only after trusted publishing, protected environments,
@@ -20,6 +20,11 @@ on:
     workflows: ['Automated Release']
     types: [completed]
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Published stable version tag to upload (vMAJOR.MINOR.PATCH)
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -38,12 +43,15 @@ jobs:
     permissions:
       contents: read
 
+    outputs:
+      source_identity: ${{ steps.verify_release.outputs.source_identity }}
+
     steps:
-      - name: Checkout protected master
+      - name: Checkout the release candidate
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
         with:
-          # Never load source or a workflow definition from an event-selected tag.
-          ref: master
+          # The workflow stays on master; validate candidate ancestry before execution.
+          ref: ${{ github.event.workflow_run.head_sha || inputs.release_tag }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -53,8 +61,10 @@ jobs:
           python-version: '3.13'
 
       - name: Verify the published version tag
+        id: verify_release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           set -euo pipefail
           python -I - <<'PYCODE'
@@ -71,8 +81,14 @@ jobs:
           if event_name not in ('workflow_dispatch', 'workflow_run'):
               raise SystemExit('Publication requires a master dispatch or release workflow run')
           head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
-          if head != os.environ['GITHUB_SHA']:
-              raise SystemExit('Checked-out master must match the workflow source commit')
+          workflow_commit = os.environ['GITHUB_SHA']
+          for ancestor, descendant in (
+                  (head, workflow_commit), (workflow_commit, 'refs/remotes/origin/master')):
+              ancestry = subprocess.run(
+                  ['git', 'merge-base', '--is-ancestor', ancestor, descendant], check=False,
+              )
+              if ancestry.returncode != 0:
+                  raise SystemExit('Release and workflow source commit must belong to protected master history')
           repository = os.environ['GITHUB_REPOSITORY']
           if event_name == 'workflow_run':
               event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())['workflow_run']
@@ -86,20 +102,24 @@ jobs:
           if re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version) is None:
               raise SystemExit('Published version must use MAJOR.MINOR.PATCH')
           tag = f'v{version}'
+          if event_name == 'workflow_dispatch' and os.environ['RELEASE_TAG'] != tag:
+              raise SystemExit('Dispatch tag must match the candidate version tag')
           tagged = subprocess.check_output(
               ['git', 'rev-parse', f'refs/tags/{tag}^{{commit}}'], text=True,
           ).strip()
           if tagged != head:
               raise SystemExit('Version tag must identify the checked-out commit')
-          subprocess.run(
-              ['git', 'merge-base', '--is-ancestor', head, 'refs/remotes/origin/master'],
-              check=True,
-          )
           release = json.loads(subprocess.check_output(
               ['gh', 'api', f'repos/{repository}/releases/tags/{tag}'], text=True,
           ))
           if release['draft'] or release['prerelease'] or release['tag_name'] != tag:
               raise SystemExit('Version tag requires a published stable GitHub release')
+          identity = {
+              'repository': f'https://github.com/{repository}', 'commit': head,
+              'tag': tag, 'workflow_commit': workflow_commit,
+          }
+          with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+              output.write(f'source_identity={json.dumps(identity, separators=(",", ":"))}\n')
           print(f'Verified published {tag} at {head} on master history')
           PYCODE
 
@@ -179,10 +199,12 @@ jobs:
           name: pypi-distributions
           path: dist
 
-      - name: Attest build provenance
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a  # v3.0.0
+      - name: Attest released source identity
+        uses: actions/attest@daf44fb950173508f38bd2406030372c1d1162b1  # v3.0.0
         with:
           subject-path: dist/*
+          predicate-type: urn:autonomio:astetik:release-source:v1
+          predicate: ${{ needs.build_distribution.outputs.source_identity }}
 
   publish_to_pypi:
     name: publish_to_pypi

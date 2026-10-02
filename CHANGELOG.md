@@ -1,6 +1,6 @@
 # v2.0.2
 
-- Isolate publication validation and separate distribution builds from signing privileges.
+- Isolate publication validation, retain exact release selection after master advances, and separate builds from signing privileges.
 - Publish vulnerability response, access continuity, roadmap, and verifiable release-signature practices.
 - Link the actual OpenSSF Best Practices record and synchronize source metadata.
 

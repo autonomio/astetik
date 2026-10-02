@@ -16,24 +16,27 @@ A version ever tagged or uploaded is never reused. A deleted PyPI release is not
 | Version/tag | `scripts/create_release.py`, `v<project.version>` | Exact tag resolves to intended reviewed commit |
 | Release notes | Newest matching changelog section plus computed traceability | Reviewed source text; no release-time model authorship |
 | PyPI enablement | `PYPI_PUBLISH_ENABLED == 'true'` | Verified repository variable and publisher readiness |
-| Published-tag guard | Isolated validation on literal `master`; workflow source/upstream SHA, published stable release, strict version tag and ancestry agree | Actual release/tag/commit agreement before project execution |
+| Published-tag guard | Trusted workflow on `master`; isolated validation pins the selected release SHA/tag and proves ancestry in protected master history | Actual release/tag/commit agreement before project execution |
 | Upload identity | OIDC trusted publisher in the `pypi` environment | Verified repository/workflow/environment registration |
-| Artifact identity | Fixed-epoch builds, digest summary, configured GitHub attestation | Successful exact-candidate build and retained published evidence |
+| Artifact identity | Fixed-epoch builds, digest summary, signed release-source identity | Successful exact-candidate build and retained published evidence |
 
 Both enablement variables remain inactive unless explicitly configured. The live `pypi` environment currently permits tags only, while this workflow executes on `master`; reconcile that policy and verify the exact trusted publisher before activation. The template's automatic merge-to-release behavior is adapted behind release opt-in; a successful but skipped release job must not publish untagged source.
 
 ## Deliverables and boundaries
 
-The configured publish path builds a wheel and sdist with read-only permissions and records SHA-256 digests. A separate runner downloads same-run artifacts and signs GitHub build-provenance attestations without checking out or executing project source. Protected PyPI publication depends on that signing job; the publisher also creates its index attestations. These are workflow capabilities, not proof that any Astetik 2.0 artifacts already carry them.
+The configured publish path builds a wheel and sdist with read-only permissions and records SHA-256 digests. A separate runner downloads same-run artifacts and signs GitHub attestations binding artifact digests to the verified release source without checking out or executing project source. Protected PyPI publication depends on that signing job; the publisher also creates its index attestations. These are workflow capabilities, not proof that any Astetik 2.0 artifacts already carry them.
 No SLSA level, CycloneDX SBOM, offline `provenance.intoto.jsonl`, or release-attached asset contract is claimed. Scientific evidence-bundle receipts are application artifacts and do not replace software supply-chain provenance.
 
 For an actually published attested artifact:
 
 ```bash
-gh attestation verify ARTIFACT --repo autonomio/astetik
+gh attestation verify ARTIFACT --repo autonomio/astetik \
+  --signer-workflow autonomio/astetik/.github/workflows/pr_publish_pypi.yml \
+  --source-ref refs/heads/master \
+  --predicate-type urn:autonomio:astetik:release-source:v1 --format json
 ```
 
-Compare its SHA-256 with retained publish evidence. A failed or missing attestation blocks a provenance claim; do not invent one in release prose.
+Compare its SHA-256 with retained publish evidence. Inspect `verificationResult.statement.predicate`: `repository`, `commit` and `tag` must identify the expected release; `workflow_commit` identifies the trusted master workflow revision. The certificate source SHA identifies that workflow revision and can differ from the released source SHA. Signature verification authenticates the statement; it does not independently establish these release semantics. A failed or missing attestation blocks a provenance claim; do not invent one in release prose.
 
 ## Legacy distribution signing
 
@@ -59,6 +62,8 @@ shasum -a 256 -c SHA256SUMS
 Both signatures must verify for that full fingerprint, and both checksums must report `OK`. Users may instead download the wheel/source from PyPI and verify the same detached signatures. The expected SHA-256 values are `850fca54fa5c72b78e1f19c4cf1599d69870bb2a02bc4bf450297a5c317bb835` for the wheel and `c43fcdc927c66aee498241c1948958e87fc8df8651bd4baf4483510d639859cd` for the source distribution. GitHub-generated source archives are distinct bytes and are outside these signatures.
 
 ## Recovery
+
+For manual recovery before any index acceptance, dispatch the publisher from `master` with required input `release_tag=v<version>`. The candidate must match that published stable tag and remain an ancestor of the protected workflow commit. Automatic publication uses the exact successful release workflow SHA; later master commits do not change the selected release.
 
 Read the actual failed step before retrying. An existing tag makes tag creation idempotent; a partial upload burns the version and requires a new version. Do not blindly rerun the complete publish path for filenames PyPI has accepted.
 If only an independent post-upload evidence step failed, repair that step without reuploading existing files. Record the actual outcome and retained artifact identity.

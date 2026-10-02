@@ -69,10 +69,9 @@ To evaluate a new candidate:
 
 ```bash
 python -m pytest tests governance/tests -q
-gh attestation verify ARTIFACT --repo autonomio/astetik
 ```
 
-The first exercises local contracts. The second applies only to an actually attested artifact; a missing or invalid attestation fails the provenance claim.
+This exercises local contracts. The [release-policy verifier](Release-Policy.md#deliverables-and-boundaries) applies only to an actually attested artifact and requires the custom predicate type, trusted workflow identity and release-field comparisons. A missing or invalid attestation fails the signed-source claim.
 
 ## Residual risks
 
