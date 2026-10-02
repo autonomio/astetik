@@ -9,9 +9,9 @@
 # just the enforcement surfaces. Ordinary PRs keep the plain
 # one-approval rule.
 
-/CLAUDE.md @mikkokotila @EnergyGuy3
-/governance/ @mikkokotila @EnergyGuy3
-/.github/ @mikkokotila @EnergyGuy3
-/governance.yml @mikkokotila @EnergyGuy3
-/pyproject.toml @mikkokotila @EnergyGuy3
-/requirements/ @mikkokotila @EnergyGuy3
+/CLAUDE.md @mikkokotila @bit-mis
+/governance/ @mikkokotila @bit-mis
+/.github/ @mikkokotila @bit-mis
+/governance.yml @mikkokotila @bit-mis
+/pyproject.toml @mikkokotila @bit-mis
+/requirements/ @mikkokotila @bit-mis
