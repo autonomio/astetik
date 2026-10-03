@@ -167,7 +167,7 @@ def test_pr_checks_lint_runs_pinned_ruff_on_tools_and_tests_tools() -> None:
     assert 'id: package' in workflow
     assert "yaml.safe_load(Path('governance.yml').read_text())" in workflow
     assert '.venv-lint/bin/python governance/check_ruff_ratchet.py' in workflow
-    assert '--base-ref "origin/${{ github.base_ref }}"' in workflow
+    assert '--base-ref "origin/$BASE_REF"' in workflow
     assert '--source="${{ steps.package.outputs.coverage_source }}"' in workflow
     assert '-m pytest governance/tests/ -q' in workflow
     assert 'governance/coverage_evidence.py --verify' in workflow

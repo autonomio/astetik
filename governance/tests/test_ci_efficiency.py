@@ -93,3 +93,12 @@ def test_dependency_bursts_are_grouped_and_scheduled_independently() -> None:
         assert 'ignore' not in update
         assert 'target-branch' not in update
     assert len(slots) == 3
+
+
+def test_manual_lint_uses_the_same_resolved_base_for_fetch_and_ratchet() -> None:
+    lint = load('pr_checks_lint.yml')['jobs']['pr_checks_lint']
+    ruff = next(step for step in lint['steps'] if step.get('name') == 'Run ruff lint')
+    assert ruff['env']['BASE_REF'] == "${{ github.base_ref || 'master' }}"
+    assert 'fetch origin "$BASE_REF"' in ruff['run']
+    assert '--base-ref "origin/$BASE_REF"' in ruff['run']
+    assert 'origin/${{ github.base_ref }}' not in ruff['run']

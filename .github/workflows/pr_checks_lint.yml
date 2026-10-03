@@ -208,7 +208,7 @@ jobs:
           if [ "$MODE" = "bootstrap" ]; then
             ADOPTION_ARGS=(--bootstrap)
           fi
-          .venv-lint/bin/python governance/check_ruff_ratchet.py --base-ref "origin/${{ github.base_ref }}" "${ADOPTION_ARGS[@]}"
+          .venv-lint/bin/python governance/check_ruff_ratchet.py --base-ref "origin/$BASE_REF" "${ADOPTION_ARGS[@]}"
 
       - name: Module line-count budget gate
         if: steps.package.outputs.module_budgets == 'true'
