@@ -144,7 +144,7 @@ def test_workflow_invokes_every_gate() -> None:
     assert 'steps.package.outputs.package_root' in workflow
     assert 'vulture "${{ steps.package.outputs.package_root }}/"' in workflow
     assert 'governance/check_ruff_ratchet.py' in workflow
-    assert '--base-ref "origin/${{ github.base_ref }}"' in workflow
+    assert '--base-ref "origin/$BASE_REF"' in workflow
 
 
 def test_no_soft_fail_pathway_in_workflow() -> None:
