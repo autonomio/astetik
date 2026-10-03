@@ -147,7 +147,7 @@ def test_signing_and_publication_use_same_run_artifacts_without_repository_execu
     assert publisher['needs'] == 'publish_release_assets'
     assert publisher['if'] == "vars.PYPI_PUBLISH_ENABLED == 'true'"
     assert publisher['environment'] == 'pypi'
-    assert publisher['permissions'] == {'id-token': 'write'}
+    assert publisher['permissions'] == {}
     for job in (signer, publisher):
         assert len(job['steps']) == (3 if job is signer else 2)
         download = job['steps'][0]
@@ -165,7 +165,11 @@ def test_signing_and_publication_use_same_run_artifacts_without_repository_execu
         'name': 'release-source-bundle', 'path': '${{ steps.attest.outputs.bundle-path }}',
         'if-no-files-found': 'error',
     }
-    assert publisher['steps'][1]['with'] == {'attestations': 'true'}
+    assert publisher['steps'][1]['with'] == {
+        'user': '__token__', 'password': '${{ secrets.PYPI_API_TOKEN }}',
+        'attestations': 'false',
+    }
+    assert all('PYPI_API_TOKEN' not in str(job) for name, job in jobs.items() if name != 'publish_to_pypi')
 
 
 def test_isolated_guard_ignores_checkout_imports_and_reproduces_old_defect(
