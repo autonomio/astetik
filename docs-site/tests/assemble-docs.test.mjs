@@ -134,6 +134,32 @@ test('rewrites prose links without mutating code examples', () => {
   );
 });
 
+test('routes portable repository URLs locally without changing retained references or examples', () => {
+  const base = `${profile.sourceRepoUrl}/blob/${profile.sourceBranch}`;
+  const current = `${base}/docs/README.md#product-sequence`;
+  const retained = `${profile.sourceRepoUrl}/blob/854caea917ce1f52b796a570d197d37c4a925244/docs/README.md`;
+  const foreign = 'https://github.com/autonomio/chances/blob/master/docs/README.md';
+  const source = [
+    `[Docs](${current})`,
+    `<a href="${current}">Docs</a>`,
+    `[Retained](${retained})`,
+    `[Other](${foreign})`,
+    `[Metadata](${base}/pyproject.toml)`,
+    `\`[Example](${current})\``,
+    '```markdown',
+    `[Example](${current})`,
+    '```',
+  ].join('\n');
+  const normalized = normalizeForMdx(source, 'docs/Guides/First-Figure.md');
+  assert.match(normalized, /^\[Docs\]\(\.\.\/overview\/docs-hub\.md#product-sequence\)$/m);
+  assert.ok(normalized.includes(`<a href="${profile.basePath}overview/docs-hub#product-sequence">Docs</a>`));
+  for (const [label, target] of [['Retained', retained], ['Other', foreign], ['Metadata', `${base}/pyproject.toml`]]) {
+    assert.ok(normalized.includes(`[${label}](${target})`));
+  }
+  assert.ok(normalized.includes(`\`[Example](${current})\``));
+  assert.ok(normalized.includes(`\`\`\`markdown\n[Example](${current})\n\`\`\``));
+});
+
 test('rewrites unmapped repository files using the declared source branch', () => {
   const source = '[Package metadata](pyproject.toml)';
   assert.equal(

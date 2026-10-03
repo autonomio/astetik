@@ -4,7 +4,7 @@ This policy covers Astetik runtime code, evidence readers/writers, dependencies,
 
 ## Supported source
 
-Security work targets the current maintained source and the latest release maintainers explicitly support. Version `2.0.5` identifies this checkout; this document does not assert that it has been published or that historical releases receive fixes.
+Security work targets the current maintained source and the latest release maintainers explicitly support. Version `2.0.6` identifies this checkout; this document does not assert that it has been published or that historical releases receive fixes.
 
 ## Private reporting
 

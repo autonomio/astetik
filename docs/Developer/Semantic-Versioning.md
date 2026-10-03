@@ -1,6 +1,6 @@
 # Semantic versioning
 
-This page owns version decisions and synchronized metadata. The source version is `2.0.4`; that declaration is not proof of a published release.
+This page owns version decisions and synchronized metadata. The source version is `2.0.6`; that declaration is not proof of a published release.
 
 ## Prerequisites and surfaces
 

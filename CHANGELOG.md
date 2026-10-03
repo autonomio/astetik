@@ -1,3 +1,8 @@
+# v2.0.6
+
+- Align the README with the Autonomio product standard, published installation, runnable paper figure, and existing OpenSSF badges.
+- Route current canonical repository links within the documentation site while preserving immutable references and code examples.
+
 # v2.0.5
 
 Restore automatic PyPI uploads with the existing Autonomio organization token; retain separately verified release signatures and supply the token only to the pinned upload action in this workflow.
