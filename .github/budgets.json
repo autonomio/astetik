@@ -243,7 +243,8 @@
     "governance/ruleset_gate.py": 190,
     "governance/slice_gate.py": 770,
     "governance/typing_gate.py": 760,
-    "governance/version_gate.py": 410
+    "governance/version_gate.py": 410,
+    "governance/coverage_evidence.py": 54
   },
   "coverage": {
     "line": 87,

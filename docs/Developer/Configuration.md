@@ -74,3 +74,34 @@ For Ruff, append `--bootstrap` to `check_ruff_ratchet.py --base-ref origin/maste
 Top-level policy is read through `section_setting`; gate-specific policy through `gate_setting`. Reading the wrong location must be caught by liveness tests that change a setting and observe the verdict.
 
 Next: [maintenance](README.md), [technical debt](Technical-Debt.md), or [setup readiness](../../SETUP.md).
+
+## CI runner allocation
+
+`pr_checks_lint.yml` owns the separate required `pr_checks_tests` and
+`pr_checks_lint` jobs. Product tests retain their runtime profile and ceiling;
+governance contracts append coverage afterward. Lint consumes the successful
+producer's immutable artifact ID from the same workflow run. Its receipt binds
+the tested commit, run, attempt, lockfiles and coverage bytes; absent or changed
+evidence fails. A failed consumer can rerun against the original successful producer attempt
+and immutable artifact ID. The separate comment publisher never checks out pull-request code.
+
+Scientific contracts run once per PR, across all three supported Python
+versions; branch pushes run them only on `master`. Each lane checks installed
+wheel imports and metadata outside the checkout and validates dependencies.
+Packaging retains fixed-epoch reproducibility and distribution audits. The
+required lint job owns PR documentation checks; master/manual runs retain the
+scientific workflow's documentation job. Source checks cancel superseded heads,
+use explicit total timeouts and cap the scientific matrix at two runners.
+
+Title/body edits recheck commit-title, slice and version acceptance together
+with budget, coverage and runtime waiver markers without repeating scientific
+tests. Dependabot groups version and security updates separately, limits open
+version PRs to one per ecosystem and staggers weekly version checks across
+Thursday–Saturday at 04:00 Helsinki time. Security updates retain their
+immediate advisory-driven behavior.
+
+All PR-body waiver decisions belong to the metadata-sensitive version job.
+Source-only tests enforce measured runtime; lint enforces measured coverage,
+quality and vulnerability checks. Adding or removing a waiver therefore clears
+or fails the required version status without leaving stale body-dependent
+failures on the required test or lint statuses.

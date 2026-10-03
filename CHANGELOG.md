@@ -1,3 +1,10 @@
+# v2.0.2
+
+- Consolidate CI coverage, installed-wheel checks and dependency audits while preserving scientific acceptance and required check names.
+- Cancel superseded source checks, bound documentation execution and group and stagger dependency updates.
+- Record two maintainer-approved, exact-version documentation audit exceptions through November 2, 2026; retain all findings and block every other advisory.
+- Delay bounded documentation-link retries after transient network or server failures.
+
 # v2.0.1
 
 - Assign enforcement-surface ownership to bit-mis and retain EnergyGuy3 as the release/PyPI recovery backup.

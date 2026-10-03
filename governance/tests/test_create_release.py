@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from _common import loads_toml
 
 SCRIPT = Path(__file__).resolve().parents[2] / 'scripts' / 'create_release.py'
 spec = importlib.util.spec_from_file_location('create_release', SCRIPT)
@@ -15,7 +16,8 @@ release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 HEAD = '1' * 40
 OTHER = '2' * 40
-TAG = 'v2.0.0'
+VERSION = loads_toml((SCRIPT.parents[1] / 'pyproject.toml').read_text())['project']['version']
+TAG = f'v{VERSION}'
 
 
 @pytest.fixture(autouse=True)
