@@ -115,7 +115,7 @@ The assembler validates profile/map, recreates ignored generated source, writes 
 
 `npm --prefix docs-site run security:audit` runs npm's production audit and applies the actual rules in [audit-report.mjs](../../docs-site/scripts/audit-report.mjs) and dependency-root reachability in [audit-scope.mjs](../../docs-site/scripts/audit-scope.mjs).
 
-Every reported production advisory blocks, including **info** and **low** severity. Dependency-root attribution is diagnostic; it grants no exception. Invalid reports, unknown severity, incomplete audit execution, and unresolved declared roots fail. A pass means npm reported zero production advisories for the exact installed lockfile at audit time; it does not establish that unknown vulnerabilities are absent.
+The audit rejects every severity unless the exact advisory and installed version have an active [maintainer-approved exception](#documentation-dependency-exceptions). Dependency-root attribution remains diagnostic; invalid reports, unknown severity, incomplete audit execution and unresolved declared roots fail.
 
 Dependency repairs use supported upstream releases and compatible security backports. Narrow an override to the affected major when a backport exists; retain registry integrity hashes and verify the complete site after lockfile changes. The package manifest and lockfile own exact versions.
 
@@ -146,7 +146,7 @@ The configured [lint workflow](../../.github/workflows/pr_checks_lint.yml) runs 
 | Markdown | Locked Markdown lint |
 | External links | Public-address-safe HEAD/GET checks; three attempts with 500/1000 ms delays |
 | Local assembled links | Docusaurus broken-link failure |
-| Production dependency advisories | Zero-advisory production audit |
+| Production dependency advisories | Strict production audit with explicit, expiring approvals |
 | Build, route set, sitemap, robots, search, asset budgets | Production build and build verifier |
 | Desktop/mobile, light/dark, navigation, search, edit targets | Playwright |
 | Keyboard and WCAG A/AA checks | Browser tests and Axe |
@@ -172,3 +172,31 @@ Review a candidate preview before any cutover. Retain the prior production artif
 A page or shared-system change must leave source authority, routes, links, tests, and documentation accurate. A local override requires an owner, reason, tracked scope, and evidence that it preserves the claimed checks. No change to this contract silently authorizes runtime changes, remote governance activation, messages, or publication.
 
 Next: [documentation contributor workflow](Documentation.md), [docstring standard](Writing-Docstrings.md), or [maintenance](README.md).
+
+## Documentation dependency exceptions
+
+`security:audit` rejects reported production advisories at every severity,
+including info and low. Dependency-root attribution grants no exemption.
+Maintainer-approved exceptions live in
+[`docs-site/security-exceptions.json`](../../docs-site/security-exceptions.json)
+and bind one advisory ID to its package, exact installed/locked version,
+severity, approving owner, reason and review dates. Reviews last at most
+30 days; expiry takes effect at the start of the recorded date in UTC.
+
+The October 3, 2026 approval covers only
+[braces 3.0.3](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) and
+[http-cache-semantics 4.2.0](https://github.com/advisories/GHSA-ch52-4w7c-c8xp)
+until November 2, 2026. Both remain known high-severity vulnerabilities in the
+documentation build/development toolchain. Acceptance does not repair them or
+claim general non-exploitability. Replace them with patched upstream releases
+and remove their exceptions when those releases become available; extensions
+require another maintainer decision.
+
+The command retains npm's original report in its log and lists each accepted
+advisory explicitly. It accepts a propagated package finding only when every
+cause resolves to a reviewed advisory. New advisories on the same package,
+changed or tampered versions, unknown severities, incomplete dependency chains,
+expired approval and audit execution errors block. A passing audit means no
+**unaccepted** production advisories at the recorded time; it does not mean
+zero known vulnerabilities. The Python dependency audit uses its separate
+repository exception file.

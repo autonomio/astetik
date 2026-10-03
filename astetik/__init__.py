@@ -1,6 +1,6 @@
 "Scientific visualization with centralized design and verifiable evidence."
 
-__version__ = '2.0.3'
+__version__ = '2.0.7'
 __VERSION__ = __version__
 
 from ._animation import Animation as Animation

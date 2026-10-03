@@ -4,7 +4,7 @@ This appendix to [AUTONOMIO_PR_GUIDELINE.md](AUTONOMIO_PR_GUIDELINE.md) owns rep
 
 ## Authority and remote boundaries
 
-- `[repo:review-authority]` `mikkokotila` is the declared human authority, verified as administrator during adoption; `EnergyGuy3` is also a verified administrator/code owner, and the operator's own PR requires an eligible independent owner approval and approval of the latest reviewable push. Automatic Copilot review requests are advisory and do not replace human approval or thread resolution.
+- `[repo:review-authority]` `mikkokotila` is the declared human authority, verified as administrator during adoption; `bit-mis` is the independent code owner for enforcement surfaces, with repository write access verified on 2026-10-02. `EnergyGuy3` remains the verified administrator and recovery backup without a required review role. The operator's own PR requires an eligible independent owner approval and approval of the latest reviewable push. Automatic Copilot review requests are advisory and do not replace required approval or thread resolution.
 - `[repo:activation]` Local standards are adopted; live branch protection, secrets, workflows, and publishers require [SETUP.md](SETUP.md) readiness evidence before activation.
 - `[repo:protected-branch]` The protected base is `master`; its declared snapshot is `.github/rulesets/master.json`, named `Protect-Master`.
 - `[repo:slice]` PRs satisfy the exact slice title, surfaces, exclusions, significance blocks, and Done Means required by the constitution.
@@ -24,6 +24,6 @@ This appendix to [AUTONOMIO_PR_GUIDELINE.md](AUTONOMIO_PR_GUIDELINE.md) owns rep
 - `[repo:ratchets]` Read actual configured budgets and the real protected base; no new escape hatches or narrowed scan surface.
 - `[repo:docs]` Author product claims once in canonical Markdown and map maintained public sources in `docs-site/docs-map.json`.
 - `[repo:policy-corpus]` Root governance and metadata files are repository policy sources outside the public docs map; the public maintenance page links them. Developer workflow pages are mapped.
-- `[repo:release]` Publication is separately opt-in. No local adoption result establishes a release, publisher identity, attestation, SLSA level, or hosted site.
+- `[repo:release]` Automatic GitHub publication was enabled on 2026-10-03; [Release Policy](docs/Developer/Release-Policy.md#declared-controls) owns its behavior. No local adoption result establishes a release, publisher identity, attestation, SLSA level, or hosted site.
 
 Next: [maintenance](docs/Developer/README.md), [configuration](docs/Developer/Configuration.md), or [release policy](docs/Developer/Release-Policy.md).

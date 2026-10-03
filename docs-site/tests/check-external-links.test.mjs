@@ -101,7 +101,6 @@ test('the retryable set covers only transient statuses', () => {
   }
 });
 
-
 function safeTransport(context, replies) {
   const remaining = [...replies];
   const calls = [];
@@ -218,7 +217,6 @@ test('rejects a definitive GET failure after a transient HEAD', async (context) 
   assert.deepEqual(transport.delays, []);
 });
 
-
 test('redacts malformed URLs and redirect errors', async (context) => {
   const transport = safeTransport(context, Array.from({length: MAX_ATTEMPTS}, () => [
     {status: 503},
@@ -237,4 +235,12 @@ test('redacts malformed URLs and redirect errors', async (context) => {
   await assert.rejects(() => checkLink('https://[invalid]/?token=entry-probe-secret'), sanitized);
   assert.equal(transport.calls.length, calls, 'An invalid entry URL must fail before any connection');
   assert.doesNotMatch(transport.diagnostics.join(''), /original-probe-secret|redirect-probe-secret|entry-probe-secret/);
+});
+
+test('production defaults delay transient retries', async () => {
+  const {attempt, calls} = responder([503, 503, 200]);
+  const started = performance.now();
+  await checkLink('https://example.test/backoff', attempt);
+  assert.equal(calls.count, 3);
+  assert.ok(performance.now() - started >= 1400, 'default retries need the bounded 500/1000ms backoff');
 });
