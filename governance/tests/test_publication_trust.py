@@ -75,11 +75,13 @@ def publication(tmp_path: Path) -> PublicationFixture:
         'GITHUB_REF': 'refs/heads/master',
         'GITHUB_SHA': head,
         'GITHUB_REPOSITORY': 'autonomio/astetik',
+        'GITHUB_WORKFLOW_REF': 'autonomio/astetik/.github/workflows/pr_publish_pypi.yml@refs/heads/master',
+        'GITHUB_WORKFLOW_SHA': head,
         'GITHUB_OUTPUT': str(tmp_path / 'guard-output'),
         'RELEASE_TAG': 'v2.0.0',
         'GH_TOKEN': 'no-real-credential',
         'LOOKUP_WITNESS': str(tmp_path / 'release-lookup'),
-        'RELEASE_RESPONSE': json.dumps({'tag_name': 'v2.0.0', 'draft': False, 'prerelease': False}),
+        'RELEASE_RESPONSE': json.dumps({'id': 17, 'tag_name': 'v2.0.0', 'draft': False, 'prerelease': False}),
     }
     return PublicationFixture(tmp_path, head, environment)
 
@@ -102,7 +104,8 @@ def test_publication_triggers_only_protected_master_with_an_explicit_opt_in() ->
     }
     build = workflow['jobs']['build_distribution']
     for condition in (
-        "vars.PYPI_PUBLISH_ENABLED == 'true'", "github.ref == 'refs/heads/master'",
+        "vars.RELEASE_ENABLED == 'true'", "vars.PYPI_PUBLISH_ENABLED == 'true'",
+        "github.ref == 'refs/heads/master'",
         "github.event_name == 'workflow_dispatch'", "github.event_name == 'workflow_run'",
         "github.event.workflow_run.conclusion == 'success'",
         "github.event.workflow_run.head_branch == 'master'",
@@ -116,26 +119,37 @@ def test_publication_triggers_only_protected_master_with_an_explicit_opt_in() ->
         'ref': '${{ github.event.workflow_run.head_sha || inputs.release_tag }}',
         'fetch-depth': '0', 'persist-credentials': 'false',
     }
-    assert build['outputs']['source_identity'] == '${{ steps.verify_release.outputs.source_identity }}'
+    assert build['outputs'] == {
+        key: '${{ steps.verify_release.outputs.' + key + ' }}'
+        for key in ('source_identity', 'release_id', 'publication_required')
+    }
+
     assert steps[0]['uses'].startswith('actions/checkout@')
     names = [step['name'] for step in steps]
     guard_index = names.index('Verify the published version tag')
     assert guard_index < names.index('Install packaging tools') < names.index('Build the distributions')
+    assert all(step['if'] == "steps.verify_release.outputs.publication_required == 'true'" for step in steps[guard_index + 1:])
+    assert workflow['concurrency'] == {
+        'group': 'publish-${{ github.event.workflow_run.head_sha || inputs.release_tag }}',
+        'cancel-in-progress': 'false',
+    }
     assert 'python -I -' in _guard()
     assert all('continue-on-error' not in step for step in steps)
 
 
 def test_signing_and_publication_use_same_run_artifacts_without_repository_execution() -> None:
     jobs = _workflow()['jobs']
-    assert set(jobs) == {'build_distribution', 'attest_distribution', 'publish_to_pypi'}
+    assert set(jobs) == {'build_distribution', 'attest_distribution', 'publish_release_assets', 'publish_to_pypi'}
     signer, publisher = jobs['attest_distribution'], jobs['publish_to_pypi']
     assert signer['needs'] == 'build_distribution'
     assert signer['permissions'] == {'contents': 'read', 'id-token': 'write', 'attestations': 'write'}
-    assert publisher['needs'] == 'attest_distribution'
+    assert signer['if'] == "needs.build_distribution.outputs.publication_required == 'true'"
+    assert publisher['needs'] == 'publish_release_assets'
+    assert publisher['if'] == "vars.PYPI_PUBLISH_ENABLED == 'true'"
     assert publisher['environment'] == 'pypi'
     assert publisher['permissions'] == {'id-token': 'write'}
     for job in (signer, publisher):
-        assert len(job['steps']) == 2
+        assert len(job['steps']) == (3 if job is signer else 2)
         download = job['steps'][0]
         assert download['uses'].startswith('actions/download-artifact@')
         assert download['with'] == {'name': 'pypi-distributions', 'path': 'dist'}
@@ -145,6 +159,11 @@ def test_signing_and_publication_use_same_run_artifacts_without_repository_execu
         'subject-path': 'dist/*',
         'predicate-type': 'urn:autonomio:astetik:release-source:v1',
         'predicate': '${{ needs.build_distribution.outputs.source_identity }}',
+    }
+    assert signer['steps'][1]['id'] == 'attest'
+    assert signer['steps'][2]['with'] == {
+        'name': 'release-source-bundle', 'path': '${{ steps.attest.outputs.bundle-path }}',
+        'if-no-files-found': 'error',
     }
     assert publisher['steps'][1]['with'] == {'attestations': 'true'}
 
@@ -188,7 +207,10 @@ def test_untrusted_upstream_provenance_fails_before_release_lookup(
     ('GITHUB_REF', 'refs/tags/v2.0.0', 'protected master ref'),
     ('GITHUB_REF', 'refs/heads/feature', 'protected master ref'),
     ('GITHUB_EVENT_NAME', 'release', 'master dispatch or release workflow run'),
-    ('GITHUB_SHA', '0' * 40, 'workflow source commit'),
+    ('GITHUB_SHA', '0' * 40, 'protected master ref and workflow'),
+    ('GITHUB_WORKFLOW_SHA', '0' * 40, 'protected master ref and workflow'),
+    ('GITHUB_REPOSITORY', 'other/astetik', 'protected master ref and workflow'),
+    ('GITHUB_WORKFLOW_REF', 'autonomio/astetik/.github/workflows/other.yml@refs/heads/master', 'protected master ref and workflow'),
 ])
 def test_untrusted_workflow_context_fails_before_release_lookup(
     publication: PublicationFixture, field: str, value: str, message: str,
@@ -205,6 +227,7 @@ def test_a_tag_for_another_commit_fails_before_release_lookup(publication: Publi
     _git(publication.path, 'commit', '-m', 'Advance fixture')
     _git(publication.path, 'update-ref', 'refs/remotes/origin/master', 'HEAD')
     publication.environment['GITHUB_SHA'] = _git(publication.path, 'rev-parse', 'HEAD')
+    publication.environment['GITHUB_WORKFLOW_SHA'] = publication.environment['GITHUB_SHA']
     result = publication.run()
     assert result.returncode != 0 and 'Version tag must identify the checked-out commit' in result.stderr
     assert not (publication.path / 'release-lookup').exists()
@@ -216,6 +239,7 @@ def test_a_commit_outside_master_history_fails_before_release_lookup(
     _git(publication.path, 'checkout', '--orphan', 'unrelated')
     _git(publication.path, 'commit', '-m', 'Unrelated fixture history')
     publication.environment['GITHUB_SHA'] = _git(publication.path, 'rev-parse', 'HEAD')
+    publication.environment['GITHUB_WORKFLOW_SHA'] = publication.environment['GITHUB_SHA']
     _git(publication.path, 'tag', '-f', 'v2.0.0')
     result = publication.run()
     assert result.returncode != 0 and 'protected master history' in result.stderr
@@ -249,10 +273,12 @@ def test_a_release_remains_publishable_after_master_advances(
     _git(publication.path, 'update-ref', 'refs/remotes/origin/master', latest)
     _git(publication.path, 'checkout', '--detach', publication.head)
     publication.environment['GITHUB_SHA'] = latest
+    publication.environment['GITHUB_WORKFLOW_SHA'] = latest
     result = publication.run()
     assert result.returncode == 0, result.stderr
-    output = (publication.path / 'guard-output').read_text().strip()
-    assert json.loads(output.removeprefix('source_identity=')) == {
+    output = dict(line.split('=', 1) for line in (publication.path / 'guard-output').read_text().splitlines())
+    assert output['release_id'] == '17' and output['publication_required'] == 'true'
+    assert json.loads(output['source_identity']) == {
         'repository': 'https://github.com/autonomio/astetik',
         'commit': publication.head, 'tag': 'v2.0.0', 'workflow_commit': latest,
     }
@@ -278,3 +304,42 @@ def test_source_cannot_postdate_the_trusted_workflow_commit(
     assert result.returncode != 0 and 'protected master history' in result.stderr
     assert not (publication.path / 'release-lookup').exists()
     assert not (publication.path / 'guard-output').exists()
+
+
+@pytest.mark.parametrize('change', ['same', 'first-parent', 'tagged-source', 'unstable'])
+def test_unchanged_dependency_merges_skip_publication_only_with_exact_history(
+    publication: PublicationFixture, change: str,
+) -> None:
+    if change == 'tagged-source':
+        (publication.path / 'pyproject.toml').write_text('[project]\nversion = "1.9.9"\n')
+        _git(publication.path, 'add', 'pyproject.toml')
+        _git(publication.path, 'commit', '-m', 'Different tagged source version')
+        _git(publication.path, 'tag', '-f', 'v2.0.0')
+    (publication.path / 'pyproject.toml').write_text('[project]\nversion = "2.0.0"\n')
+    (publication.path / 'dependency').write_text('dependency-only merge fixture')
+    _git(publication.path, 'add', '.')
+    _git(publication.path, 'commit', '-m', 'Keep current package version')
+    if change == 'tagged-source':
+        (publication.path / 'dependency').write_text('another dependency merge')
+        _git(publication.path, 'add', 'dependency')
+        _git(publication.path, 'commit', '-m', 'Keep first-parent package version')
+    if change == 'first-parent':
+        (publication.path / 'pyproject.toml').write_text('[project]\nversion = "2.0.1"\n')
+        _git(publication.path, 'add', 'pyproject.toml')
+        _git(publication.path, 'commit', '-m', 'Change package version')
+        _git(publication.path, 'tag', 'v2.0.1', publication.head)
+        publication.environment['RELEASE_RESPONSE'] = json.dumps({'id': 17, 'tag_name': 'v2.0.1', 'draft': False, 'prerelease': False})
+    latest = _git(publication.path, 'rev-parse', 'HEAD')
+    _git(publication.path, 'update-ref', 'refs/remotes/origin/master', latest)
+    publication.environment.update(GITHUB_SHA=latest, GITHUB_WORKFLOW_SHA=latest)
+    _workflow_event(publication, head_sha=latest)
+    if change == 'unstable':
+        publication.environment['RELEASE_RESPONSE'] = json.dumps({'tag_name': 'v2.0.0', 'draft': True, 'prerelease': False})
+    result = publication.run()
+    if change == 'same':
+        assert result.returncode == 0, result.stderr
+        assert (publication.path / 'guard-output').read_text() == 'publication_required=false\n'
+        assert 'unchanged version already has a stable release' in result.stdout
+    else:
+        assert result.returncode != 0
+        assert not (publication.path / 'guard-output').exists()

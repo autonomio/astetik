@@ -15,7 +15,9 @@ the changelog already says.
 Idempotent by design, and keyed on both the tag and the release rather than
 the tag alone. A run that pushed the tag and then failed leaves a tag with no
 release; keying only on the tag would make every re-run exit green while the
-release stayed missing. Re-running resumes instead.
+release stayed missing. Re-running resumes instead. Version-exempt dependency
+merges retain an earlier release only after its source, stable release, and
+unchanged parent version are verified.
 """
 from __future__ import annotations
 
@@ -108,12 +110,12 @@ def traceability(repo: str, tag: str, previous: str | None) -> str:
     return '\n'.join(lines)
 
 
-def tag_exists(tag: str) -> bool:
-    """Prove every existing local or remote release tag resolves to HEAD."""
-    head = run('git', 'rev-parse', '--verify', 'HEAD')
+def tag_exists(tag: str, *, expected_commit: str | None = None) -> bool:
+    """Prove local and remote tags resolve to the expected release commit."""
+    head = expected_commit or run('git', 'rev-parse', '--verify', 'HEAD')
     local = run('git', 'tag', '--list', tag)
     if local and run('git', 'rev-parse', '--verify', f'refs/tags/{tag}^{{commit}}') != head:
-        raise SystemExit(f'{BANNER}: local tag {tag} does not resolve to HEAD')
+        raise SystemExit(f'{BANNER}: local tag {tag} does not resolve to the expected release commit')
     remote = run('git', 'ls-remote', '--tags', 'origin', f'refs/tags/{tag}', f'refs/tags/{tag}^{{}}')
     references: dict[str, str] = {}
     for line in remote.splitlines():
@@ -128,7 +130,7 @@ def tag_exists(tag: str) -> bool:
             raise SystemExit(f'{BANNER}: remote tag {tag} lacks its reference')
         commit = references.get(f'refs/tags/{tag}^{{}}', references[f'refs/tags/{tag}'])
         if commit != head:
-            raise SystemExit(f'{BANNER}: remote tag {tag} does not resolve to HEAD')
+            raise SystemExit(f'{BANNER}: remote tag {tag} does not resolve to the expected release commit')
     if local and not references:
         raise SystemExit(f'{BANNER}: local tag {tag} has no verified remote counterpart')
     return bool(references)
@@ -154,6 +156,33 @@ def release_exists(tag: str, repo: str) -> bool:
     return True
 
 
+def skip_unchanged_release(tag: str, version: str) -> bool:
+    """Skip an unchanged version only after proving its earlier stable release."""
+    if not run('git', 'tag', '--list', tag):
+        return False
+    tagged = run('git', 'rev-parse', '--verify', f'refs/tags/{tag}^{{commit}}')
+    head = run('git', 'rev-parse', '--verify', 'HEAD')
+    if tagged == head:
+        return False
+    parents = run('git', 'rev-list', '--parents', '-n', '1', 'HEAD').split()
+    if len(parents) < 2:
+        raise SystemExit(f'{BANNER}: older release tag {tag} lacks a parent version')
+    for revision in (parents[1], tagged):
+        previous = tomllib.loads(run('git', 'show', f'{revision}:pyproject.toml'))
+        if previous.get('project', {}).get('version') != version:
+            raise SystemExit(f'{BANNER}: older release tag {tag} does not preserve the version')
+    ancestry = subprocess.run(['git', 'merge-base', '--is-ancestor', tagged, head], check=False)
+    if ancestry.returncode != 0:
+        raise SystemExit(f'{BANNER}: older release tag {tag} is outside HEAD history')
+    if not tag_exists(tag, expected_commit=tagged):
+        raise SystemExit(f'{BANNER}: older release tag {tag} has no remote counterpart')
+    repo = os.environ['GITHUB_REPOSITORY']
+    if not release_exists(tag, repo):
+        raise SystemExit(f'{BANNER}: older release tag {tag} has no published release')
+    print(f'{BANNER} -- SKIP ({tag} already released; this merge keeps its version)')
+    return True
+
+
 def main() -> int:
     """Tag the current version and publish its GitHub release."""
     repo = os.environ.get('GITHUB_REPOSITORY')
@@ -167,6 +196,8 @@ def main() -> int:
 
     version = current_version()
     tag = compute_tag(version)
+    if skip_unchanged_release(tag, version):
+        return 0
 
     tagged = tag_exists(tag)
     released = release_exists(tag, repo)

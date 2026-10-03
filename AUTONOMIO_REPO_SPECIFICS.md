@@ -24,6 +24,6 @@ This appendix to [AUTONOMIO_PR_GUIDELINE.md](AUTONOMIO_PR_GUIDELINE.md) owns rep
 - `[repo:ratchets]` Read actual configured budgets and the real protected base; no new escape hatches or narrowed scan surface.
 - `[repo:docs]` Author product claims once in canonical Markdown and map maintained public sources in `docs-site/docs-map.json`.
 - `[repo:policy-corpus]` Root governance and metadata files are repository policy sources outside the public docs map; the public maintenance page links them. Developer workflow pages are mapped.
-- `[repo:release]` Publication is separately opt-in. No local adoption result establishes a release, publisher identity, attestation, SLSA level, or hosted site.
+- `[repo:release]` Automatic GitHub publication was enabled on 2026-10-03; [Release Policy](docs/Developer/Release-Policy.md#declared-controls) owns its behavior. No local adoption result establishes a release, publisher identity, attestation, SLSA level, or hosted site.
 
 Next: [maintenance](docs/Developer/README.md), [configuration](docs/Developer/Configuration.md), or [release policy](docs/Developer/Release-Policy.md).

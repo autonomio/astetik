@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import yaml
 from _common import loads_toml
 
 SCRIPT = Path(__file__).resolve().parents[2] / 'scripts' / 'create_release.py'
@@ -14,6 +15,7 @@ spec = importlib.util.spec_from_file_location('create_release', SCRIPT)
 assert spec is not None and spec.loader is not None
 release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
+SKIP_UNCHANGED_RELEASE = release.skip_unchanged_release
 HEAD = '1' * 40
 OTHER = '2' * 40
 VERSION = loads_toml((SCRIPT.parents[1] / 'pyproject.toml').read_text())['project']['version']
@@ -26,6 +28,7 @@ def release_source(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     (tmp_path / 'pyproject.toml').write_text(f'[project]\nversion = "{TAG[1:]}"\n')
     (tmp_path / 'CHANGELOG.md').write_text(f'# {TAG}\n\nFix verified release handling.\n')
     monkeypatch.setattr(release, 'REPO_ROOT', tmp_path)
+    monkeypatch.setattr(release, 'skip_unchanged_release', lambda _tag, _version: False)
 
 
 def _responses(monkeypatch: pytest.MonkeyPatch, responses: list[tuple[int, str, str]]) -> list[list[str]]:
@@ -183,3 +186,133 @@ def test_mismatched_repository_blocks_before_tag_or_release_reads(
     with pytest.raises(SystemExit, match='origin does not identify GITHUB_REPOSITORY'):
         release.main()
     assert calls == [['git', 'remote', 'get-url', 'origin']]
+
+
+@pytest.fixture
+def unchanged_release(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> tuple[Path, str]:
+    """Retain a local published tag followed by a version-exempt dependency change."""
+    monkeypatch.setattr(release, 'skip_unchanged_release', SKIP_UNCHANGED_RELEASE)
+    monkeypatch.setenv('GITHUB_REPOSITORY', 'autonomio/astetik')
+    monkeypatch.chdir(tmp_path)
+    def git(*args: str) -> str:
+        return subprocess.check_output(['git', *args], text=True).strip()
+
+    git('init', '-b', 'master')
+    git('config', 'user.name', 'Release regression')
+    git('config', 'user.email', 'release@example.invalid')
+    git('add', 'pyproject.toml', 'CHANGELOG.md')
+    git('commit', '-m', 'Prepare release regression')
+    git('tag', TAG)
+    published = git('rev-parse', 'HEAD')
+    remote = tmp_path / 'remote.git'
+    git('init', '--bare', str(remote))
+    git('remote', 'add', 'origin', str(remote))
+    git('push', 'origin', 'master', TAG)
+    (tmp_path / 'dependency.lock').write_text('Updated dependency fixture.\n')
+    git('add', 'dependency.lock')
+    git('commit', '-m', 'Update dependency without changing project version')
+    (tmp_path / 'dependency.lock').write_text('Another dependency fixture update.\n')
+    git('add', 'dependency.lock')
+    git('commit', '-m', 'Update another dependency without changing project version')
+    monkeypatch.setattr(release, 'release_exists', lambda _tag, _repo: True)
+    return tmp_path, published
+
+
+def test_unchanged_version_merge_skips_verified_old_release_without_mutation(
+    unchanged_release: tuple[Path, str], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path, _published = unchanged_release
+    original = release.run
+    calls: list[tuple[str, ...]] = []
+
+    def run(*args: str) -> str:
+        calls.append(args)
+        if args == ('git', 'remote', 'get-url', 'origin'):
+            return 'https://github.com/autonomio/astetik.git'
+        return original(*args)
+
+    monkeypatch.setattr(release, 'run', run)
+    head = original('git', 'rev-parse', 'HEAD')
+    assert release.main() == 0
+    assert original('git', 'rev-parse', 'HEAD') == head
+    assert not (path / 'release-notes.md').exists()
+    assert all('push' not in call and 'create' not in call for call in calls)
+
+
+@pytest.mark.parametrize('revision', ['HEAD^', TAG])
+def test_older_tag_requires_unchanged_parent_and_tagged_versions(
+    unchanged_release: tuple[Path, str], monkeypatch: pytest.MonkeyPatch, revision: str,
+) -> None:
+    original = release.run
+    changed = original('git', 'rev-parse', revision)
+
+    def run(*args: str) -> str:
+        if args == ('git', 'show', f'{changed}:pyproject.toml'):
+            return '[project]\nversion = "0.0.1"\n'
+        return original(*args)
+
+    monkeypatch.setattr(release, 'run', run)
+    with pytest.raises(SystemExit, match='does not preserve the version'):
+        release.skip_unchanged_release(TAG, TAG[1:])
+
+
+def test_older_tag_requires_an_existing_stable_release(
+    unchanged_release: tuple[Path, str], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(release, 'release_exists', lambda _tag, _repo: False)
+    with pytest.raises(SystemExit, match='no published release'):
+        release.skip_unchanged_release(TAG, TAG[1:])
+
+
+def test_older_tag_requires_its_unchanged_remote_counterpart(
+    unchanged_release: tuple[Path, str], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original = release.run
+
+    def run(*args: str) -> str:
+        if args[:3] == ('git', 'ls-remote', '--tags'):
+            return ''
+        return original(*args)
+
+    monkeypatch.setattr(release, 'run', run)
+    with pytest.raises(SystemExit, match='no verified remote counterpart'):
+        release.skip_unchanged_release(TAG, TAG[1:])
+
+
+def test_older_tag_outside_candidate_history_cannot_be_skipped(
+    unchanged_release: tuple[Path, str], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original = release.run
+    foreign = original('git', 'commit-tree', 'HEAD^{tree}', '-m', 'Unrelated release fixture')
+
+    def run(*args: str) -> str:
+        if args == ('git', 'rev-parse', '--verify', f'refs/tags/{TAG}^{{commit}}'):
+            return foreign
+        return original(*args)
+
+    monkeypatch.setattr(release, 'run', run)
+    with pytest.raises(SystemExit, match='outside HEAD history'):
+        release.skip_unchanged_release(TAG, TAG[1:])
+
+
+def test_remote_retargeted_old_tag_cannot_be_skipped(
+    unchanged_release: tuple[Path, str], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original = release.run
+
+    def run(*args: str) -> str:
+        if args[:3] == ('git', 'ls-remote', '--tags'):
+            return f'{OTHER}\trefs/tags/{TAG}\n'
+        return original(*args)
+
+    monkeypatch.setattr(release, 'run', run)
+    with pytest.raises(SystemExit, match='does not resolve to'):
+        release.skip_unchanged_release(TAG, TAG[1:])
+
+
+def test_release_concurrency_keeps_distinct_merge_commits() -> None:
+    workflow_path = SCRIPT.parents[1] / '.github/workflows/pr_post_release.yml'
+    workflow = yaml.load(workflow_path.read_text(), Loader=yaml.BaseLoader)
+    assert workflow['concurrency'] == {
+        'group': 'release-${{ github.sha }}', 'cancel-in-progress': 'false',
+    }
