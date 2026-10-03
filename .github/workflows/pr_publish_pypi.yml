@@ -411,8 +411,7 @@ jobs:
     if: vars.PYPI_PUBLISH_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment: pypi
-    permissions:
-      id-token: write
+    permissions: {}
 
     steps:
       - name: Download distributions
@@ -421,8 +420,9 @@ jobs:
           name: pypi-distributions
           path: dist
 
-      - name: Publish via trusted publishing
-        # OIDC only: no long-lived token exists to leak.
+      - name: Publish with the organization PyPI token
         uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0
         with:
-          attestations: true
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          attestations: false

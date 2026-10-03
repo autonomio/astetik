@@ -1,3 +1,7 @@
+# v2.0.5
+
+Restore automatic PyPI uploads with the existing Autonomio organization token; retain separately verified release signatures and supply the token only to the pinned upload action in this workflow.
+
 # v2.0.4
 
 Remove extra publication approvals after protected merges; verify and attach the exact signed distributions automatically. Preserve immutable versions, serialize queued releases, skip version-preserving merges before tag creation, and retain verified public signatures during upload recovery.
