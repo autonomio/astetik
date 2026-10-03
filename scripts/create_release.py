@@ -84,9 +84,10 @@ def newest_changelog_section(version: str) -> str:
 
 def previous_tag(tag: str) -> str | None:
     """Return the release tag before this one, or None for a first release."""
-    tags = [t for t in run('git', 'tag', '--list', 'v*').splitlines() if TAG_RE.match(t)]
+    version = tuple(int(part) for part in tag[1:].split('.'))
+    tags = [t for t in run('git', 'tag', '--merged', 'HEAD', '--list', 'v*').splitlines() if TAG_RE.match(t)]
     ordered = sorted(
-        (t for t in tags if t != tag),
+        (t for t in tags if tuple(int(part) for part in t[1:].split('.')) < version),
         key=lambda t: tuple(int(part) for part in t[1:].split('.')),
     )
     return ordered[-1] if ordered else None

@@ -386,6 +386,37 @@ def test_missing_tag_at_initial_or_new_version_creates_current_release(
     assert (path / 'release-notes.md').is_file()
 
 
+@pytest.mark.parametrize('has_older,expected', [(True, 'v2.0.3'), (False, None)])
+def test_previous_tag_uses_only_lower_versions_on_candidate_history(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+    has_older: bool, expected: str | None,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    git = release.run
+    git('git', 'init', '-b', 'master')
+    git('git', 'config', 'user.name', 'Release traceability regression')
+    git('git', 'config', 'user.email', 'traceability@example.invalid')
+    git('git', 'add', 'pyproject.toml', 'CHANGELOG.md')
+    git('git', 'commit', '-m', 'Initialize traceability regression')
+    if has_older:
+        git('git', 'tag', 'v2.0.3')
+    # A reachable future version must also be excluded by SemVer comparison.
+    git('git', 'tag', 'v9.0.0')
+    (tmp_path / 'release-step').write_text('Current release fixture.\n')
+    git('git', 'add', 'release-step')
+    git('git', 'commit', '-m', 'Prepare current release fixture')
+    current = git('git', 'rev-parse', 'HEAD')
+    git('git', 'tag', 'v2.0.4')
+    foreign = git('git', 'commit-tree', 'HEAD^{tree}', '-m', 'Unrelated tagged fixture')
+    git('git', 'tag', 'v2.0.2', foreign)
+    (tmp_path / 'release-step').write_text('Future release fixture.\n')
+    git('git', 'add', 'release-step')
+    git('git', 'commit', '-m', 'Prepare future release fixture')
+    git('git', 'tag', 'v2.0.5')
+    git('git', 'checkout', '--detach', current)
+    assert release.previous_tag('v2.0.4') == expected
+
+
 def test_release_concurrency_serializes_without_replacing_pending_merges() -> None:
     workflow_path = SCRIPT.parents[1] / '.github/workflows/pr_post_release.yml'
     workflow = yaml.load(workflow_path.read_text(), Loader=yaml.BaseLoader)
