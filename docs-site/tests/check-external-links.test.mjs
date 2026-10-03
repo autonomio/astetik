@@ -94,3 +94,11 @@ test('the retryable set covers only transient statuses', () => {
     );
   }
 });
+
+test('production defaults delay transient retries', async () => {
+  const {attempt, calls} = responder([503, 503, 200]);
+  const started = performance.now();
+  await checkLink('https://example.test/backoff', attempt);
+  assert.equal(calls.count, 3);
+  assert.ok(performance.now() - started >= 1400, 'default retries need the bounded 500/1000ms backoff');
+});

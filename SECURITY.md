@@ -4,7 +4,7 @@ This policy covers Astetik runtime code, evidence readers/writers, dependencies,
 
 ## Supported source
 
-Security work targets the current maintained source and the latest release maintainers explicitly support. Version `2.0.2` identifies this checkout; this document does not assert that it has been published or that historical releases receive fixes.
+Security work targets the current maintained source and the latest release maintainers explicitly support. Version `2.0.3` identifies this checkout; this document does not assert that it has been published or that historical releases receive fixes.
 
 ## Private reporting
 
@@ -28,13 +28,8 @@ These are prospective response obligations. On 2026-10-02 the maintainer confirm
 
 The [assurance case](docs/Developer/Security-Assurance-Case.md) separates local controls, proposed remote enforcement, and residual risks. Dependency exceptions require a reason and expiry; a passing vulnerability check is limited to its database and declared scope.
 
-The configured publication workflow can produce GitHub build-provenance attestations and artifact SHA-256 summaries after authorized activation. No such attestation, SLSA level, SBOM, offline provenance bundle, or published 2.0 artifact is established by this local adoption.
-For an actually attested artifact, verification is:
+The configured publication workflow can sign release-source statements binding artifact SHA-256 digests to reviewed source after authorized activation. These custom attestations do not establish SLSA build provenance. No completed attestation, SLSA level, SBOM, offline provenance bundle, or published 2.0 artifact is established by this local adoption.
 
-```bash
-gh attestation verify ARTIFACT --repo autonomio/astetik
-```
-
-Use [release policy](docs/Developer/Release-Policy.md) to interpret provenance and publication boundaries; scientific bundle receipts are a separate application contract.
+For an actually attested artifact, use the [release-policy verifier](docs/Developer/Release-Policy.md#deliverables-and-boundaries) and compare its signed source fields. The [legacy verifier](docs/Developer/Release-Policy.md#legacy-distribution-signing) applies separately to retrospective approval of unchanged 1.16 artifacts. Failed or missing signature, identity or predicate checks block the claim; scientific bundle receipts are a separate application contract.
 
 Next: [support](SUPPORT.md) or [security assurance](docs/Developer/Security-Assurance-Case.md).

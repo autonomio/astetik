@@ -4,6 +4,7 @@ import http from 'node:http';
 import https from 'node:https';
 import net from 'node:net';
 import path from 'node:path';
+import {setTimeout as retryDelay} from 'node:timers/promises';
 import {fileURLToPath} from 'node:url';
 
 import {resolveRepositoryFile} from './repository-paths.mjs';
@@ -202,7 +203,7 @@ async function attemptLink(url) {
   return response.statusCode;
 }
 
-export async function checkLink(url, attempt = async (u) => attemptLink(u), sleep = null) {
+export async function checkLink(url, attempt = async (u) => attemptLink(u), sleep = retryDelay) {
   let lastStatus = null;
   for (let tries = 1; tries <= MAX_ATTEMPTS; tries += 1) {
     let status;
@@ -214,9 +215,7 @@ export async function checkLink(url, attempt = async (u) => attemptLink(u), slee
       if (tries === MAX_ATTEMPTS) {
         throw error;
       }
-      if (sleep) {
-        await sleep(RETRY_BASE_MS * tries);
-      }
+      await sleep(RETRY_BASE_MS * tries);
       continue;
     }
     if (status >= 200 && status < 300) {
@@ -226,9 +225,7 @@ export async function checkLink(url, attempt = async (u) => attemptLink(u), slee
     if (!RETRYABLE_STATUS.has(status) || tries === MAX_ATTEMPTS) {
       break;
     }
-    if (sleep) {
-      await sleep(RETRY_BASE_MS * tries);
-    }
+    await sleep(RETRY_BASE_MS * tries);
   }
   throw new Error(`${url} returned ${lastStatus}`);
 }
