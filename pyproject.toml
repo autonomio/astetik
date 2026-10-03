@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "astetik"
-version = "2.0.2"
+version = "2.0.3"
 description = "Scientific visualization with centralized design and verifiable evidence"
 readme = "README.md"
 requires-python = ">=3.11"

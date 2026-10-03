@@ -1,3 +1,10 @@
+# v2.0.3
+
+- Isolate publication validation, retain exact release selection after master advances, and separate builds from signing privileges.
+- Publish vulnerability response, access continuity, roadmap, and verifiable release-signature practices.
+- Approve unchanged legacy 1.16 artifacts through protected keyless signing without local key unlock or PyPI reupload.
+- Link the actual OpenSSF Best Practices record and synchronize source metadata.
+
 # v2.0.2
 
 - Consolidate CI coverage, installed-wheel checks and dependency audits while preserving scientific acceptance and required check names.

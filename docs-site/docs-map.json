@@ -59,6 +59,13 @@
       "sidebarPosition": 2
     },
     {
+      "source": "docs/Overview/Roadmap.md",
+      "dest": "overview/roadmap.md",
+      "slug": "/overview/roadmap",
+      "sidebarLabel": "Roadmap",
+      "sidebarPosition": 3
+    },
+    {
       "source": "docs/Guides/First-Figure.md",
       "dest": "guides/first-figure.md",
       "slug": "/guides/first-figure",
