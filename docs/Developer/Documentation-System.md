@@ -144,7 +144,7 @@ The configured [lint workflow](../../.github/workflows/pr_checks_lint.yml) runs 
 | --- | --- |
 | Profile, uniqueness, source inventory, routing | Assembler validation and site unit tests |
 | Markdown | Locked Markdown lint |
-| External links | Public-address-safe status checks |
+| External links | Public-address-safe HEAD/GET checks; three attempts with 500/1000 ms delays |
 | Local assembled links | Docusaurus broken-link failure |
 | Production dependency advisories | Strict production audit with explicit, expiring approvals |
 | Build, route set, sitemap, robots, search, asset budgets | Production build and build verifier |
@@ -152,6 +152,8 @@ The configured [lint workflow](../../.github/workflows/pr_checks_lint.yml) runs 
 | Keyboard and WCAG A/AA checks | Browser tests and Axe |
 | Scientific product examples | Actual bounded fixture checks against Python source |
 | Deployed redirects/headers/status | Deployment-specific live checks; not established by a static build |
+
+External-link verification accepts only an actual 2xx response. A transient HEAD status or unsupported HEAD method (405) is verified through GET using the same public-DNS validation, pinned addresses, and five-redirect limit. Definitive 4xx failures stop immediately; unresolved transient or network failures stop after three attempts, with real 500 and 1000 ms delays. Diagnostics retain method, status, request ID and Retry-After, while omitting URL credentials, queries and unrelated headers.
 
 A static build proves generated artifacts and configured canonical metadata. It does not prove live TLS, security headers, redirect behavior, or availability. Deployment acceptance requires those adapter-specific proofs separately.
 

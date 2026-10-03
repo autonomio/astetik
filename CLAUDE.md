@@ -80,7 +80,7 @@ The gates check shape, scope, format, ratchets, and named test suites. They do n
 
 ## Repository conventions
 
-Astetik is a Hatch-built Python library, version `2.0.6` in the current source. The runtime floor is Python 3.11; the canonical governance interpreter is Python 3.13. Product tests live directly in `tests/`; governance tests live in `governance/tests/`. These are separate compatibility and gate identities.
+Astetik is a Hatch-built Python library, version `2.0.7` in the current source. The runtime floor is Python 3.11; the canonical governance interpreter is Python 3.13. Product tests live directly in `tests/`; governance tests live in `governance/tests/`. These are separate compatibility and gate identities.
 
 Communicate factually, lead with the result, emphasize only meaning-bearing words, and keep task reports within twenty lines unless the operator requests more.
 

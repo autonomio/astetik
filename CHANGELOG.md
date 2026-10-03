@@ -1,3 +1,8 @@
+# v2.0.7
+
+- Verify transient HEAD failures through safe GET requests with bounded retry delays.
+- Retain actionable HTTP diagnostics while redacting URL credentials and query values.
+
 # v2.0.6
 
 - Align the README with the Autonomio product standard, published installation, runnable paper figure, and existing OpenSSF badges.
