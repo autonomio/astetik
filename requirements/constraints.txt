@@ -8,7 +8,7 @@
 # Scientific dependencies follow the supported package compatibility floor.
 
 # Gate toolchain
-pyyaml>=6.0,<7
+pyyaml>=6.0.3,<7
 tomli>=2.0,<3; python_version < '3.11'
 
 # Lint and type.
@@ -18,26 +18,26 @@ tomli>=2.0,<3; python_version < '3.11'
 # second place a bump has to find -- and the mechanical way to write one is
 # wrong as often as not: `pyright>=1.1` reads like a floor while admitting every
 # release in the only series pyright has ever published.
-vulture>=2.14,<3
+vulture>=2.16,<3
 
 # Test and coverage
-pytest>=8,<10
-coverage[toml]>=7,<8
+pytest>=9.1.1,<10
+coverage[toml]>=7.16.2,<8
 
 # Build and packaging
-build>=1,<2
-setuptools>=78,<84
-hatchling>=1.25,<2
-wheel>=0.45,<1
+build>=1.6.1,<2
+setuptools>=84.0.0,<85
+hatchling>=1.32.4,<2
+wheel>=0.48.0,<1
 
 # Supply chain
-pip-audit>=2.7,<3
+pip-audit>=2.10.1,<3
 
 # Scientific runtime and optional dataframe adapter
-matplotlib>=3.10,<4
-numpy>=2,<3
-pandas>=2.2,<3
-scipy>=1.11,<2
-pyshp>=2.3,<3
-Pillow>=10,<13
-polars>=1,<2
+matplotlib>=3.11.2,<4
+numpy>=2.4.6,<3
+pandas>=3.0.6,<4
+scipy>=1.17.1,<2
+pyshp>=3.1.6,<4
+Pillow>=12.3.0,<13
+polars>=1.44.2,<2
