@@ -127,7 +127,9 @@ Retrieve trust roots through `gh attestation trusted-root`, using the CLI's auth
 
 ## Recovery
 
-For manual recovery before any index acceptance, dispatch the publisher from `master` with required input `release_tag=v<version>`. The candidate must match that published stable tag and remain an ancestor of the protected workflow commit. Automatic publication uses the exact successful release workflow SHA; later master commits do not change the selected release.
+For manual recovery before any index acceptance or published signature bundle, dispatch the publisher from `master` with required input `release_tag=v<version>`. The candidate must match that published stable tag and remain an ancestor of the protected workflow commit. Automatic publication uses the exact successful release workflow SHA; later master commits do not change the selected release.
+
+After GitHub assets and their bundle are published, retry only failed jobs of the original publishing run (`gh run rerun RUN_ID --failed --repo autonomio/astetik`). That retains its successful build, signing identity and exact bundle; a fresh signing run creates different signature bytes and must not replace the public bundle. If trusted workflow source has changed, keep the original run for this recovery.
 
 Read the actual failed step before retrying. An existing tag makes tag creation idempotent; a partial upload burns the version and requires a new version. Do not blindly rerun the complete publish path for filenames PyPI has accepted.
 If only an independent post-upload evidence step failed, repair that step without reuploading existing files. Record the actual outcome and retained artifact identity.

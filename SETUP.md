@@ -84,7 +84,7 @@ These commands inspect configuration names and access; they do not expose secret
 
 GitHub evaluates [CODEOWNERS from the PR base branch](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners). A newly listed owner becomes eligible only after the ownership change merges; that migration needs an eligible existing owner other than its author and latest pusher.
 
-The authorized automatic policy uses the required independent PR approval before merge. Release and PyPI jobs then run without another approval button. Both environments were verified to permit only `master`, with their additional required reviewers removed; both enablement variables are `true`. These environment changes do not replace PR protections. Read the actual publisher result before claiming an upload. [Release Policy](docs/Developer/Release-Policy.md#declared-controls) owns this behavior.
+The authorized automatic policy uses the required independent PR approval before merge. Enabled release and PyPI jobs run without another approval button. Both environments were verified to permit only `master`, with their additional required reviewers removed; `RELEASE_ENABLED=true` and `PYPI_PUBLISH_ENABLED=false`, as recorded above. These environment changes do not replace PR protections. Read the actual publisher result before claiming an upload. [Release Policy](docs/Developer/Release-Policy.md#declared-controls) owns this behavior.
 
 ## Failure handling
 
