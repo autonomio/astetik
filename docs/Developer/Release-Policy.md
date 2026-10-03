@@ -27,7 +27,7 @@ A version ever tagged or uploaded is never reused. A deleted PyPI release is not
 The configured publish path builds a wheel and sdist with read-only permissions and records SHA-256 digests. A separate runner downloads same-run artifacts and signs statements binding artifact digests to the verified release source without checking out or executing project source. A publication runner verifies those signatures and the exact release-source statement before attaching the unchanged distributions and shared signature bundle to the existing GitHub release. PyPI publication depends on that verification; the publisher also creates its index attestations. These are workflow capabilities, not proof that any particular release has already published them.
 No SLSA level, CycloneDX SBOM, or offline `provenance.intoto.jsonl` is claimed. Scientific evidence-bundle receipts are application artifacts and do not replace software supply-chain provenance.
 
-For an actually published release, set `VERSION` to its version, `RELEASE_SHA` to the expected reviewed release commit, and `RUN_ID` to its inspected successful publishing run. Confirm the run's `headSha` identifies the trusted protected workflow revision. Download the unchanged wheel, source distribution, and `astetik-<version>.release-source.sigstore.json` from that release, then verify both distributions:
+For an actually published release, set `VERSION` to its version, `RELEASE_SHA` to the expected reviewed release commit, and `RUN_ID` to the signing run that created the retained public bundle. Confirm that run's `headSha` identifies the trusted protected signing revision; a later recovery run may reuse that earlier bundle. Download the unchanged wheel, source distribution, and `astetik-<version>.release-source.sigstore.json` from that release, then verify both distributions:
 
 ```bash
 (
@@ -127,9 +127,9 @@ Retrieve trust roots through `gh attestation trusted-root`, using the CLI's auth
 
 ## Recovery
 
-For manual recovery before any index acceptance or published signature bundle, dispatch the publisher from `master` with required input `release_tag=v<version>`. The candidate must match that published stable tag and remain an ancestor of the protected workflow commit. Automatic publication uses the exact successful release workflow SHA; later master commits do not change the selected release.
+For manual recovery before any index acceptance, dispatch the publisher from `master` with required input `release_tag=v<version>`. A previously published bundle is retained only after its signatures, exact release identity and signing-workflow ancestry are verified against the same distribution bytes. The candidate must match that published stable tag and remain an ancestor of the protected workflow commit. Automatic publication uses the exact successful release workflow SHA; later master commits do not change the selected release.
 
-After GitHub assets and their bundle are published, retry only failed jobs of the original publishing run (`gh run rerun RUN_ID --failed --repo autonomio/astetik`). That retains its successful build, signing identity and exact bundle; a fresh signing run creates different signature bytes and must not replace the public bundle. If trusted workflow source has changed, keep the original run for this recovery.
+When only an enabled index job failed, retry failed jobs of the original run (`gh run rerun RUN_ID --failed --repo autonomio/astetik`) to reuse its verified artifacts. If the index job was disabled, enable it only with its actual matching upload permission, then use the manual recovery dispatch. Fresh signing creates different signature bytes; recovery verifies and preserves the earlier public bundle rather than replacing it.
 
 Read the actual failed step before retrying. An existing tag makes tag creation idempotent; a partial upload burns the version and requires a new version. Do not blindly rerun the complete publish path for filenames PyPI has accepted.
 If only an independent post-upload evidence step failed, repair that step without reuploading existing files. Record the actual outcome and retained artifact identity.

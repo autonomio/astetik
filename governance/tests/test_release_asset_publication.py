@@ -37,6 +37,9 @@ class AssetFixture:
     calls: list[list[str]]
     uploads: list[list[str]]
     failures: list[str]
+    retained_sha: str
+    comparison_changes: dict
+    retained_bytes: dict[str, bytes]
 
     def run(self) -> None:
         exec(compile(_program(), str(WORKFLOW), 'exec'), {'__name__': 'asset_publication_fixture'})
@@ -57,8 +60,9 @@ def assets(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> AssetFixture:
     fixture = AssetFixture(
         tmp_path, identity, {'id': 17, 'tag_name': 'v2.0.0', 'draft': False, 'prerelease': False, 'assets': []},
         {NAMES[0]: b'wheel unit-fixture transport', NAMES[1]: b'sdist unit-fixture transport', BUNDLE: b'signed-bundle unit-fixture transport'},
-        {}, [], [], [],
+        {}, [], [], [], SHA, {}, {},
     )
+    fixture.retained_bytes.update(fixture.local_bytes)
     (tmp_path / 'dist').mkdir()
     (tmp_path / 'bundle').mkdir()
     for name in NAMES:
@@ -79,22 +83,49 @@ def assets(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> AssetFixture:
         if command[:3] == ['gh', 'attestation', 'verify']:
             assert text
             artifact = Path(command[3])
+            signed_bundle = command[command.index('--bundle') + 1]
+            retained = signed_bundle == 'dist/' + BUNDLE
+            assert signed_bundle in ('bundle/attestation.json', 'dist/' + BUNDLE)
+            selected_sha = fixture.retained_sha if retained else SHA
+            sha_flags = (['--source-digest', selected_sha, '--signer-digest', selected_sha]
+                         if '--source-digest' in command else [])
+            assert sha_flags or retained
             assert command[4:] == [
-                '--repo', 'autonomio/astetik', '--bundle', 'bundle/attestation.json',
+                '--repo', 'autonomio/astetik', '--bundle', signed_bundle,
                 '--custom-trusted-root', 'sigstore-trusted-root.jsonl', '--digest-alg', 'sha256',
                 '--cert-identity', f'https://github.com/{WORKFLOW_REF}',
                 '--cert-oidc-issuer', 'https://token.actions.githubusercontent.com',
-                '--source-ref', 'refs/heads/master', '--source-digest', SHA,
-                '--signer-digest', SHA, '--deny-self-hosted-runners',
+                '--source-ref', 'refs/heads/master', '--deny-self-hosted-runners', *sha_flags,
                 '--predicate-type', 'urn:autonomio:astetik:release-source:v1', '--format', 'json',
             ]
             assert (tmp_path / 'sigstore-trusted-root.jsonl').read_bytes() == b'unit-fixture trusted-root transport'
-            if ('signature' in fixture.failures
-                    or hashlib.sha256(artifact.read_bytes()).digest() != hashlib.sha256(fixture.local_bytes[artifact.name]).digest()):
+            signed_subjects = fixture.retained_bytes if retained else fixture.local_bytes
+            if ('signature' in fixture.failures or (retained and 'retained-signature' in fixture.failures)
+                    or hashlib.sha256(artifact.read_bytes()).digest() != hashlib.sha256(signed_subjects[artifact.name]).digest()):
                 raise subprocess.CalledProcessError(1, command)
-            predicate = identity | ({'commit': 'c' * 40} if 'predicate' in fixture.failures else {})
-            return json.dumps([{'verificationResult': {'statement': {'predicate': predicate}}}])
+            predicate = identity | {'workflow_commit': selected_sha}
+            if 'predicate' in fixture.failures or (retained and 'retained-predicate' in fixture.failures):
+                predicate['commit'] = 'c' * 40
+            certificate = {
+                'sourceRepositoryDigest': selected_sha, 'buildSignerDigest': selected_sha,
+            }
+            if retained and 'retained-certificate' in fixture.failures:
+                certificate['sourceRepositoryDigest'] = 'd' * 40
+            return json.dumps([{'verificationResult': {
+                'statement': {'predicate': predicate}, 'signature': {'certificate': certificate},
+            }}])
         assert command[:2] == ['gh', 'api']
+        if command[2].startswith('repos/autonomio/astetik/compare/'):
+            assert text and command[2] == f'repos/autonomio/astetik/compare/{fixture.retained_sha}...{SHA}'
+            same = fixture.retained_sha == SHA
+            return json.dumps({
+                'status': 'identical' if same else 'ahead',
+                'url': f'https://api.github.com/repos/autonomio/astetik/compare/{fixture.retained_sha}...{SHA}',
+                'base_commit': {'sha': fixture.retained_sha},
+                'merge_base_commit': {'sha': fixture.retained_sha},
+                'ahead_by': 0 if same else 1, 'behind_by': 0,
+                'commits': [] if same else [{'sha': SHA}],
+            } | fixture.comparison_changes)
         if command[2].startswith('repos/autonomio/astetik/releases/assets/'):
             assert not text and command[3:] == ['--header', 'Accept: application/octet-stream']
             return fixture.remote_bytes[int(command[2].rsplit('/', 1)[1])]
@@ -126,7 +157,7 @@ def test_asset_job_is_separate_from_source_execution_signing_and_pypi() -> None:
     assert job['steps'][0]['with'] == {'name': 'pypi-distributions', 'path': 'dist'}
     assert job['steps'][1]['with'] == {'name': 'release-source-bundle', 'path': 'bundle'}
     program = _program()
-    assert 'pip' not in program and 'build' not in program and '--clobber' not in program
+    assert 'pip install' not in program and '-m build' not in program and '--clobber' not in program
     assert program.index("'attestation', 'verify'") < program.index("'release', 'upload'")
 
 
@@ -141,7 +172,7 @@ def test_publication_uploads_only_missing_identical_assets_and_verifies_public_b
     expected = ['dist/' + name for name in names[existing:]]
     assert assets.uploads == ([['gh', 'release', 'upload', 'v2.0.0', '--repo', 'autonomio/astetik', *expected]] if expected else [])
     assert sorted(assets.remote_bytes.values()) == sorted(assets.local_bytes.values())
-    assert [call[3] for call in assets.calls if call[:3] == ['gh', 'attestation', 'verify']] == ['dist/' + name for name in NAMES]
+    assert [call[3] for call in assets.calls if call[:3] == ['gh', 'attestation', 'verify']] == ['dist/' + name for name in NAMES] * (2 if existing == 3 else 1)
     assert assets.calls[-3:][0][2] == 'repos/autonomio/astetik/releases/assets/1'
 
 
@@ -190,3 +221,70 @@ def test_missing_public_assets_fail_before_downstream_index_publication(assets: 
     with pytest.raises(SystemExit, match='Published asset inventory'):
         assets.run()
     assert len(assets.uploads) == 1
+
+
+@pytest.mark.parametrize('retained_sha', [SHA, 'c' * 40])
+def test_manual_retry_reuses_valid_public_bundle_without_replacing_any_bytes(
+    assets: AssetFixture, retained_sha: str,
+) -> None:
+    public_bundle = b'different valid signature of same source and distribution subjects'
+    assets.retained_sha = retained_sha
+    for name in NAMES:
+        assets.existing(name, assets.local_bytes[name])
+    assets.existing(BUNDLE, public_bundle)
+    original = dict(assets.remote_bytes)
+    assets.run()
+    assert not assets.uploads and assets.remote_bytes == original
+    assert (assets.path / 'dist' / BUNDLE).read_bytes() == public_bundle
+    verifications = [call for call in assets.calls if call[:3] == ['gh', 'attestation', 'verify']]
+    assert [call[call.index('--bundle') + 1] for call in verifications] == [
+        'bundle/attestation.json', 'bundle/attestation.json', 'dist/' + BUNDLE, 'dist/' + BUNDLE,
+    ]
+    assert '--source-digest' not in verifications[2]
+    assert verifications[3][verifications[3].index('--source-digest') + 1] == retained_sha
+    assert verifications[3][verifications[3].index('--signer-digest') + 1] == retained_sha
+    assert any(call[2] == f'repos/autonomio/astetik/compare/{retained_sha}...{SHA}' for call in assets.calls)
+
+
+@pytest.mark.parametrize('failure', ['retained-signature', 'retained-predicate', 'retained-certificate', 'changed-distribution'])
+def test_invalid_retained_public_proof_cannot_publish_or_replace(assets: AssetFixture, failure: str) -> None:
+    assets.retained_sha = 'c' * 40
+    for name in NAMES:
+        assets.existing(name, assets.local_bytes[name])
+    assets.existing(BUNDLE, b'retained proof unit-fixture transport')
+    original = dict(assets.remote_bytes)
+    assets.failures.append(failure)
+    if failure == 'changed-distribution':
+        assets.local_bytes[NAMES[0]] = b'changed retry distribution'
+        (assets.path / 'dist' / NAMES[0]).write_bytes(assets.local_bytes[NAMES[0]])
+    with pytest.raises((SystemExit, subprocess.CalledProcessError)):
+        assets.run()
+    assert not assets.uploads and assets.remote_bytes == original
+    if failure == 'changed-distribution':
+        assert len([call for call in assets.calls if call[:3] == ['gh', 'attestation', 'verify']]) == 3
+
+
+@pytest.mark.parametrize('changes', [
+    {'status': 'diverged'}, {'base_commit': {'sha': 'd' * 40}},
+    {'merge_base_commit': {'sha': 'd' * 40}},
+    {'url': 'https://api.github.com/repos/other/astetik/compare/old...head'},
+])
+def test_unproven_older_signing_workflow_cannot_be_reused(assets: AssetFixture, changes: dict) -> None:
+    assets.retained_sha = 'c' * 40
+    assets.comparison_changes.update(changes)
+    assets.existing(BUNDLE, b'valid older signature unit-fixture transport')
+    original = dict(assets.remote_bytes)
+    with pytest.raises(SystemExit, match='current protected master history'):
+        assets.run()
+    assert not assets.uploads and assets.remote_bytes == original
+
+
+
+def test_valid_older_signature_with_long_history_does_not_require_truncated_commit_array(assets: AssetFixture) -> None:
+    assets.retained_sha = 'c' * 40
+    assets.comparison_changes.update(ahead_by=500, commits=[{'sha': 'd' * 40}])
+    assets.existing(BUNDLE, b'valid old signature with long protected history')
+    public_bundle = dict(assets.remote_bytes)
+    assets.run()
+    assert all(assets.remote_bytes[asset_id] == data for asset_id, data in public_bundle.items())
+    assert all('dist/' + BUNDLE not in upload for upload in assets.uploads)

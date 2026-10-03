@@ -310,9 +310,85 @@ def test_remote_retargeted_old_tag_cannot_be_skipped(
         release.skip_unchanged_release(TAG, TAG[1:])
 
 
-def test_release_concurrency_keeps_distinct_merge_commits() -> None:
+def test_missing_tag_at_unchanged_version_never_publishes_later_commit(
+    unchanged_release: tuple[Path, str], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path, _published = unchanged_release
+    original = release.run
+    original('git', 'update-ref', '-d', f'refs/tags/{TAG}')
+    original('git', '-C', str(path / 'remote.git'), 'update-ref', '-d', f'refs/tags/{TAG}')
+    head = original('git', 'rev-parse', 'HEAD')
+    calls: list[tuple[str, ...]] = []
+
+    def run(*args: str) -> str:
+        calls.append(args)
+        if args == ('git', 'remote', 'get-url', 'origin'):
+            return 'https://github.com/autonomio/astetik.git'
+        return original(*args)
+
+    def release_lookup(_tag: str, _repo: str) -> bool:
+        pytest.fail('An unchanged missing-tag merge must not look up a release')
+
+    monkeypatch.setattr(release, 'run', run)
+    monkeypatch.setattr(release, 'release_exists', release_lookup)
+    assert release.main() == 0
+    assert original('git', 'rev-parse', 'HEAD') == head
+    assert not original('git', 'tag', '--list', TAG)
+    assert not (path / 'release-notes.md').exists()
+    assert all('push' not in call and 'create' not in call and '-a' not in call for call in calls)
+
+
+def test_missing_local_tag_does_not_bypass_remote_tag_identity(
+    unchanged_release: tuple[Path, str],
+) -> None:
+    release.run('git', 'update-ref', '-d', f'refs/tags/{TAG}')
+    with pytest.raises(SystemExit, match='does not resolve to the expected release commit'):
+        release.skip_unchanged_release(TAG, TAG[1:])
+
+
+@pytest.mark.parametrize('has_parent', [False, True])
+def test_missing_tag_at_initial_or_new_version_creates_current_release(
+    unchanged_release: tuple[Path, str], monkeypatch: pytest.MonkeyPatch,
+    has_parent: bool,
+) -> None:
+    path, _published = unchanged_release
+    original = release.run
+    if has_parent:
+        version = '99.0.0'
+        (path / 'pyproject.toml').write_text(f'[project]\nversion = "{version}"\n')
+        (path / 'CHANGELOG.md').write_text(f'# v{version}\n\nCreate new release fixture.\n')
+        original('git', 'add', 'pyproject.toml', 'CHANGELOG.md')
+        original('git', 'commit', '-m', 'Change package version')
+    else:
+        original('git', 'checkout', '--orphan', 'initial-release')
+        original('git', 'commit', '-m', 'Initial package release fixture')
+        version = TAG[1:]
+        original('git', 'update-ref', '-d', f'refs/tags/{TAG}')
+        original('git', '-C', str(path / 'remote.git'), 'update-ref', '-d', f'refs/tags/{TAG}')
+    tag = f'v{version}'
+    head = original('git', 'rev-parse', 'HEAD')
+    publishes: list[tuple[str, ...]] = []
+
+    def run(*args: str) -> str:
+        if args == ('git', 'remote', 'get-url', 'origin'):
+            return 'https://github.com/autonomio/astetik.git'
+        if args[:3] == ('gh', 'release', 'create'):
+            publishes.append(args)
+            return 'release creation unit-fixture transport'
+        return original(*args)
+
+    monkeypatch.setattr(release, 'run', run)
+    monkeypatch.setattr(release, 'release_exists', lambda _tag, _repo: False)
+    assert release.main() == 0
+    assert original('git', 'rev-parse', f'refs/tags/{tag}^{{commit}}') == head
+    assert original('git', 'ls-remote', '--tags', 'origin', f'refs/tags/{tag}^{{}}').split()[0] == head
+    assert len(publishes) == 1 and publishes[0][3] == tag
+    assert (path / 'release-notes.md').is_file()
+
+
+def test_release_concurrency_serializes_without_replacing_pending_merges() -> None:
     workflow_path = SCRIPT.parents[1] / '.github/workflows/pr_post_release.yml'
     workflow = yaml.load(workflow_path.read_text(), Loader=yaml.BaseLoader)
     assert workflow['concurrency'] == {
-        'group': 'release-${{ github.sha }}', 'cancel-in-progress': 'false',
+        'group': 'release-${{ github.ref }}', 'cancel-in-progress': 'false', 'queue': 'max',
     }

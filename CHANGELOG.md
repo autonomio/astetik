@@ -1,6 +1,6 @@
 # v2.0.4
 
-Remove extra publication approvals after protected merges; verify and attach the exact signed distributions automatically. Preserve immutable versions and skip reviewed dependency-only merges that retain a published version.
+Remove extra publication approvals after protected merges; verify and attach the exact signed distributions automatically. Preserve immutable versions, serialize queued releases, skip version-preserving merges before tag creation, and retain verified public signatures during upload recovery.
 
 # v2.0.3
 

@@ -18,8 +18,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.sha }}
+  group: release-${{ github.ref }}
   cancel-in-progress: false
+  queue: max
 
 jobs:
   post_release:

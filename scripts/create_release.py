@@ -157,8 +157,16 @@ def release_exists(tag: str, repo: str) -> bool:
 
 
 def skip_unchanged_release(tag: str, version: str) -> bool:
-    """Skip an unchanged version only after proving its earlier stable release."""
+    """Skip unchanged versions without creating or retargeting their release."""
     if not run('git', 'tag', '--list', tag):
+        if tag_exists(tag):
+            return False
+        parents = run('git', 'rev-list', '--parents', '-n', '1', 'HEAD').split()
+        if len(parents) > 1:
+            previous = tomllib.loads(run('git', 'show', f'{parents[1]}:pyproject.toml'))
+            if previous.get('project', {}).get('version') == version:
+                print(f'{BANNER} -- SKIP (unchanged version {tag}; no release created)')
+                return True
         return False
     tagged = run('git', 'rev-parse', '--verify', f'refs/tags/{tag}^{{commit}}')
     head = run('git', 'rev-parse', '--verify', 'HEAD')

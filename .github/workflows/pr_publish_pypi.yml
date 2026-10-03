@@ -115,6 +115,16 @@ jobs:
           tag = f'v{version}'
           if event_name == 'workflow_dispatch' and os.environ['RELEASE_TAG'] != tag:
               raise SystemExit('Dispatch tag must match the candidate version tag')
+          listed = subprocess.check_output(['git', 'tag', '--list', tag], text=True).strip()
+          if not listed and event_name == 'workflow_run':
+              parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', head], text=True).split()[1:]
+              if parents:
+                  previous = subprocess.check_output(['git', 'show', f'{parents[0]}:pyproject.toml'], text=True)
+                  if tomllib.loads(previous)['project']['version'] == version:
+                      with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+                          output.write('publication_required=false\n')
+                      print(f'Skip {tag}: unchanged version has no release tag yet; no publication')
+                      raise SystemExit(0)
           tagged = subprocess.check_output(
               ['git', 'rev-parse', f'refs/tags/{tag}^{{commit}}'], text=True,
           ).strip()
@@ -316,20 +326,53 @@ jobs:
               raise SystemExit('Exactly one generated signature bundle is required')
           trusted_root = Path('sigstore-trusted-root.jsonl')
           trusted_root.write_bytes(subprocess.check_output(['gh', 'attestation', 'trusted-root']))
-          for artifact in artifacts:
-              verified = json.loads(subprocess.check_output([
-                  'gh', 'attestation', 'verify', str(artifact), '--repo', repository,
-                  '--bundle', str(bundles[0]), '--custom-trusted-root', str(trusted_root),
-                  '--digest-alg', 'sha256', '--cert-identity', f'https://github.com/{workflow}',
-                  '--cert-oidc-issuer', 'https://token.actions.githubusercontent.com',
-                  '--source-ref', 'refs/heads/master', '--source-digest', workflow_sha,
-                  '--signer-digest', workflow_sha, '--deny-self-hosted-runners',
-                  '--predicate-type', 'urn:autonomio:astetik:release-source:v1', '--format', 'json',
-              ], text=True))
-              if len(verified) != 1 or verified[0]['verificationResult']['statement']['predicate'] != identity:
-                  raise SystemExit('Verified release-source identity differs from the approved release')
+          def verify_bundle(signed_bundle, signed_sha=None):
+              for artifact in artifacts:
+                  sha_flags = [] if signed_sha is None else ['--source-digest', signed_sha, '--signer-digest', signed_sha]
+                  verified = json.loads(subprocess.check_output([
+                      'gh', 'attestation', 'verify', str(artifact), '--repo', repository,
+                      '--bundle', str(signed_bundle), '--custom-trusted-root', str(trusted_root),
+                      '--digest-alg', 'sha256', '--cert-identity', f'https://github.com/{workflow}',
+                      '--cert-oidc-issuer', 'https://token.actions.githubusercontent.com',
+                      '--source-ref', 'refs/heads/master', '--deny-self-hosted-runners', *sha_flags,
+                      '--predicate-type', 'urn:autonomio:astetik:release-source:v1', '--format', 'json',
+                  ], text=True))
+                  if len(verified) != 1:
+                      raise SystemExit('Exactly one verified release-source statement is required')
+                  proof = verified[0]['verificationResult']
+                  predicate = proof['statement']['predicate']
+                  certificate = proof['signature']['certificate']
+                  candidate_sha = predicate['workflow_commit']
+                  if (re.fullmatch(r'[0-9a-f]{40}', candidate_sha) is None
+                          or (signed_sha is not None and candidate_sha != signed_sha)
+                          or predicate != identity | {'workflow_commit': candidate_sha}
+                          or certificate['sourceRepositoryDigest'] != candidate_sha
+                          or certificate['buildSignerDigest'] != candidate_sha):
+                      raise SystemExit('Verified release-source identity differs from the approved release')
+                  signed_sha = candidate_sha
+              return signed_sha
+
+          verify_bundle(bundles[0], workflow_sha)
           bundle = Path('dist') / f'astetik-{version}.release-source.sigstore.json'
-          bundle.write_bytes(bundles[0].read_bytes())
+          retained = [asset for asset in release['assets'] if asset['name'] == bundle.name]
+          if len(retained) > 1:
+              raise SystemExit('Release signature bundle name must be unique')
+          if retained:
+              bundle.write_bytes(subprocess.check_output([
+                  'gh', 'api', f'repos/{repository}/releases/assets/{retained[0]["id"]}',
+                  '--header', 'Accept: application/octet-stream',
+              ]))
+              retained_sha = verify_bundle(bundle)
+              comparison = json.loads(subprocess.check_output([
+                  'gh', 'api', f'repos/{repository}/compare/{retained_sha}...{workflow_sha}',
+              ], text=True))
+              if (comparison['base_commit']['sha'] != retained_sha
+                      or comparison['merge_base_commit']['sha'] != retained_sha
+                      or comparison['status'] not in ('ahead', 'identical')
+                      or comparison['url'] != f'https://api.github.com/repos/{repository}/compare/{retained_sha}...{workflow_sha}'):
+                  raise SystemExit('Retained signing workflow must belong to current protected master history')
+          else:
+              bundle.write_bytes(bundles[0].read_bytes())
           artifacts.append(bundle)
 
           def existing_assets(payload):

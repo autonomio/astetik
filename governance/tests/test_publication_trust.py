@@ -343,3 +343,31 @@ def test_unchanged_dependency_merges_skip_publication_only_with_exact_history(
     else:
         assert result.returncode != 0
         assert not (publication.path / 'guard-output').exists()
+
+
+@pytest.mark.parametrize('event_name', ['workflow_run', 'workflow_dispatch'])
+@pytest.mark.parametrize('same_version', [True, False])
+def test_missing_tag_of_unchanged_automatic_merge_skips_without_claiming_publication(
+    publication: PublicationFixture, event_name: str, same_version: bool,
+) -> None:
+    _git(publication.path, 'tag', '-d', 'v2.0.0')
+    if not same_version:
+        (publication.path / 'pyproject.toml').write_text('[project]\nversion = "2.0.1"\n')
+        publication.environment['RELEASE_TAG'] = 'v2.0.1'
+    (publication.path / 'dependency').write_text('dependency merged before original release run')
+    _git(publication.path, 'add', 'pyproject.toml', 'dependency')
+    _git(publication.path, 'commit', '-m', 'Merge while release is queued')
+    latest = _git(publication.path, 'rev-parse', 'HEAD')
+    _git(publication.path, 'update-ref', 'refs/remotes/origin/master', latest)
+    publication.environment.update(GITHUB_SHA=latest, GITHUB_WORKFLOW_SHA=latest)
+    if event_name == 'workflow_run':
+        _workflow_event(publication, head_sha=latest)
+    result = publication.run()
+    assert not (publication.path / 'release-lookup').exists()
+    if event_name == 'workflow_run' and same_version:
+        assert result.returncode == 0, result.stderr
+        assert (publication.path / 'guard-output').read_text() == 'publication_required=false\n'
+        assert 'no release tag yet; no publication' in result.stdout
+    else:
+        assert result.returncode != 0
+        assert not (publication.path / 'guard-output').exists()
