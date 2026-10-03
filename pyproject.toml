@@ -36,7 +36,7 @@ dependencies = [
 polars = ["polars>=1,<2"]
 dev = [
     "pytest>=8,<10", "hypothesis>=6.100,<7", "build>=1,<2",
-    "ruff==0.16.1", "pyright==1.1.408", "vulture>=2.14,<3",
+    "ruff==0.16.1", "pyright==1.1.414", "vulture>=2.14,<3",
     "coverage[toml]>=7.6,<8", "pip-audit>=2.7,<3",
     "pandas-stubs>=2.3,<2.4", "scipy-stubs>=1.17,<1.18",
 ]
