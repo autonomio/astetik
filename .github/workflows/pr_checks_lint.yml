@@ -3,17 +3,98 @@ name: pr_checks_lint
 on:
   pull_request:
     branches: [master]
-    types: [opened, edited, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
   pull-requests: read
 
 jobs:
+  pr_checks_tests:
+    name: pr_checks_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      coverage_artifact: ${{ steps.coverage.outputs.artifact-id }}
+      coverage_attempt: ${{ steps.evidence.outputs.attempt }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: '3.13'
+
+      - name: Install package and test dependencies
+        run: |
+          python -m pip install --require-hashes -r requirements/ci/dev-env.txt
+          python -m pip install --require-hashes -r requirements/ci/runtime-env.txt
+          python -m pip install --require-hashes -r requirements/ci/build-tools.txt
+          python -m pip install --no-build-isolation --no-deps -e .
+
+      - name: Resolve test coverage source
+        id: package
+        run: |
+          python - <<'PYTHON' >> "$GITHUB_OUTPUT"
+          from pathlib import Path
+          import yaml
+          source = yaml.safe_load(Path('governance.yml').read_text()).get('layout', {}).get('coverage_source')
+          if not isinstance(source, str) or not source or not Path(source).is_dir():
+              raise SystemExit('layout.coverage_source must name the maintained package directory')
+          print(f'coverage_source={source}')
+          PYTHON
+
+      - name: Run package tests with coverage and runtime profile
+        env:
+          TEST_RUNTIME_PROFILE: runtime-artifacts/profile.json
+        run: |
+          python -m coverage run --branch --source="${{ steps.package.outputs.coverage_source }}" -m pytest tests -q --maxfail=1
+          python -m coverage json -o coverage.json
+
+      - name: Enforce the suite runtime budget
+        run: python governance/check_test_runtime.py --profile runtime-artifacts/profile.json --enforce
+
+      - name: Run governance contracts and complete coverage
+        id: evidence
+        run: |
+          python -m coverage run --append --branch --source="${{ steps.package.outputs.coverage_source }}" -m pytest governance/tests/ -q
+          python -m coverage json -o coverage.json
+          python governance/coverage_evidence.py --write
+          echo "attempt=$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
+
+      - name: Upload coverage artifact
+        id: coverage
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: coverage-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          path: |
+            coverage.json
+            coverage-evidence.json
+
   pr_checks_lint:
     name: pr_checks_lint
+    needs: pr_checks_tests
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
+      - name: Require successful test evidence
+        run: |
+          test '${{ needs.pr_checks_tests.result }}' = success
+          test -n '${{ needs.pr_checks_tests.outputs.coverage_artifact }}'
+
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
         with:
@@ -99,7 +180,7 @@ jobs:
         if: steps.package.outputs.ruff == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_REF: ${{ github.base_ref }}
+          BASE_REF: ${{ github.base_ref || 'master' }}
         run: |
           set -euo pipefail
           AUTH="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
@@ -127,7 +208,7 @@ jobs:
           if [ "$MODE" = "bootstrap" ]; then
             ADOPTION_ARGS=(--bootstrap)
           fi
-          .venv-lint/bin/python governance/check_ruff_ratchet.py --base-ref "origin/${{ github.base_ref }}" "${ADOPTION_ARGS[@]}"
+          .venv-lint/bin/python governance/check_ruff_ratchet.py --base-ref "origin/$BASE_REF" "${ADOPTION_ARGS[@]}"
 
       - name: Module line-count budget gate
         if: steps.package.outputs.module_budgets == 'true'
@@ -160,92 +241,78 @@ jobs:
         if: steps.package.outputs.dependency_vulnerabilities == 'true'
         run: .venv-lint/bin/python governance/check_dependency_vulnerabilities.py
 
-      - name: Coverage floor gate
+      - name: Download tested coverage from this workflow run
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
+        with:
+          artifact-ids: ${{ needs.pr_checks_tests.outputs.coverage_artifact }}
+
+      - name: Verify test evidence and enforce coverage floor
+        env:
+          TEST_PRODUCER_ATTEMPT: ${{ needs.pr_checks_tests.outputs.coverage_attempt }}
         run: |
-          .venv-lint/bin/python -m coverage run --branch --source="${{ steps.package.outputs.coverage_source }}" \
-            -m pytest tests/ governance/tests/ -q
-          .venv-lint/bin/python -m coverage json -o coverage.json
+          .venv-lint/bin/python governance/coverage_evidence.py --verify
           .venv-lint/bin/python governance/check_coverage_floor.py
 
       - name: Diff coverage gate
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_REF: ${{ github.base_ref }}
+          BASE_REF: ${{ github.base_ref || 'master' }}
         run: |
           AUTH="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
           git -c "http.https://github.com/.extraheader=$AUTH" fetch origin "$BASE_REF"
           .venv-lint/bin/python governance/check_diff_coverage.py --base-ref "origin/$BASE_REF"
 
-      - name: Budget-raise ratchet gate
+  publish_coverage_comment:
+    name: publish_coverage_comment
+    # Informational only. It must never block a merge, so it is a separate job
+    # that is not a required check and does not fail the PR when the upstream
+    # test job produced no artifact.
+    if: ${{ github.event_name == 'pull_request' && always() }}
+    needs: pr_checks_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Download coverage artifact
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
+        with:
+          artifact-ids: ${{ needs.pr_checks_tests.outputs.coverage_artifact }}
+
+      - name: Publish coverage comment
+        if: ${{ steps.download.outcome == 'success' && hashFiles('coverage.json') != '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
-          AUTH="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
-          git -c "http.https://github.com/.extraheader=$AUTH" fetch origin "$BASE_REF" --depth=1
-          ADOPTION_ARGS=()
-          MODE="$(BASE_REV="origin/$BASE_REF" .venv-lint/bin/python - <<'PYCODE'
-          import os
-          import sys
+          summary="$(python - <<'PY'
+          import json
+          from pathlib import Path
 
-          sys.path.insert(0, 'governance')
-          from _common import git_base_artifact, validate_initial_governance
-
-          ref = os.environ['BASE_REV']
-          budget = git_base_artifact(ref, '.github/budgets.json', 'RATCHET PREPARATION')
-          config = git_base_artifact(ref, 'governance.yml', 'RATCHET PREPARATION')
-          if budget is None:
-              validate_initial_governance(ref, 'RATCHET PREPARATION')
-              print('bootstrap')
-          else:
-              if config is None:
-                  raise SystemExit('Protected base budget lacks its governing configuration')
-              print('compare')
-          PYCODE
+          totals = json.loads(Path('coverage.json').read_text())['totals']
+          statements = totals['num_statements']
+          branches = totals['num_branches']
+          line = 100.0 * totals['covered_lines'] / statements if statements else 100.0
+          branch = 100.0 * totals['covered_branches'] / branches if branches else 100.0
+          print(
+              '<!-- coverage-comment -->\n'
+              '### Coverage\n\n'
+              f'| line | branch | statements | missing |\n'
+              f'| --- | --- | --- | --- |\n'
+              f'| {line:.1f}% | {branch:.1f}% | '
+              f'{totals.get("num_statements", 0)} | {totals.get("missing_lines", 0)} |'
+          )
+          PY
           )"
-          if [ "$MODE" = "bootstrap" ]; then
-            ADOPTION_ARGS=(--bootstrap)
+          existing="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" \
+            --jq '[.[] | select(.body | startswith("<!-- coverage-comment -->")) | .id] | first // empty')"
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$existing" -f body="$summary" >/dev/null
+          else
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" -f body="$summary" >/dev/null
           fi
-          .venv-lint/bin/python governance/check_budget_ratchet.py \
-            --base-ref "origin/$BASE_REF" \
-            --pr-number "$PR_NUMBER" \
-            "${ADOPTION_ARGS[@]}"
-
-      - name: Coverage ratchet gate
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          BASE_REF: ${{ github.base_ref }}
-        run: |
-          set -euo pipefail
-          AUTH="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
-          git -c "http.https://github.com/.extraheader=$AUTH" fetch origin "$BASE_REF" --depth=1
-          ADOPTION_ARGS=()
-          MODE="$(BASE_REV="origin/$BASE_REF" .venv-lint/bin/python - <<'PYCODE'
-          import os
-          import sys
-
-          sys.path.insert(0, 'governance')
-          from _common import git_base_artifact, validate_initial_governance
-
-          ref = os.environ['BASE_REV']
-          budget = git_base_artifact(ref, '.github/budgets.json', 'RATCHET PREPARATION')
-          config = git_base_artifact(ref, 'governance.yml', 'RATCHET PREPARATION')
-          if budget is None:
-              validate_initial_governance(ref, 'RATCHET PREPARATION')
-              print('bootstrap')
-          else:
-              if config is None:
-                  raise SystemExit('Protected base budget lacks its governing configuration')
-              print('compare')
-          PYCODE
-          )"
-          if [ "$MODE" = "bootstrap" ]; then
-            ADOPTION_ARGS=(--bootstrap)
-          fi
-          .venv-lint/bin/python governance/check_coverage_ratchet.py \
-            --base-ref "origin/$BASE_REF" \
-            --pr-number "$PR_NUMBER" \
-            "${ADOPTION_ARGS[@]}"

@@ -15,10 +15,10 @@ npm --prefix docs-site run security:audit
 npm --prefix docs-site run check
 ```
 
-The security gate rejects every reported production advisory. A passing gate
-records zero reported production advisories for the exact lockfile at audit time;
-it does not claim absence of unknown vulnerabilities. `check` runs Markdown lint, unit tests, public-link
-checks, assembly, build verification, and browser accessibility checks.
+The security gate reports all production advisories and enforces the
+[documentation dependency exception policy](../docs/Developer/Documentation-System.md#documentation-dependency-exceptions).
+`check` runs Markdown lint, unit tests, public-link checks, assembly, build
+verification, and browser accessibility checks.
 Playwright requires its Chromium browser installed with
 `npm --prefix docs-site exec -- playwright install --with-deps chromium`.
 

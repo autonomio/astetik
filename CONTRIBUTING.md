@@ -22,6 +22,14 @@ For authorized remote work, use the constitution's early-PR workflow and exactly
 A local-only task produces a reviewable candidate and evidence without remote changes. Posting findings or requesting reviewers requires explicit human authorization.
 Every non-exempt PR advances the version and adds a matching imperative changelog section, including documentation-only changes; see [versioning](docs/Developer/Semantic-Versioning.md).
 
+Major new functionality and bug fixes must include meaningful automated tests in the same contribution. Reviewers verify the tests against the capability and retain regression tests for corrected failures.
+
+## Contribution rights
+
+Astetik accepts contributions through GitHub pull requests under its MIT license. [GitHub Terms of Service section D.6](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#6-contributions-under-repository-license) requires each contributor to license contributed content under the repository license and agree they have the right to do so. This is our legal contribution mechanism; we do not claim historical DCO signoffs.
+
+Preserve third-party licenses and attribution notices in [THIRD_PARTY.md](THIRD_PARTY.md) and accompanying assets. Do not submit work you lack authority to license. A nontrivial contribution received outside GitHub requires an equivalent explicit rights assertion before acceptance.
+
 ## Local proof
 
 ```bash

@@ -15,6 +15,7 @@
 </div>
 <br />
 <div align="center">
+  <a href="https://www.bestpractices.dev/en/projects/15154"><img src="https://www.bestpractices.dev/projects/15154/badge" alt="OpenSSF Best Practices" /></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/autonomio/astetik"><img src="https://api.scorecard.dev/projects/github.com/autonomio/astetik/badge" alt="OpenSSF Scorecard" /></a>
   <a href="https://pypi.org/project/astetik/"><img src="https://img.shields.io/pypi/v/astetik?label=pypi" alt="PyPI version" /></a>
   <a href="https://github.com/autonomio/astetik/blob/master/docs/README.md"><img src="https://img.shields.io/badge/docs-manual-blue" alt="Astetik documentation" /></a>
@@ -66,13 +67,10 @@ typography, and physical-size rules.
 
 ## First successful figure
 
-This README describes the **2.0 API in this repository**. Historical 1.x releases
-on PyPI use a different interface. Start from the current source checkout:
+Install the current **2.0 API** from PyPI:
 
 ```bash
-git clone https://github.com/autonomio/astetik.git
-cd astetik
-python -m pip install .
+python -m pip install astetik
 ```
 
 Use Python 3.11 or later. The example reads the bundled country/area metadata;

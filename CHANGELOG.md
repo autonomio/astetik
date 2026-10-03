@@ -1,8 +1,35 @@
+# v2.0.6
+
+- Align the README with the Autonomio product standard, published installation, runnable paper figure, and existing OpenSSF badges.
+- Route current canonical repository links within the documentation site while preserving immutable references and code examples.
+
+# v2.0.5
+
+Restore automatic PyPI uploads with the existing Autonomio organization token; retain separately verified release signatures and supply the token only to the pinned upload action in this workflow.
+
+# v2.0.4
+
+Remove extra publication approvals after protected merges; verify and attach the exact signed distributions automatically. Preserve immutable versions, serialize queued releases, skip version-preserving merges before tag creation, and retain verified public signatures during upload recovery.
+
+# v2.0.3
+
+- Isolate publication validation, retain exact release selection after master advances, and separate builds from signing privileges.
+- Publish vulnerability response, access continuity, roadmap, and verifiable release-signature practices.
+- Approve unchanged legacy 1.16 artifacts through protected keyless signing without local key unlock or PyPI reupload.
+- Link the actual OpenSSF Best Practices record and synchronize source metadata.
+
+# v2.0.2
+
+- Consolidate CI coverage, installed-wheel checks and dependency audits while preserving scientific acceptance and required check names.
+- Cancel superseded source checks, bound documentation execution and group and stagger dependency updates.
+- Record two maintainer-approved, exact-version documentation audit exceptions through November 2, 2026; retain all findings and block every other advisory.
+- Delay bounded documentation-link retries after transient network or server failures.
+
 # v2.0.1
 
-- Align the README with Autonomio product structure, runnable first success, and verified status badges.
-- Keep README links usable on GitHub and PyPI while routing canonical documentation within the site.
-- Synchronize version metadata and immutable installed documentation links.
+- Assign enforcement-surface ownership to bit-mis and retain EnergyGuy3 as the release/PyPI recovery backup.
+- Distinguish PR review from protected signing and publication job approval.
+- Isolate release-test metadata and link installed documentation to matching immutable source versions.
 
 # v2.0.0
 
