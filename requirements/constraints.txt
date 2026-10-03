@@ -22,7 +22,7 @@ vulture>=2.14,<3
 
 # Test and coverage
 pytest>=8,<10
-coverage[toml]>=7,<8
+coverage[toml]>=7.16.2,<8
 
 # Build and packaging
 build>=1,<2
