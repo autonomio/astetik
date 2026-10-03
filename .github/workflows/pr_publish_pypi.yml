@@ -1,10 +1,10 @@
-name: Publish Package to PyPI
+name: Publish Release Files
 
 # Publishes a verified release from protected master history with signed source identity.
 #
-# Disabled unless the repository variable PYPI_PUBLISH_ENABLED is 'true'. The
-# operator enables it only after trusted publishing, protected environments,
-# and the released-tag verification below are configured and reviewed.
+# RELEASE_ENABLED activates verified GitHub files after an approved merge.
+# PYPI_PUBLISH_ENABLED separately activates the existing PyPI upload job.
+# Both paths retain protected-master source and released-tag verification.
 #
 # The filename guard is the important control: PyPI permanently rejects any
 # filename it has ever accepted, even after the file is deleted, and deleted
@@ -29,11 +29,17 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: publish-${{ github.event.workflow_run.head_sha || inputs.release_tag }}
+  cancel-in-progress: false
+
 jobs:
   build_distribution:
     name: build_distribution
     if: >-
-      ${{ vars.PYPI_PUBLISH_ENABLED == 'true' && github.ref == 'refs/heads/master' &&
+      ${{ (vars.RELEASE_ENABLED == 'true' || vars.PYPI_PUBLISH_ENABLED == 'true') &&
+          github.ref == 'refs/heads/master' &&
+          github.repository == 'autonomio/astetik' &&
           (github.event_name == 'workflow_dispatch' ||
            (github.event_name == 'workflow_run' &&
             github.event.workflow_run.conclusion == 'success' &&
@@ -45,6 +51,8 @@ jobs:
 
     outputs:
       source_identity: ${{ steps.verify_release.outputs.source_identity }}
+      release_id: ${{ steps.verify_release.outputs.release_id }}
+      publication_required: ${{ steps.verify_release.outputs.publication_required }}
 
     steps:
       - name: Checkout the release candidate
@@ -76,8 +84,11 @@ jobs:
           from pathlib import Path
 
           event_name = os.environ['GITHUB_EVENT_NAME']
-          if os.environ['GITHUB_REF'] != 'refs/heads/master':
-              raise SystemExit('Publication requires the protected master ref')
+          if (os.environ['GITHUB_REF'] != 'refs/heads/master'
+                  or os.environ['GITHUB_REPOSITORY'] != 'autonomio/astetik'
+                  or os.environ['GITHUB_WORKFLOW_REF'] != 'autonomio/astetik/.github/workflows/pr_publish_pypi.yml@refs/heads/master'
+                  or os.environ['GITHUB_WORKFLOW_SHA'] != os.environ['GITHUB_SHA']):
+              raise SystemExit('Publication requires the protected master ref and workflow')
           if event_name not in ('workflow_dispatch', 'workflow_run'):
               raise SystemExit('Publication requires a master dispatch or release workflow run')
           head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
@@ -104,32 +115,61 @@ jobs:
           tag = f'v{version}'
           if event_name == 'workflow_dispatch' and os.environ['RELEASE_TAG'] != tag:
               raise SystemExit('Dispatch tag must match the candidate version tag')
+          listed = subprocess.check_output(['git', 'tag', '--list', tag], text=True).strip()
+          if not listed and event_name == 'workflow_run':
+              parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', head], text=True).split()[1:]
+              if parents:
+                  previous = subprocess.check_output(['git', 'show', f'{parents[0]}:pyproject.toml'], text=True)
+                  if tomllib.loads(previous)['project']['version'] == version:
+                      with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+                          output.write('publication_required=false\n')
+                      print(f'Skip {tag}: unchanged version has no release tag yet; no publication')
+                      raise SystemExit(0)
           tagged = subprocess.check_output(
               ['git', 'rev-parse', f'refs/tags/{tag}^{{commit}}'], text=True,
           ).strip()
           if tagged != head:
-              raise SystemExit('Version tag must identify the checked-out commit')
+              ancestry = subprocess.run(
+                  ['git', 'merge-base', '--is-ancestor', tagged, head], check=False,
+              )
+              previous = subprocess.check_output(['git', 'show', f'{head}^1:pyproject.toml'], text=True)
+              tagged_project = subprocess.check_output(['git', 'show', f'{tagged}:pyproject.toml'], text=True)
+              if (event_name != 'workflow_run' or ancestry.returncode != 0
+                      or tomllib.loads(previous)['project']['version'] != version
+                      or tomllib.loads(tagged_project)['project']['version'] != version):
+                  raise SystemExit('Version tag must identify the checked-out commit')
           release = json.loads(subprocess.check_output(
               ['gh', 'api', f'repos/{repository}/releases/tags/{tag}'], text=True,
           ))
           if release['draft'] or release['prerelease'] or release['tag_name'] != tag:
               raise SystemExit('Version tag requires a published stable GitHub release')
+          if tagged != head:
+              with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+                  output.write('publication_required=false\n')
+              print(f'Skip {tag}: unchanged version already has a stable release on master history')
+              raise SystemExit(0)
+          if not isinstance(release['id'], int) or release['id'] <= 0:
+              raise SystemExit('Published release requires a valid identity')
           identity = {
               'repository': f'https://github.com/{repository}', 'commit': head,
               'tag': tag, 'workflow_commit': workflow_commit,
           }
           with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
               output.write(f'source_identity={json.dumps(identity, separators=(",", ":"))}\n')
+              output.write(f'release_id={release["id"]}\n')
+              output.write('publication_required=true\n')
           print(f'Verified published {tag} at {head} on master history')
           PYCODE
 
       - name: Install packaging tools
+        if: steps.verify_release.outputs.publication_required == 'true'
         run: |
           python -m pip install --require-hashes -r requirements/ci/build-tools.txt
           python -m pip install --require-hashes -r requirements/ci/packaging-tools.txt
           python -m pip install --require-hashes -r requirements/ci/gate-tools.txt
 
       - name: Guard against a burned filename
+        if: steps.verify_release.outputs.publication_required == 'true'
         run: |
           set -euo pipefail
           python -I - <<'PY'
@@ -161,11 +201,13 @@ jobs:
           PY
 
       - name: Build the distributions
+        if: steps.verify_release.outputs.publication_required == 'true'
         env:
           SOURCE_DATE_EPOCH: '1704067200'
         run: python -m build --no-isolation
 
       - name: Record artifact digests
+        if: steps.verify_release.outputs.publication_required == 'true'
         run: |
           set -euo pipefail
           {
@@ -177,14 +219,17 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload distributions
+        if: steps.verify_release.outputs.publication_required == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: pypi-distributions
           path: dist
+          if-no-files-found: error
 
   attest_distribution:
     name: attest_distribution
     needs: build_distribution
+    if: needs.build_distribution.outputs.publication_required == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -200,15 +245,170 @@ jobs:
           path: dist
 
       - name: Attest released source identity
+        id: attest
         uses: actions/attest@daf44fb950173508f38bd2406030372c1d1162b1  # v3.0.0
         with:
           subject-path: dist/*
           predicate-type: urn:autonomio:astetik:release-source:v1
           predicate: ${{ needs.build_distribution.outputs.source_identity }}
 
+      - name: Retain signature bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: release-source-bundle
+          path: ${{ steps.attest.outputs.bundle-path }}
+          if-no-files-found: error
+
+  publish_release_assets:
+    name: publish_release_assets
+    needs: [build_distribution, attest_distribution]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+      attestations: read
+
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
+        with:
+          name: pypi-distributions
+          path: dist
+      - name: Download signature bundle
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
+        with:
+          name: release-source-bundle
+          path: bundle
+      - name: Verify signatures and publish exact-release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_IDENTITY: ${{ needs.build_distribution.outputs.source_identity }}
+          RELEASE_ID: ${{ needs.build_distribution.outputs.release_id }}
+        run: |
+          set -euo pipefail
+          python -I - <<'PYCODE'
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          from pathlib import Path
+
+          repository = 'autonomio/astetik'
+          identity = json.loads(os.environ['SOURCE_IDENTITY'])
+          workflow_sha = os.environ['GITHUB_SHA']
+          workflow = f'{repository}/.github/workflows/pr_publish_pypi.yml@refs/heads/master'
+          if (os.environ['GITHUB_REF'] != 'refs/heads/master'
+                  or os.environ['GITHUB_REPOSITORY'] != repository
+                  or os.environ['GITHUB_WORKFLOW_REF'] != workflow
+                  or os.environ['GITHUB_WORKFLOW_SHA'] != workflow_sha
+                  or re.fullmatch(r'[0-9a-f]{40}', workflow_sha) is None
+                  or set(identity) != {'repository', 'commit', 'tag', 'workflow_commit'}
+                  or identity['repository'] != f'https://github.com/{repository}'
+                  or identity['workflow_commit'] != workflow_sha
+                  or re.fullmatch(r'[0-9a-f]{40}', identity['commit']) is None
+                  or re.fullmatch(r'v[0-9]+\.[0-9]+\.[0-9]+', identity['tag']) is None):
+              raise SystemExit('Asset publication requires this verified protected master workflow')
+          release_id = int(os.environ['RELEASE_ID'])
+          release = json.loads(subprocess.check_output([
+              'gh', 'api', f'repos/{repository}/releases/tags/{identity["tag"]}',
+          ], text=True))
+          if (release['id'] != release_id or release['tag_name'] != identity['tag']
+                  or release['draft'] or release['prerelease']):
+              raise SystemExit('Asset publication requires the exact verified stable release')
+          version = identity['tag'][1:]
+          names = {f'astetik-{version}-py3-none-any.whl', f'astetik-{version}.tar.gz'}
+          artifacts = sorted(Path('dist').iterdir())
+          if {path.name for path in artifacts} != names or any(not path.is_file() or path.is_symlink() for path in artifacts):
+              raise SystemExit('Exactly the expected wheel and source distribution are required')
+          bundles = list(Path('bundle').iterdir())
+          if len(bundles) != 1 or not bundles[0].is_file() or bundles[0].is_symlink():
+              raise SystemExit('Exactly one generated signature bundle is required')
+          trusted_root = Path('sigstore-trusted-root.jsonl')
+          trusted_root.write_bytes(subprocess.check_output(['gh', 'attestation', 'trusted-root']))
+          def verify_bundle(signed_bundle, signed_sha=None):
+              for artifact in artifacts:
+                  sha_flags = [] if signed_sha is None else ['--source-digest', signed_sha, '--signer-digest', signed_sha]
+                  verified = json.loads(subprocess.check_output([
+                      'gh', 'attestation', 'verify', str(artifact), '--repo', repository,
+                      '--bundle', str(signed_bundle), '--custom-trusted-root', str(trusted_root),
+                      '--digest-alg', 'sha256', '--cert-identity', f'https://github.com/{workflow}',
+                      '--cert-oidc-issuer', 'https://token.actions.githubusercontent.com',
+                      '--source-ref', 'refs/heads/master', '--deny-self-hosted-runners', *sha_flags,
+                      '--predicate-type', 'urn:autonomio:astetik:release-source:v1', '--format', 'json',
+                  ], text=True))
+                  if len(verified) != 1:
+                      raise SystemExit('Exactly one verified release-source statement is required')
+                  proof = verified[0]['verificationResult']
+                  predicate = proof['statement']['predicate']
+                  certificate = proof['signature']['certificate']
+                  candidate_sha = predicate['workflow_commit']
+                  if (re.fullmatch(r'[0-9a-f]{40}', candidate_sha) is None
+                          or (signed_sha is not None and candidate_sha != signed_sha)
+                          or predicate != identity | {'workflow_commit': candidate_sha}
+                          or certificate['sourceRepositoryDigest'] != candidate_sha
+                          or certificate['buildSignerDigest'] != candidate_sha):
+                      raise SystemExit('Verified release-source identity differs from the approved release')
+                  signed_sha = candidate_sha
+              return signed_sha
+
+          verify_bundle(bundles[0], workflow_sha)
+          bundle = Path('dist') / f'astetik-{version}.release-source.sigstore.json'
+          retained = [asset for asset in release['assets'] if asset['name'] == bundle.name]
+          if len(retained) > 1:
+              raise SystemExit('Release signature bundle name must be unique')
+          if retained:
+              bundle.write_bytes(subprocess.check_output([
+                  'gh', 'api', f'repos/{repository}/releases/assets/{retained[0]["id"]}',
+                  '--header', 'Accept: application/octet-stream',
+              ]))
+              retained_sha = verify_bundle(bundle)
+              comparison = json.loads(subprocess.check_output([
+                  'gh', 'api', f'repos/{repository}/compare/{retained_sha}...{workflow_sha}',
+              ], text=True))
+              if (comparison['base_commit']['sha'] != retained_sha
+                      or comparison['merge_base_commit']['sha'] != retained_sha
+                      or comparison['status'] not in ('ahead', 'identical')
+                      or comparison['url'] != f'https://api.github.com/repos/{repository}/compare/{retained_sha}...{workflow_sha}'):
+                  raise SystemExit('Retained signing workflow must belong to current protected master history')
+          else:
+              bundle.write_bytes(bundles[0].read_bytes())
+          artifacts.append(bundle)
+
+          def existing_assets(payload):
+              matches = [asset for asset in payload['assets'] if asset['name'] in {path.name for path in artifacts}]
+              if len({asset['name'] for asset in matches}) != len(matches):
+                  raise SystemExit('Release asset names must be unique')
+              for asset in matches:
+                  data = subprocess.check_output([
+                      'gh', 'api', f'repos/{repository}/releases/assets/{asset["id"]}',
+                      '--header', 'Accept: application/octet-stream',
+                  ])
+                  local = Path('dist') / asset['name']
+                  if hashlib.sha256(data).digest() != hashlib.sha256(local.read_bytes()).digest():
+                      raise SystemExit('Existing release asset differs; never replace published bytes')
+              return {asset['name'] for asset in matches}
+
+          existing = existing_assets(release)
+          missing = [str(path) for path in artifacts if path.name not in existing]
+          if missing:
+              subprocess.run([
+                  'gh', 'release', 'upload', identity['tag'], '--repo', repository, *missing,
+              ], check=True)
+          published = json.loads(subprocess.check_output([
+              'gh', 'api', f'repos/{repository}/releases/{release_id}',
+          ], text=True))
+          if (published['id'] != release_id or published['tag_name'] != identity['tag']
+                  or published['draft'] or published['prerelease']
+                  or existing_assets(published) != {path.name for path in artifacts}):
+              raise SystemExit('Published asset inventory does not match the verified release')
+          print('Verified public wheel, source distribution and signature bundle; no assets replaced')
+          PYCODE
+
   publish_to_pypi:
     name: publish_to_pypi
-    needs: attest_distribution
+    needs: publish_release_assets
+    if: vars.PYPI_PUBLISH_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
