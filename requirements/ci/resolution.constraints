@@ -5,7 +5,7 @@ backports-tarfile==1.2.0 ; python_full_version < '3.12' and platform_machine != 
 boolean-py==5.0
 build==1.6.1
 cachecontrol==0.14.4
-certifi==2026.7.22
+certifi==2026.10.19
 cffi==2.1.1 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and platform_python_implementation != 'PyPy' and sys_platform == 'linux'
 charset-normalizer==3.5.2
 check-manifest==0.51
@@ -49,7 +49,7 @@ packaging==26.3
 pandas==2.3.3
 pandas-stubs==2.3.3.260113
 pathspec==1.1.1
-pillow==12.3.0
+pillow==13.0.0
 pip==26.2.1
 pip-api==0.0.35
 pip-audit==2.10.1
