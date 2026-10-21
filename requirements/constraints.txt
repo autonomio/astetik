@@ -39,5 +39,5 @@ numpy>=2,<3
 pandas>=2.2,<3
 scipy>=1.11,<2
 pyshp>=2.3,<3
-Pillow>=10,<13
+Pillow>=10,<14
 polars>=1,<2
