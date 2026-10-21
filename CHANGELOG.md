@@ -1,3 +1,7 @@
+# v2.0.8
+
+- Stop automatic Copilot code review on every push; reviews remain available on request.
+
 # v2.0.7
 
 - Verify transient HEAD failures through safe GET requests with bounded retry delays.
