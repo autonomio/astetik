@@ -26,9 +26,9 @@ coverage[toml]>=7,<8
 
 # Build and packaging
 build>=1,<2
-setuptools>=78,<84
+setuptools>=84.2.1,<85
 hatchling>=1.25,<2
-wheel>=0.45,<1
+wheel>=0.48.0,<1
 
 # Supply chain
 pip-audit>=2.7,<3
@@ -36,8 +36,8 @@ pip-audit>=2.7,<3
 # Scientific runtime and optional dataframe adapter
 matplotlib>=3.10,<4
 numpy>=2,<3
-pandas>=2.2,<3
+pandas>=2.2,<4
 scipy>=1.11,<2
-pyshp>=2.3,<3
+pyshp>=2.3,<4
 Pillow>=10,<14
-polars>=1,<2
+polars>=1,<3
