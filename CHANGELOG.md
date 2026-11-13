@@ -1,3 +1,7 @@
+# v2.0.9
+
+- Refresh docs-site dependencies past npm audit CVEs; retire expired braces exception via a 30-day deepmerge exception.
+
 # v2.0.8
 
 - Stop automatic Copilot code review on every push; reviews remain available on request.
