@@ -1,3 +1,7 @@
+# v2.0.10
+
+- Remove Dependabot version-update configuration; automated security fixes are disabled and dependency automation is asserted absent by the governance suite.
+
 # v2.0.9
 
 - Refresh docs-site dependencies past npm audit CVEs; retire expired braces exception via a 30-day deepmerge exception.
