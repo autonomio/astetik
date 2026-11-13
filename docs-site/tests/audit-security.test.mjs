@@ -22,7 +22,7 @@ function fixture(t) {
   writeFileSync(path.join(root, 'security-exceptions.json'), JSON.stringify(entries));
   const dependencies = Object.fromEntries(entries.map((entry) => [entry.package, entry.version]));
   const packages = {'node_modules/root': {version: '1.0.0', dependencies}};
-  const vulnerabilities = {root: {name: 'root', severity: 'high', via: Object.keys(dependencies), nodes: ['node_modules/root']}};
+  const vulnerabilities = {root: {name: 'root', severity: entries[0].severity, via: Object.keys(dependencies), nodes: ['node_modules/root']}};
   for (const entry of entries) {
     const location = `node_modules/${entry.package}`;
     packages[location] = {version: entry.version};
@@ -57,13 +57,14 @@ test('the audit CLI retains original findings and explicitly records accepted np
   assert.equal(result.status, 0, result.stderr);
   assert.ok(result.stdout.startsWith(JSON.stringify(report, null, 2)));
   for (const entry of entries) assert.ok(result.stdout.includes(`${entry.id}, ${entry.package}@${entry.version}`));
-  assert.match(result.stdout, /3 reported package findings accepted/);
+  assert.match(result.stdout, /2 reported package findings accepted/);
 });
 
 test('the audit CLI rejects unrelated findings, auditor errors, signals and empty error exits', (t) => {
-  const {run, report} = fixture(t);
+  const {run, report, entries} = fixture(t);
   const extra = structuredClone(report);
-  extra.vulnerabilities.braces.via.push({...extra.vulnerabilities.braces.via[0], url: 'https://github.com/advisories/GHSA-abcd-abcd-abcd'});
+  const target = entries[0].package;
+  extra.vulnerabilities[target].via.push({...extra.vulnerabilities[target].via[0], url: 'https://github.com/advisories/GHSA-abcd-abcd-abcd'});
   for (const [payload, status, signal] of [
     [extra, 1, false],
     [{error: {code: 'ENOAUDIT'}}, 1, false],
@@ -82,12 +83,12 @@ test('the audit CLI rejects unrelated findings, auditor errors, signals and empt
 
 test('the audit CLI rejects expired approval and installed-package tampering', (t) => {
   const {root, run, entries} = fixture(t);
-  const metadata = path.join(root, 'node_modules/braces/package.json');
-  writeFileSync(metadata, JSON.stringify({name: 'braces', version: '3.0.2'}));
+  const metadata = path.join(root, `node_modules/${entries[0].package}/package.json`);
+  writeFileSync(metadata, JSON.stringify({name: entries[0].package, version: '0.0.0-tampered'}));
   const changed = run();
   assert.equal(changed.status, 1);
   assert.match(changed.stderr, /version mismatch/);
-  writeFileSync(metadata, JSON.stringify({name: 'braces', version: '3.0.3'}));
+  writeFileSync(metadata, JSON.stringify({name: entries[0].package, version: entries[0].version}));
   for (const entry of entries) {
     entry.approved_on = new Date(Date.now() - 5 * 86400000).toISOString().slice(0, 10);
     entry.expires = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
