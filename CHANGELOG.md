@@ -1,3 +1,19 @@
+# v3.0.0
+
+- Add publication options to `hist`, `line`, `scat`, `regs`, `bar`, `box`, and `violin`: declared statistics and intervals, mark styling, a single-series `color`, `annotate_n`, and `legend_loc`.
+- Add the `panels` kind, which composes any number of those plots into one lettered figure, and the `hue_order` field for the order of hue groups.
+- Place every legend of those kinds by measurement on the finished figure so it reaches no mark; paint its keys as the marks are painted; refuse a position that cannot clear the data.
+- Draw `line` as a mean or median at each x with an SD, SE, Student t, or IQR interval; label series at their line ends with `legend_loc="end"`.
+- Fit `regs` in the displayed scale with a confidence band for the mean response, per group with `fit_groups`, and report r, p, and n with `annotate_fit`.
+- Add the Student t interval (`errorbar="ci"`) and IQR to `bar`; require `estimator="mean"` for SD, SE, and CI, and name the group when an interval has one observation.
+- Mark quartiles inside `violin`, estimate its density in the displayed scale, and show every observation over `bar`, `box`, and `violin` on request.
+- Set paper figures on a white page unless the manifest declares `colors.paper`.
+- Size facet and panel figures so each plot area keeps the manifest aspect; label shared axes once; key every hue group in the one shared legend; lengthen a single plot by a legend set above it.
+- Refuse a figure whose labels, legend, or panels leave the plot no room, instead of drawing a collapsed layout.
+- Print logarithmic tick labels as plain text, step linear ticks by 1, 2, 2.5, or 5, print large tick values whole, and end zero-based value axes on a labelled tick.
+- Break category names between words when they are wider than their slot.
+- Add `scripts/studio.py`, a local page whose controls re-render the actual `astetik.render` call for each of these kinds.
+
 # v2.0.10
 
 - Remove Dependabot version-update configuration; automated security fixes are disabled and dependency automation is asserted absent by the governance suite.
