@@ -11,6 +11,7 @@ import json
 import re
 import sys
 import tempfile
+import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -31,6 +32,7 @@ FONT = ROOT / 'astetik' / 'fonts' / 'Finlandica.ttf'
 FORMATS = {'pdf': 'application/pdf', 'png': 'image/png', 'svg': 'image/svg+xml'}
 KINDS = ('hist', 'line', 'regs', 'bar', 'box', 'violin', 'panels')
 _HEX = re.compile(r'#[0-9A-Fa-f]{6}')
+_RENDERING = threading.Lock()
 _SECTIONS = ('colors', 'categories', 'typography', 'paper', 'axes')
 _ROLES = ('primary', 'secondary', 'paper', 'ink', 'muted', 'line', 'negative', 'neutral', 'positive')
 _SIZES = ('fontsize', 'labelsize', 'titlesize', 'ticksize', 'legendsize')
@@ -277,7 +279,11 @@ def handler(data: pd.DataFrame, about: dict[str, object]) -> type[BaseHTTPReques
                 self._json(404, {'error': {'code': 'NOT_FOUND', 'message': self.path}})
                 return
             length = int(self.headers.get('Content-Length', '0'))
-            self._json(200, render(data, levels, self.rfile.read(length)))
+            body = self.rfile.read(length)
+            # Sealing, verifying and exporting a result use process-wide Matplotlib settings.
+            with _RENDERING:
+                reply = render(data, levels, body)
+            self._json(200, reply)
 
         def log_message(self, format: str, *args: object) -> None:
             print(f'{self.address_string()} {format % args}', file=sys.stderr)
