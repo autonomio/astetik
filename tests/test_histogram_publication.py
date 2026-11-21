@@ -248,3 +248,16 @@ def test_presentation_options_reach_the_drawn_marks(countries):
     )
     path = outline.figure.axes[0].patches[0].get_path()
     assert path.vertices[-1][1] == len(countries)
+
+
+def test_pooled_normalisation_names_every_pooled_row_as_an_origin(countries):
+    everyone = list(range(len(countries)))
+    for extra in ({}, {'stat': 'density', 'kde': True}):
+        options = {'stat': 'proportion', 'common_norm': True, **extra}
+        pooled = ast.render(countries, _spec(hue='income', options=options), {'categories': GROUPS})
+        marks = pooled.table[pooled.table['mark_kind'].isin(['bin', 'density'])]
+        assert all(sorted(rows) == everyone for rows in marks['source_rows'])
+    alone = ast.render(
+        countries, _spec(hue='income', options={'stat': 'proportion'}), {'categories': GROUPS}
+    )
+    assert all(len(rows) < len(countries) for rows in _bins(alone)['source_rows'])

@@ -42,6 +42,8 @@ def record(context: RenderContext, item: Series, edges: FloatArray) -> None:
     computation = ('cumulative ' if cumulative else '') + _COMPUTATION[stat]
     if options.get('common_norm', False) and stat != 'count':
         computation += '; N pooled across series'
+    # A pooled denominator makes every row of the panel an origin of a normalized value.
+    origins = context.rows if options.get('common_norm', False) else item.rows
     whole = np.cumsum(item.counts) if cumulative else item.counts
     shown = whole if stat == 'count' else item.heights
     for i, (low, high, value, n) in enumerate(zip(edges[:-1], edges[1:], shown, item.counts)):
@@ -50,7 +52,7 @@ def record(context: RenderContext, item: Series, edges: FloatArray) -> None:
         context.rec.mark(
             'bin',
             dict(series=item.key, column=item.column, lower=low, upper=high, value=value, n=n),
-            item.rows[chosen] if stat == 'count' else item.rows,
+            item.rows[chosen] if stat == 'count' else origins,
             computation,
             context.facet,
         )
@@ -74,13 +76,14 @@ def overlays(context: RenderContext, canvas: Canvas, item: Series, top: float) -
     method = options.get('bw_method', 'scott')
     support, density, bw = calculate_density(item.values, {'bw_method': method}, item.column)
     density = density * item.share
+    origins = context.rows if options.get('common_norm', False) else item.rows
     canvas.curve(support, density, item.color)
     label = 'Scott' if method == 'scott' else str(method)
     for xv, yv in zip(support, density):
         rec.mark(
             'density',
             dict(series=item.key, x=xv, density=yv, bandwidth=bw),
-            item.rows,
+            origins,
             f'Gaussian KDE; {label} bandwidth',
             facet,
         )
