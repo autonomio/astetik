@@ -274,7 +274,7 @@
     "branch": 79
   },
   "runtime": {
-    "max_total_seconds": 270,
+    "max_total_seconds": 350,
     "baseline": {
       "note": "First-adoption runtime bound based on the actual Linux run of 625 passing product tests. The earlier 180s estimate came from a smaller local suite. Profiled snapshot traversal, canonical font registry comparisons and PDF compression remove repeated work without omitting assertions. One CI sample does not establish a long-term observation window.",
       "workflow": "pr_checks_tests",
@@ -284,6 +284,14 @@
       "sample_count": 1,
       "observed_max_seconds": 217.89,
       "headroom_seconds": 52.11
+    },
+    "raised": {
+      "from_seconds": 270,
+      "to_seconds": 350,
+      "note": "Raised for 110 publication contract tests that each render a figure. Estimate, not a CI sample of this change: the master test step took 233 s on the cited run, and this suite measured 1.31 times master in CPU time over two alternating local rounds, about 300 s. Replace this estimate with the observed value once the change has run on CI.",
+      "master_step_seconds": 233,
+      "master_run_id": 43428173913,
+      "cpu_time_ratio": 1.31
     }
   },
   "lint": {
