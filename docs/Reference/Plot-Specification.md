@@ -26,6 +26,7 @@ print(ast.catalog()["spec_fields"])
 | `row`, `col` | Descriptive facets; research protocols reject them |
 | `columns` | Explicit correlation or table columns; names must be distinct |
 | `order` | Declared category order |
+| `hue_order` | Declared order of categorical hue groups in marks and legend; lists every observed group once |
 | `options` | Kind-specific settings from `catalog()`; unknown options fail |
 | `title`, `subtitle` | Literal display text; resolved default empty strings |
 | `labels` | Optional `x`/`y` display labels only |
@@ -38,8 +39,13 @@ print(ast.catalog()["spec_fields"])
 | `missing_reason` | Required nonempty explanation for declared missing-value exclusion |
 | `analysis` | Method declaration for a research protocol only |
 | `axes` | Optional `x`/`y` objects containing `scale` and/or `limits` |
+| `panels` | For kind `panels` only: a list of panel declarations |
 
 Numeric paper measurements require units. Observation keys must be complete and unique. Source metadata and inheritance rules belong in [data and preparation](Data-and-Prepared.md).
+
+## Panels
+
+A `panels` figure composes complete plots. Each panel declares `kind`, `x`, `y`, `hue`, `order`, `hue_order`, `options`, `labels`, `axes`, `legend`, and a `title` that heads the panel after its letter. `paper`, `key`, `units`, `descriptions`, `missing`, and the figure `title` are declared once for the figure; a field at the wrong level fails. Rows incomplete in any panel's selected columns follow the one declared missing-value policy, so every panel shows the same observations. `options.ncols` sets the panels per row and `options.labels` the lettering: `"a"`, `"A"`, `"(a)"`, or `null`. The [catalogue](Plot-Catalogue.md#publication-orders) lists the panel kinds and has a complete example.
 
 ## Concrete declaration
 

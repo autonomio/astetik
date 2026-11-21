@@ -48,7 +48,7 @@ Scientific assumptions remain declared. Hashes and seals detect mismatches again
 
 Checks are performed on the final rendered artifact:
 
-- Declared physical dimensions and positive finite geometry.
+- Declared physical dimensions and positive finite geometry; a single plot's height is its width over the manifest aspect plus any recorded legend band.
 - Minimum visible type size and text clipping against the figure bounds.
 - Adjacent tick-label overlap.
 - Table text fitting within cells and adjacent cell-text overlap.

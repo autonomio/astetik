@@ -26,7 +26,7 @@ The supported `schema_version` is `"1.0"`. Partial sections inherit defaults; un
 | `axes` | `linewidth=0.6`, `grid=false`, `spines=["left","bottom"]`, `tick_direction="out"`, `tick_length=2.5`; line/tick sizes in points |
 | `categories` | Identity-to-color bindings, empty by default |
 
-`paper=True` uses the manifest's preset and physical width. A specification's `paper="single"` or `"double"` selects 89 mm or 178 mm respectively. Aspect is width divided by height for one panel; facet composition derives panel geometry. PNG dpi must be an integer of at least 300. Paper type sizes are raised to the declared floor, which cannot be below 7 pt.
+`paper=True` uses the manifest's preset and physical width. A specification's `paper="single"` or `"double"` selects 89 mm or 178 mm respectively. Aspect is width divided by height of a single-plot figure. In facet and panel grids it is the aspect of each plot area, and the figure height follows from it. A legend set above a single plot lengthens the figure by the legend's height, recorded as `legend_band_mm` in the receipt. PNG dpi must be an integer of at least 300. Paper type sizes are raised to the declared floor, which cannot be below 7 pt.
 
 ## Color as communication
 
@@ -34,7 +34,7 @@ The supported `schema_version` is `"1.0"`. Partial sections inherit defaults; un
 | --- | --- | --- |
 | `primary` | `#2A4A70` | Principal measurement/series and sequential endpoint |
 | `secondary` | `#806A45` | Secondary semantic binding |
-| `paper` | `#F7F7F2` | Figure and export background |
+| `paper` | `#F7F7F2` | Figure and export background; paper output uses `#FFFFFF` unless the manifest declares `colors.paper` |
 | `ink` | `#252D33` | Strong foreground and selected graphical details |
 | `muted` | `#626B72` | Subordinate foreground and labels |
 | `line` | `#D4DADD` | Rules, grid, and structural lines |
