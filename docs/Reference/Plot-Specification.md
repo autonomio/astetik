@@ -45,7 +45,7 @@ Numeric paper measurements require units. Observation keys must be complete and 
 
 ## Panels
 
-A `panels` figure composes complete plots. Each panel declares `kind`, `x`, `y`, `hue`, `order`, `hue_order`, `options`, `labels`, `axes`, `legend`, and a `title` that heads the panel after its letter. `paper`, `key`, `units`, `descriptions`, `missing`, and the figure `title` are declared once for the figure; a field at the wrong level fails. Rows incomplete in any panel's selected columns follow the one declared missing-value policy, so every panel shows the same observations. `options.ncols` sets the panels per row and `options.labels` the lettering: `"a"`, `"A"`, `"(a)"`, or `null`. The [catalogue](Plot-Catalogue.md#publication-orders) lists the panel kinds and has a complete example.
+A `panels` figure composes complete plots. Each panel declares `kind`, `x`, `y`, `hue`, `order`, `hue_order`, `options`, `labels`, `axes`, `legend`, and a `title` that heads the panel after its letter. `paper`, `key`, `units`, `descriptions`, `missing`, and the figure `title` are declared once for the figure; a field at the wrong level fails. A panel inherits the figure's `legend` unless it declares its own. Rows incomplete in any panel's selected columns follow the one declared missing-value policy, so every panel shows the same observations. `options.ncols` sets the panels per row and `options.labels` the lettering: `"a"`, `"A"`, `"(a)"`, or `null`. The [catalogue](Plot-Catalogue.md#publication-orders) lists the panel kinds and has a complete example.
 
 ## Concrete declaration
 

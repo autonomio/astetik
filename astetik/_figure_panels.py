@@ -20,7 +20,10 @@ _PANEL_FIELDS = {
 _FIGURE_ONLY = (
     'x', 'y', 'hue', 'row', 'col', 'columns', 'order', 'hue_order', 'axes', 'labels', 'analysis'
 )
-_SHARED = ('schema_version', 'paper', 'missing', 'missing_reason', 'key', 'units', 'descriptions')
+# Declared once for the figure; a panel may still declare its own legend.
+_SHARED = (
+    'schema_version', 'paper', 'missing', 'missing_reason', 'key', 'units', 'descriptions', 'legend'
+)
 _PANEL = '_astetik_panel'
 
 
@@ -44,10 +47,9 @@ def _resolve(
         _refuse('PLOT_OPTIONS', 'Unsupported options are never ignored.', panel=index, kind=kind,
                 allowed=sorted(supported[kind]))
     item['options'] = {**json_object(defaults[kind]), **options}
-    item.setdefault('legend', True)
     item.setdefault('title', '')
     labels = item.get('labels', {})
-    if not isinstance(item['legend'], bool) or not isinstance(item['title'], str):
+    if not isinstance(item.get('legend', True), bool) or not isinstance(item['title'], str):
         _refuse('SPEC_SCHEMA', 'A panel legend is a boolean and its title text.', panel=index)
     if not isinstance(labels, dict) or not isinstance(item.get('axes', {}), dict):
         _refuse('SPEC_SCHEMA', 'Panel labels and axes must be objects.', panel=index)

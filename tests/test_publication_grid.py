@@ -252,3 +252,12 @@ def test_category_names_survive_rows_of_shared_facets(country_estimates):
     assert any(chr(10) in tick.get_text() for tick in lower.get_xticklabels())
     assert not upper.get_xticklabels()
     assert result.verify()['passed']
+
+
+def test_a_panel_inherits_the_figure_legend_unless_it_declares_its_own(country_estimates):
+    grouped = {'kind': 'box', 'x': 'tier', 'y': 'wealth', 'hue': 'tier',
+               'axes': {'y': {'scale': 'log'}}}
+    spec = _spec(kind='panels', legend=False, panels=[grouped, {**grouped, 'legend': True}])
+    result = ast.render(country_estimates, spec, {'categories': TIERS})
+    first, second = _plots(result)
+    assert first.get_legend() is None and second.get_legend() is not None

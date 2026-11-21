@@ -45,7 +45,8 @@ def compose(
         ax, letter = axes[index], _letter(index, options.get('labels', 'a'))
         view = cast(
             RendererSpec,
-            dict(panel, key=spec.get('key', []), _manifest=manifest, _paper=paper, _hue_colors={}),
+            dict(panel, key=spec.get('key', []), _manifest=manifest, _paper=paper, _hue_colors={},
+                 legend=panel.get('legend', spec.get('legend', True))),
         )
         part, before = Recorder(rec.marks, {}, {'panel': letter or index + 1}), set(figure.axes)
         try:
