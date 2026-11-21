@@ -49,7 +49,13 @@ def fit(context: RenderContext, rows: RowArray, color: str, label: JsonScalar) -
     """Fit a straight line in the displayed scale; the band bounds the mean response."""
     ax, data, spec, options = context.ax, context.data, context.spec, context.options
     x, y = context.column('x'), context.column('y')
-    log = {d: spec.get('axes', {}).get(d, {}).get('scale') == 'log' for d in ('x', 'y')}
+    scales = {d: spec.get('axes', {}).get(d, {}).get('scale', 'linear') for d in ('x', 'y')}
+    if 'symlog' in scales.values():
+        raise ValueError(
+            'A fit is a straight line in the displayed scale; a symlog axis has none. '
+            'Declare linear or log axes, or fit_reg=False.'
+        )
+    log = {d: scales[d] == 'log' for d in ('x', 'y')}
 
     def scaled(values: FloatArray, dimension: str) -> FloatArray:
         return np.log10(values) if log[dimension] else values

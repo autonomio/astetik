@@ -198,6 +198,9 @@ def test_scatter_key_is_painted_as_its_points_and_never_covers_one(country_estim
         ('scat', {'hue_order': ['Low income']}, 'hue_order orders the hue groups'),
         ('scat', {'hue': 'income', 'options': {'legend_loc': 'center'}}, 'legend_loc must be'),
         ('scat', {'options': {'edgecolor': 'bleu'}}, 'manifest colour role'),
+        ('regs', {'axes': {'x': {'scale': 'symlog'}}}, 'a symlog axis has none'),
+        ('scat', {'hue': 'wealth', 'options': {'hue_mode': 'continuous', 'color': 'ink'}},
+         'a continuous hue colours the points'),
     ],
 )
 def test_scatter_orders_with_no_single_reading_are_refused(country_estimates, kind, fields, reason):
@@ -334,6 +337,22 @@ def test_category_orders_with_no_single_reading_are_refused(country_estimates, k
         )
     assert caught.value.code == 'PLOT_CONTRACT'
     assert reason in caught.value.details['reason']
+
+
+def test_continuous_hue_points_carry_the_declared_edge(country_estimates):
+    def points(**options: object):
+        spec = _spec('scat', x='population', y='output', hue='wealth', axes=LOG,
+                     options={'hue_mode': 'continuous', **options})
+        return ast.render(country_estimates, spec).figure.axes[0].collections[0]
+
+    assert list(points(edgewidth=0.0).get_linewidths()) == [0.0]
+    styled = points(edgecolor='secondary', edgewidth=0.8)
+    assert list(styled.get_linewidths()) == [0.8]
+    assert styled.get_edgecolors()[0][:3] == pytest.approx(
+        mcolors.to_rgb(ast.Manifest().colors['secondary'])
+    )
+    automatic = points().get_edgecolors()[0][:3]
+    assert automatic == pytest.approx(mcolors.to_rgb(ast.Manifest().colors['ink']))
 
 
 def test_legend_headroom_never_replaces_declared_axis_limits(country_estimates):

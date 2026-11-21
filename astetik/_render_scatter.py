@@ -55,12 +55,15 @@ def _continuous(context: RenderContext, paint: PointPaint) -> None:
         raise ValueError('Continuous hue requires a column.')
     values = numerical(data[hue], hue)
     low, high = float(values.min()), float(values.max())
-    ink = context.spec['_manifest'].colors['ink']
+    if context.options.get('color') is not None:
+        raise ValueError('color applies to one series; a continuous hue colours the points.')
+    # Light points need an edge to stand off the paper, so the automatic edge is ink here.
+    edge = edge_color(context, context.spec['_manifest'].colors['ink'])
     points = drawing(ax).scatter(
         data.iloc[rows][context.column('x')], data.iloc[rows][context.column('y')],
         c=values[rows], cmap=context.colors.sequential(), norm=Normalize(low, high),
         s=paint.get('s', 18.0), alpha=paint.get('alpha', 0.85), marker=paint.get('marker', 'o'),
-        edgecolors=ink, linewidths=0.35,
+        edgecolors=edge, linewidths=paint.get('linewidths', 0.3),
     )
     colorbar_figure(figure_for(ax)).colorbar(points, ax=ax, label=str(hue))
     context.rec.methods['hue'] = {'kind': 'continuous', 'column': hue, 'normalization': [low, high]}
