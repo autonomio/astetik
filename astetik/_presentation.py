@@ -71,9 +71,8 @@ def finish(
     figure_title(figure, spec, manifest)
     _typography(figure, spec, manifest)
     fit_headings(figure)
-    for ax in figure.axes:
-        wrap_category_labels(ax)
-        spread_end_labels(ax)
+    wrap_category_labels(figure)
+    spread_end_labels(figure)
     for view, axes, labels in panels:
         clear_legends(axes, view, labels[2])
     settle_bands(figure)

@@ -47,11 +47,12 @@ def heading(ax: Axes, text: str, pad: float | None = None) -> Text:
 
 def fit_headings(figure: Figure) -> None:
     """Break a panel heading between words when it is wider than the panel it heads."""
+    headed = [ax for ax in figure.axes if ax.get_visible() and ax.get_title(loc='left')]
+    if not headed:
+        return
     solve_layout(figure)
-    for ax in figure.axes:
+    for ax in headed:
         text = ax.get_title(loc='left')
-        if not text or not ax.get_visible():
-            continue
         width, room = heading(ax, text).get_window_extent().width, ax.get_window_extent().width
         if width > room:
             fit = max(8, int(len(text) * room / width))
