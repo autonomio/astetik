@@ -167,7 +167,8 @@ def line(context: RenderContext) -> None:
     notes = [f'{item.key} (n = {count_text(item.count)})' if annotate else str(item.key)
              for item in series]
     loc = options.get('legend_loc', 'best')
-    if spec.get('legend', True) and ((grouped and context.lead) or annotate):
+    ended = loc == 'end' and grouped
+    if spec.get('legend', True) and ((grouped and context.lead) or annotate or ended):
         if loc == 'end':
             entries = [((item.x[-1], float(item.y[-1])), item.paint.get('color', 'ink')) for item in series]
             end_labels(context.ax, [(n, *e) for n, e in zip(notes, entries)], legend_size(context))

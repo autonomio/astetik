@@ -25,10 +25,11 @@ class _TickLabels(Protocol):
 
 
 def plot_axes(figure: Figure) -> list[Axes]:
-    """The visible data axes of a figure, in grid order; colour bars are not plots."""
+    """The drawn data axes of a figure, in grid order; colour bars and empty cells are not plots."""
     return [
         ax for ax in figure.axes
-        if ax.get_visible() and ax.get_subplotspec() is not None and not hasattr(ax, '_colorbar')
+        if ax.get_visible() and ax.axison and ax.get_subplotspec() is not None
+        and not hasattr(ax, '_colorbar')
     ]
 
 

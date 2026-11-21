@@ -213,3 +213,26 @@ def test_the_finished_layout_is_held_so_a_later_draw_moves_nothing(country_estim
     result.figure.canvas.draw()
     assert [axis.get_position().bounds for axis in result.figure.axes] == before
     assert result.figure.get_layout_engine() is None
+
+
+def test_an_empty_facet_cell_does_not_take_the_axis_labels_of_the_plot_above(country_estimates):
+    spec = {'kind': 'hist', 'x': 'wealth', 'row': 'income', 'col': 'tier', 'key': ['iso3'],
+            'units': UNITS, 'axes': {'x': {'scale': 'log'}}}
+    result = ast.render(country_estimates, spec)
+    drawn = {axis.get_title(loc='left'): axis for axis in result.figure.axes if axis.axison}
+    assert len(drawn) == 5 and len(result.figure.axes) == 10
+    lowest = drawn['Lower middle income \N{MIDDLE DOT} Other']
+    assert lowest.get_xlabel() == 'wealth (USD)'
+    assert any(tick.get_visible() and tick.get_text() for tick in lowest.get_xticklabels())
+    assert drawn['Low income \N{MIDDLE DOT} Other'].get_xlabel() == ''
+
+
+def test_end_labels_name_the_lines_of_every_facet(country_estimates):
+    spec = {'kind': 'line', 'x': 'size_class', 'y': 'wealth', 'hue': 'income', 'col': 'tier',
+            'key': ['iso3'], 'units': UNITS, 'options': {'estimator': 'median', 'legend_loc': 'end'}}
+    result = ast.render(country_estimates, spec, {'categories': INCOME})
+    named = [{text.get_text() for text in axis.texts} & set(INCOME) for axis in result.figure.axes]
+    assert named == [
+        {'High income: nonOECD', 'High income: OECD'},
+        {'Low income', 'Upper middle income', 'Lower middle income'},
+    ]
