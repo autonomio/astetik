@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import re
 import sys
 import tempfile
 import time
@@ -29,6 +30,17 @@ PAGE = Path(__file__).with_name('studio.html')
 FONT = ROOT / 'astetik' / 'fonts' / 'Finlandica.ttf'
 FORMATS = {'pdf': 'application/pdf', 'png': 'image/png', 'svg': 'image/svg+xml'}
 KINDS = ('hist', 'line', 'regs', 'bar', 'box', 'violin', 'panels')
+_HEX = re.compile(r'#[0-9A-Fa-f]{6}')
+_SECTIONS = ('colors', 'categories', 'typography', 'paper', 'axes')
+_ROLES = ('primary', 'secondary', 'paper', 'ink', 'muted', 'line', 'negative', 'neutral', 'positive')
+_SIZES = ('fontsize', 'labelsize', 'titlesize', 'ticksize', 'legendsize')
+_PAPER = ('preset', 'width_mm', 'aspect', 'dpi', 'min_fontsize')
+_AXES = ('linewidth', 'grid', 'spines', 'tick_direction', 'tick_length')
+_SPINES = ('left', 'bottom', 'right', 'top')
+_ACCEPTED = (
+    'The studio accepts a spec object, a manifest of colours, sizes, page and axes values or null, '
+    'and format svg, pdf, or png. The reason is printed in the terminal running it.'
+)
 
 
 def _latitude(shape: shapefile.Shape) -> float:
@@ -115,11 +127,85 @@ def describe(data: pd.DataFrame, about: dict[str, object]) -> dict[str, object]:
     }
 
 
-def render(data: pd.DataFrame, request: dict[str, object]) -> dict[str, object]:
+def _colour(value: object) -> str:
+    """A #RRGGBB colour, rebuilt from its number."""
+    if not isinstance(value, str) or not _HEX.fullmatch(value):
+        raise ValueError('Colours are six-digit #RRGGBB values.')
+    return f'#{int(value[1:], 16):06X}'
+
+
+def _number(value: object) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError('Sizes and measures are numbers.')
+    return float(value)
+
+
+def _choice(value: object, allowed: tuple[str, ...]) -> str:
+    for candidate in allowed:
+        if value == candidate:
+            return candidate
+    raise ValueError(f'Choose one of: {", ".join(allowed)}.')
+
+
+def _section(document: dict[str, object], name: str, allowed: tuple[str, ...]) -> dict[str, object]:
+    section = document.get(name, {})
+    if not isinstance(section, dict) or not set(section) <= set(allowed):
+        raise ValueError(f'manifest.{name} accepts: {", ".join(allowed)}.')
+    return section
+
+
+def design(document: object, levels: list[str]) -> dict[str, object] | None:
+    """Rebuild the page's manifest from colours, numbers, and known names.
+
+    A manifest may name a font file to open. A web request never may: nothing is passed
+    on as received, and a field this page does not set is refused.
+    """
+    if document is None:
+        return None
+    if not isinstance(document, dict) or not set(document) <= set(_SECTIONS):
+        raise ValueError(f'manifest is null or an object with: {", ".join(_SECTIONS)}.')
+    colors = _section(document, 'colors', _ROLES)
+    sizes = _section(document, 'typography', _SIZES)
+    paper = _section(document, 'paper', _PAPER)
+    axes = _section(document, 'axes', _AXES)
+    categories = _section(document, 'categories', tuple(levels))
+    spines = axes.get('spines', [])
+    if not isinstance(spines, list) or not set(spines) <= set(_SPINES):
+        raise ValueError(f'manifest.axes.spines lists: {", ".join(_SPINES)}.')
+    page: dict[str, object] = {
+        name: _number(paper[name]) for name in ('width_mm', 'aspect', 'min_fontsize') if name in paper
+    }
+    if 'preset' in paper:
+        page['preset'] = _choice(paper['preset'], ('single', 'double'))
+    if 'dpi' in paper:
+        page['dpi'] = int(_number(paper['dpi']))
+    frame: dict[str, object] = {
+        name: _number(axes[name]) for name in ('linewidth', 'tick_length') if name in axes
+    }
+    if 'grid' in axes:
+        frame['grid'] = axes['grid'] is True
+    if 'spines' in axes:
+        frame['spines'] = [side for side in _SPINES if side in spines]
+    if 'tick_direction' in axes:
+        frame['tick_direction'] = _choice(axes['tick_direction'], ('out', 'in', 'inout'))
+    return {
+        'colors': {role: _colour(colors[role]) for role in _ROLES if role in colors},
+        'typography': {name: _number(sizes[name]) for name in _SIZES if name in sizes},
+        'categories': {level: _colour(categories[level]) for level in levels if level in categories},
+        'paper': page,
+        'axes': frame,
+    }
+
+
+def render(data: pd.DataFrame, levels: list[str], body: bytes) -> dict[str, object]:
     """Run the requested call and report the figure, or the refusal, as data."""
     started = time.perf_counter()
     try:
-        result = ast.render(data, request['spec'], request.get('manifest'))
+        request = json.loads(body)
+        if not isinstance(request, dict) or not isinstance(request.get('spec'), dict):
+            raise ValueError('Send an object with a spec object.')
+        wanted = _choice(request.get('format', 'svg'), tuple(FORMATS))
+        result = ast.render(data, request['spec'], design(request.get('manifest'), levels))
         report = result.verify()
         payload: dict[str, object] = {
             'checks': [{'check': c['check'], 'passed': c['passed']} for c in report['checks']],
@@ -128,7 +214,6 @@ def render(data: pd.DataFrame, request: dict[str, object]) -> dict[str, object]:
             'caption': result.receipt['caption'],
             'size_mm': [round(v * 25.4, 2) for v in result.figure.get_size_inches()],
         }
-        wanted = request.get('format', 'svg')
         if wanted == 'svg':
             payload['svg'] = result.svg_bytes().decode('utf-8')
         else:
@@ -137,14 +222,21 @@ def render(data: pd.DataFrame, request: dict[str, object]) -> dict[str, object]:
                 payload['file'] = base64.b64encode(
                     (bundle / f'figure.{wanted}').read_bytes()
                 ).decode('ascii')
-                payload['media_type'] = FORMATS[str(wanted)]
+                payload['media_type'] = FORMATS[wanted]
     except ast.AstetikError as error:
         payload = {'error': error.to_dict()}
+    except ValueError as error:
+        # The reason goes to this terminal; the reply states only what the page may send.
+        print(f'Refused request: {error}', file=sys.stderr)
+        payload = {'error': {'code': 'STUDIO_REQUEST', 'message': _ACCEPTED, 'details': {}}}
     payload['milliseconds'] = round((time.perf_counter() - started) * 1000)
     return payload
 
 
 def handler(data: pd.DataFrame, about: dict[str, object]) -> type[BaseHTTPRequestHandler]:
+    description = describe(data, about)
+    levels = [str(level) for values in description['groups'].values() for level in values]
+
     class Studio(BaseHTTPRequestHandler):
         def _send(self, status: int, media_type: str, body: bytes) -> None:
             self.send_response(status)
@@ -157,22 +249,35 @@ def handler(data: pd.DataFrame, about: dict[str, object]) -> type[BaseHTTPReques
         def _json(self, status: int, value: object) -> None:
             self._send(status, 'application/json', json.dumps(value).encode('utf-8'))
 
+        def _local(self) -> bool:
+            """Answer only requests addressed to this machine, so no other site can reach the data."""
+            if self.headers.get('Host', '').rsplit(':', 1)[0] in ('127.0.0.1', 'localhost'):
+                return True
+            self._json(403, {'error': {'code': 'STUDIO_REQUEST', 'message': 'Local requests only.'}})
+            return False
+
         def do_GET(self) -> None:
+            if not self._local():
+                return
             if self.path.split('?')[0] in ('/', '/index.html'):
                 self._send(200, 'text/html; charset=utf-8', PAGE.read_bytes())
             elif self.path == '/font.ttf':
                 self._send(200, 'font/ttf', FONT.read_bytes())
             elif self.path == '/api/meta':
-                self._json(200, describe(data, about))
+                self._json(200, description)
             else:
                 self._json(404, {'error': {'code': 'NOT_FOUND', 'message': self.path}})
 
         def do_POST(self) -> None:
-            if self.path != '/api/render':
+            if not self._local():
+                return
+            # A JSON content type cannot be sent across origins without this server's consent.
+            typed = self.headers.get('Content-Type', '').split(';')[0].strip() == 'application/json'
+            if self.path != '/api/render' or not typed:
                 self._json(404, {'error': {'code': 'NOT_FOUND', 'message': self.path}})
                 return
             length = int(self.headers.get('Content-Length', '0'))
-            self._json(200, render(data, json.loads(self.rfile.read(length))))
+            self._json(200, render(data, levels, self.rfile.read(length)))
 
         def log_message(self, format: str, *args: object) -> None:
             print(f'{self.address_string()} {format % args}', file=sys.stderr)
