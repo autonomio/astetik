@@ -161,11 +161,21 @@ def _settle(ax: Axes, legend: Legend, spec: PlotSpec, horizontal: bool) -> None:
         else:
             cast(_Placed, legend).set_loc(free)
         return
-    if spec['kind'] not in _ZERO_BASED or placement.loc not in _HEADROOM[horizontal]:
+    _headroom(ax, legend, spec, horizontal)
+
+
+def _headroom(ax: Axes, legend: Legend, spec: PlotSpec, horizontal: bool) -> None:
+    """Lengthen a zero-based value axis until the legend clears, where the order allows it."""
+    loc, pad = cast(Placement, getattr(legend, _PLACEMENT)).loc, 2 * figure_for(ax).dpi / 72
+    dimension = 'x' if horizontal else 'y'
+    if spec['kind'] not in _ZERO_BASED or loc not in _HEADROOM[horizontal]:
+        raise ValueError(f'A legend at {loc!r} covers the data; choose a free or outside position.')
+    if spec.get('axes', {}).get(dimension, {}).get('limits') is not None:
         raise ValueError(
-            f'A legend at {placement.loc!r} covers the data; choose a free or outside position.'
+            f'A legend at {loc!r} cannot clear the data within the declared {dimension} limits; '
+            'use an outside position.'
         )
-    locator = value_locator(counted(spec, 'x' if horizontal else 'y', horizontal))
+    locator = value_locator(counted(spec, dimension, horizontal))
     low = (ax.get_xlim() if horizontal else ax.get_ylim())[0]
     for _ in range(3):
         needed = required_limit(ax, legend.get_window_extent().padded(pad), horizontal)
@@ -175,9 +185,7 @@ def _settle(ax: Axes, legend: Legend, spec: PlotSpec, horizontal: bool) -> None:
         (ax.set_xlim if horizontal else ax.set_ylim)(low, limit)
         if _clear(ax, legend, pad):
             return
-    raise ValueError(
-        f'A legend at {placement.loc!r} cannot clear the data; use an outside position.'
-    )
+    raise ValueError(f'A legend at {loc!r} cannot clear the data; use an outside position.')
 
 
 def clear_legends(axes: list[Axes], spec: PlotSpec, horizontal: bool) -> None:

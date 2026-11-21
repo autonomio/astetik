@@ -132,7 +132,7 @@
     "astetik/_presentation_axes.py": 100,
     "astetik/_presentation_labels.py": 60,
     "astetik/_presentation_layout.py": 30,
-    "astetik/_presentation_legend.py": 150,
+    "astetik/_presentation_legend.py": 160,
     "astetik/_presentation_ticks.py": 70,
     "astetik/_render_categorical.py": 100,
     "astetik/_render_category_types.py": 30,

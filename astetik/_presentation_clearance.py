@@ -17,7 +17,11 @@ _UNCONNECTED = ('None', 'none', '', ' ')
 
 
 def _outlines(ax: Axes) -> list[tuple[Path, bool]]:
-    """Every drawn outline in display space; True marks a filled shape."""
+    """Every drawn outline in display space; True marks a shape whose inside is occupied.
+
+    A patch or polygon counts as occupied even when it is drawn hollow: the area a bar,
+    box, or violin encloses is that mark, and a legend set inside it would read as data.
+    """
     shapes = [
         (patch.get_transform().transform_path(patch.get_path()), True)
         for patch in ax.patches
@@ -47,7 +51,7 @@ def _markers(ax: Axes) -> tuple[FloatArray, float]:
             sizes = np.asarray(collection.get_sizes(), dtype=float)
             radius = max(radius, float(np.sqrt(sizes.max(initial=0.0))) / 2 * scale)
     for line in ax.lines:
-        if line.get_visible() and line.get_linestyle() in _UNCONNECTED:
+        if line.get_visible() and line.get_marker() not in _UNCONNECTED:
             centres.append(line.get_transform().transform(line.get_xydata()))
             radius = max(radius, float(line.get_markersize()) / 2 * scale)
     points = np.vstack(centres)

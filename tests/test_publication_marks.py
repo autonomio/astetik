@@ -203,7 +203,8 @@ def test_scatter_key_is_painted_as_its_points_and_never_covers_one(country_estim
 def test_scatter_orders_with_no_single_reading_are_refused(country_estimates, kind, fields, reason):
     with pytest.raises(ast.AstetikError) as caught:
         ast.render(
-            country_estimates, _spec(kind, x='population', y='output', axes=LOG, **fields),
+            country_estimates,
+            _spec(kind, **{'x': 'population', 'y': 'output', 'axes': LOG, **fields}),
             {'categories': INCOME},
         )
     assert caught.value.code == 'PLOT_CONTRACT'
@@ -333,3 +334,37 @@ def test_category_orders_with_no_single_reading_are_refused(country_estimates, k
         )
     assert caught.value.code == 'PLOT_CONTRACT'
     assert reason in caught.value.details['reason']
+
+
+def test_legend_headroom_never_replaces_declared_axis_limits(country_estimates):
+    spec = _spec('bar', x='income', y='wealth', hue='tier', paper='double',
+                 options={'estimator': 'mean', 'points': 'all', 'legend_loc': 'upper left'})
+    highest = float(country_estimates['wealth'].max())
+    declared = float(np.ceil(highest / 1e4) * 1e4)
+    free = ast.render(country_estimates, spec, {'categories': TIERS})
+    assert free.figure.axes[0].get_ylim()[1] > declared
+    with pytest.raises(ast.AstetikError) as caught:
+        ast.render(
+            country_estimates, {**spec, 'axes': {'y': {'limits': [0, declared]}}},
+            {'categories': TIERS},
+        )
+    assert 'within the declared y limits' in caught.value.details['reason']
+
+
+def test_a_marker_on_a_connected_line_counts_as_a_mark_for_legend_clearance():
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure
+    from matplotlib.transforms import Bbox
+
+    from astetik._presentation_clearance import covered
+
+    figure = Figure(figsize=(3, 2), dpi=100)
+    FigureCanvasAgg(figure)
+    axis = figure.subplots()
+    axis.plot([0, 1], [0, 0], marker='o', markersize=20)
+    axis.set_xlim(-1, 2)
+    axis.set_ylim(-1, 1)
+    figure.canvas.draw()
+    x, y = axis.transData.transform((1, 0))
+    assert covered(axis, Bbox.from_bounds(x + 5, y - 2, 4, 4))
+    assert not covered(axis, Bbox.from_bounds(x + 40, y - 2, 4, 4))
