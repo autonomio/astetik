@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astetik studio</title>
+<style>
+@font-face { font-family: Finlandica; src: url(/font.ttf) format("truetype"); font-weight: 400; }
+:root {
+  --paper: #F7F7F2; --ink: #252D33; --muted: #626B72; --line: #D4DADD; --wash: #EAF0F3; --blue: #2A4A70;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body {
+  margin: 0; color: var(--ink); background: var(--paper);
+  font: 400 16px/1.5 Finlandica, system-ui, sans-serif;
+}
+a, button.link {
+  color: var(--blue); background: none; border: 0; padding: 0; font: inherit; cursor: pointer;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .24em;
+}
+a:hover, button.link:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+header {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+  padding: 28px clamp(16px, 4vw, 56px) 0;
+}
+h1 { font-size: 26px; font-weight: 400; letter-spacing: -.018em; margin: 0; }
+header p { margin: 0; color: var(--muted); font-size: 15px; }
+nav {
+  display: flex; flex-wrap: wrap; gap: 4px 26px; padding: 14px clamp(16px, 4vw, 56px) 16px;
+  border-bottom: 1px solid var(--line); font-size: 17px;
+}
+nav button.link[aria-current=page] { color: var(--ink); text-decoration-thickness: 2px; }
+main {
+  display: grid; grid-template-columns: minmax(0, 1fr) 380px; align-items: start;
+  padding: 0 clamp(16px, 4vw, 56px);
+}
+#view { position: sticky; top: 0; padding: 28px 40px 40px 0; min-width: 0; }
+#stage {
+  display: flex; align-items: center; justify-content: center; min-height: 340px;
+  padding: 28px; border: 1px solid var(--line); background: #fff; overflow: auto;
+}
+#stage.site { background: var(--paper); }
+#figure { display: block; max-width: 100%; height: auto; transition: opacity 140ms; }
+#stage.busy #figure { opacity: .45; }
+.bar { display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: baseline; margin: 12px 0 0; font-size: 14px; color: var(--muted); }
+.bar .gap { flex: 1; }
+#status { margin: 14px 0 0; font-size: 15px; color: var(--muted); }
+#status.ok::before { content: ""; display: inline-block; width: 30px; height: 2px; background: var(--blue); vertical-align: middle; margin-right: 12px; }
+#problem { display: none; margin: 14px 0 0; padding: 14px 16px; border-left: 2px solid #A54532; background: #fff; font-size: 15px; }
+#problem b { font-weight: 400; color: #A54532; }
+#problem pre { margin: 8px 0 0; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Menlo, monospace; color: var(--muted); }
+h2 { font-size: 15px; font-weight: 400; color: var(--muted); margin: 30px 0 8px; }
+#call {
+  margin: 0; padding: 16px 18px; background: var(--wash); overflow: auto; max-height: 420px;
+  font: 13px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre;
+}
+#controls { border-left: 1px solid var(--line); padding: 8px 0 80px 28px; }
+section { padding: 18px 0 16px; border-bottom: 1px solid var(--line); }
+section h3 { font-size: 19px; font-weight: 400; letter-spacing: -.012em; margin: 0 0 10px; }
+.row { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 34px; font-size: 15px; }
+.row > label { color: var(--muted); }
+.row .field { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.row output { width: 40px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+select, input[type=text], input[type=number] {
+  width: 100%; min-width: 0; height: 30px; padding: 0 8px; color: var(--ink); background: #fff;
+  border: 1px solid var(--line); border-radius: 0; font: inherit; font-size: 15px;
+}
+input[type=range] { flex: 1; min-width: 0; accent-color: var(--blue); }
+input[type=checkbox] { width: 16px; height: 16px; margin: 0; accent-color: var(--blue); }
+input[type=color] { width: 44px; height: 28px; padding: 0; border: 1px solid var(--line); background: #fff; }
+.checks { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.checks label { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+.hint { margin: 2px 0 0; font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+.swatch { font-size: 13px; color: var(--muted); font-family: ui-monospace, Menlo, monospace; }
+.panel { display: grid; grid-template-columns: 22px minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 36px; font-size: 15px; }
+.panel span { color: var(--muted); }
+footer { padding: 22px clamp(16px, 4vw, 56px) 40px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+@media (max-width: 980px) {
+  main { grid-template-columns: minmax(0, 1fr); }
+  #view { position: static; padding-right: 0; }
+  #controls { border-left: 0; padding-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { #figure { transition: none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="heading">Astetik studio</h1>
+  <p id="about"></p>
+</header>
+<nav id="tabs" aria-label="Figure type"></nav>
+<main>
+  <div id="view">
+    <div id="stage"><img id="figure" alt="Rendered figure"></div>
+    <div class="bar">
+      <span>View</span>
+      <button class="link" data-zoom="fit">Fit</button>
+      <button class="link" data-zoom="print">Print size</button>
+      <button class="link" id="backdrop">Site paper</button>
+      <span class="gap"></span>
+      <span>Download</span>
+      <button class="link" data-format="svg">SVG</button>
+      <button class="link" data-format="pdf">PDF</button>
+      <button class="link" data-format="png">PNG</button>
+    </div>
+    <p id="status"></p>
+    <div id="problem"></div>
+    <h2>The call an agent sends for this figure · <button class="link" id="copy">Copy</button> · <button class="link" id="share">Copy link</button> · <button class="link" id="reset">Reset</button></h2>
+    <pre id="call"></pre>
+  </div>
+  <div id="controls"></div>
+</main>
+<footer id="source"></footer>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const el = (tag, attrs = {}, ...kids) => {
+  const node = Object.assign(document.createElement(tag), attrs);
+  node.append(...kids);
+  return node;
+};
+let meta, state, sequence = 0, timer = 0, currentSvg = '', zoom = 'fit', sizeMm = [89, 61];
+
+const numeric = () => meta.numeric;
+const groupColumns = () => Object.keys(meta.groups);
+const optional = () => [['', 'none'], ...groupColumns()];
+const pick = (name, list) => (list.includes(name) ? name : list[0]);
+const roles = ['primary', 'secondary', 'ink', 'muted', 'line', 'paper'];
+const markers = [['', 'none'], ['o', 'circle'], ['s', 'square'], ['^', 'triangle'], ['D', 'diamond']];
+const scales = ['linear', 'log'];
+const sorts = [['data', 'as in the data'], ['az', 'A to Z'], ['za', 'Z to A']];
+const sorted = (column, how) => {
+  if (!column || how === 'data') return null;
+  const levels = [...meta.groups[column]].sort((a, b) => a.localeCompare(b));
+  return how === 'za' ? levels.reverse() : levels;
+};
+
+// Controls every type shares, kept in each type's own state.
+const common = () => ({
+  hue: '', hue_sort: 'data', col: '', col_wrap: 2, color: '', custom: meta.manifest.colors.primary,
+  legend: true, legend_loc: 'best', annotate_n: false, title: '', subtitle: '', xlabel: '', ylabel: '',
+});
+const colorItems = (s) => [
+  {key: 'color', label: 'Colour', type: 'select', options: [['', 'manifest primary'], ...roles.slice(0, 4), ['custom', 'custom']], show: () => !s.hue},
+  {key: 'custom', label: 'Custom colour', type: 'color', show: () => !s.hue && s.color === 'custom'},
+];
+const groupItems = (s) => [
+  {key: 'hue', label: 'Group by', type: 'select', options: optional()},
+  {key: 'hue_sort', label: 'Group order', type: 'select', options: sorts, show: () => s.hue},
+  {key: 'col', label: 'Panels by', type: 'select', options: optional()},
+  {key: 'col_wrap', label: 'Panels per row', type: 'number', min: 1, max: 6, step: 1, show: () => s.col},
+];
+const legendSection = (s, extra = []) => ['Legend and notes', [
+  {key: 'legend', label: 'Legend', type: 'check'},
+  {key: 'legend_loc', label: 'Position', type: 'select', options: [...meta.legend_locations, ...extra]},
+  {key: 'annotate_n', label: 'Sample size', type: 'check'},
+]];
+const textSection = () => ['Text', [
+  {key: 'title', label: 'Title', type: 'text'},
+  {key: 'subtitle', label: 'Subtitle', type: 'text', hint: 'In a grid, the title heads the panel and the subtitle is not used.'},
+  {key: 'xlabel', label: 'X label', type: 'text', placeholder: 'from description and unit'},
+  {key: 'ylabel', label: 'Y label', type: 'text', placeholder: 'from description and unit'},
+]];
+const colorOption = (s) => (s.hue ? undefined : s.color === 'custom' ? s.custom : s.color || null);
+const errorbars = (s) => (s.estimator === 'mean' ? ['none', 'sd', 'se', 'ci'] : s.estimator === 'median' ? ['none', 'iqr'] : ['none']);
+const settle = (s) => { if (!errorbars(s).includes(s.errorbar)) s.errorbar = errorbars(s).at(-1); };
+const estimateItems = (s, choices) => [
+  {key: 'estimator', label: 'Estimate', type: 'select', options: choices},
+  {key: 'errorbar', label: 'Interval', type: 'select', options: errorbars(s).map((v) => [v, {none: 'none', sd: 'standard deviation', se: 'standard error', ci: 'confidence interval', iqr: 'interquartile range'}[v]]), show: () => errorbars(s).length > 1},
+  {key: 'confidence', label: 'Confidence', type: 'range', min: .5, max: .99, step: .01, show: () => s.errorbar === 'ci'},
+];
+const categoryItems = (s) => [
+  {key: 'x', label: 'Categories', type: 'select', options: groupColumns()},
+  {key: 'order', label: 'Category order', type: 'select', options: sorts},
+  {key: 'y', label: 'Value', type: 'select', options: numeric()},
+];
+const categorySpec = (s, kind, scale) => {
+  const spec = {kind, x: s.x, y: s.y};
+  const order = sorted(s.x, s.order);
+  if (order) spec.order = order;
+  if (scale === 'log') spec.axes = {[s.orient === 'h' ? 'x' : 'y']: {scale: 'log'}};
+  return spec;
+};
+
+const TYPES = {
+  hist: {
+    name: 'Histogram', kind: 'hist', variable: 'x',
+    initial: () => ({
+      ...common(), x: pick('gdp_per_capita', numeric()), scale: 'log', orient: 'v',
+      stat: 'count', cumulative: false, common_norm: false,
+      binning: 'rule', rule: 'auto', count: 20, binwidth: '', edges: '',
+      element: 'bars', fill: true, multiple: 'layer', alpha: .85, shrink: 1, edgecolor: 'auto', edgewidth: .4,
+      kde: false, bw: 'scott', factor: .5, rug: false, mean: false, median: false, linewidth: 1.25,
+    }),
+    sections: (s) => [
+      ['Data', [
+        {key: 'x', label: 'Variable', type: 'select', options: numeric()},
+        {key: 'scale', label: 'Scale', type: 'select', options: scales},
+        ...groupItems(s),
+        {key: 'orient', label: 'Orientation', type: 'select', options: [['v', 'vertical'], ['h', 'horizontal']]},
+      ]],
+      ['Statistic', [
+        {key: 'stat', label: 'Statistic', type: 'select', options: ['count', 'proportion', 'percent', 'density']},
+        {key: 'cumulative', label: 'Cumulative', type: 'check'},
+        {key: 'common_norm', label: 'Pool groups', type: 'check', show: () => s.hue, hint: 'Normalise over all groups together instead of each group alone.'},
+      ]],
+      ['Bins', [
+        {key: 'binning', label: 'Declare by', type: 'select', options: [['rule', 'rule'], ['count', 'number of bins'], ['width', 'bin width'], ['edges', 'explicit edges']]},
+        {key: 'rule', label: 'Rule', type: 'select', options: ['auto', 'fd', 'scott', 'sturges', 'doane', 'rice', 'sqrt', 'stone'], show: () => s.binning === 'rule'},
+        {key: 'count', label: 'Bins', type: 'range', min: 2, max: 80, step: 1, show: () => s.binning === 'count'},
+        {key: 'binwidth', label: 'Width', type: 'text', placeholder: 'in data units', show: () => s.binning === 'width'},
+        {key: 'edges', label: 'Edges', type: 'text', placeholder: '0, 10, 100, 1000', show: () => s.binning === 'edges'},
+      ]],
+      ['Marks', [
+        {key: 'element', label: 'Element', type: 'select', options: ['bars', 'step']},
+        {key: 'fill', label: 'Filled', type: 'check'},
+        {key: 'multiple', label: 'Groups', type: 'select', options: ['layer', 'stack', 'dodge'], show: () => s.hue},
+        {key: 'alpha', label: 'Opacity', type: 'range', min: 0, max: 1, step: .05},
+        {key: 'shrink', label: 'Bar width', type: 'range', min: .3, max: 1, step: .05},
+        ...colorItems(s),
+        {key: 'edgecolor', label: 'Edge colour', type: 'select', options: ['auto', ...roles]},
+        {key: 'edgewidth', label: 'Edge width', type: 'range', min: 0, max: 2, step: .1, unit: 'pt'},
+      ]],
+      ['Overlays', [
+        {key: 'kde', label: 'Density curve', type: 'check'},
+        {key: 'bw', label: 'Bandwidth', type: 'select', options: ['scott', 'silverman', ['factor', 'factor']], show: () => s.kde},
+        {key: 'factor', label: 'Factor', type: 'range', min: .05, max: 2, step: .05, show: () => s.kde && s.bw === 'factor'},
+        {key: 'rug', label: 'Rug', type: 'check'},
+        {key: 'mean', label: 'Mean line', type: 'check'},
+        {key: 'median', label: 'Median line', type: 'check'},
+        {key: 'linewidth', label: 'Line width', type: 'range', min: .5, max: 3, step: .25, unit: 'pt'},
+      ]],
+      legendSection(s), textSection(),
+    ],
+    spec: (s) => (s.scale === 'log' ? {kind: 'hist', x: s.x, axes: {[s.orient === 'h' ? 'y' : 'x']: {scale: 'log'}}} : {kind: 'hist', x: s.x}),
+    options: (s, put) => {
+      if (s.binning === 'rule') put('bins', s.rule);
+      if (s.binning === 'count') put('bins', s.count);
+      if (s.binning === 'width') put('binwidth', s.binwidth === '' ? null : Number(s.binwidth));
+      if (s.binning === 'edges') put('bins', s.edges.split(/[,\s]+/).filter(Boolean).map(Number));
+      put('stat', s.stat); put('cumulative', s.cumulative);
+      if (s.hue) { put('common_norm', s.common_norm); put('multiple', s.multiple); }
+      for (const key of ['element', 'fill', 'alpha', 'shrink', 'edgecolor', 'edgewidth', 'orient', 'kde', 'rug', 'linewidth']) put(key, s[key]);
+      if (s.kde) put('bw_method', s.bw === 'factor' ? s.factor : s.bw);
+      put('reference', ['mean', 'median'].filter((name) => s[name]));
+    },
+  },
+  line: {
+    name: 'Line', kind: 'line', variable: 'y',
+    initial: () => ({
+      ...common(), x: pick('latitude_band', numeric()), y: pick('gdp_per_capita', numeric()), xscale: 'linear', yscale: 'linear',
+      estimator: 'mean', errorbar: 'ci', confidence: .95, interval: 'band', band_alpha: .2, capsize: 2,
+      linewidth: 1.25, alpha: 1, marker: 'o', markersize: 4, linestyle: 'solid', dashes: false, drawstyle: 'default',
+    }),
+    sections: (s) => [
+      ['Data', [
+        {key: 'x', label: 'X', type: 'select', options: numeric()},
+        {key: 'y', label: 'Y', type: 'select', options: numeric()},
+        {key: 'xscale', label: 'X scale', type: 'select', options: scales},
+        {key: 'yscale', label: 'Y scale', type: 'select', options: scales},
+        ...groupItems(s),
+      ]],
+      ['Estimate', [
+        ...estimateItems(s, [['none', 'each observation'], ['mean', 'mean at each x'], ['median', 'median at each x']]),
+        {key: 'interval', label: 'Drawn as', type: 'select', options: ['band', 'bars'], show: () => s.errorbar !== 'none'},
+        {key: 'band_alpha', label: 'Band opacity', type: 'range', min: .05, max: .6, step: .05, show: () => s.errorbar !== 'none' && s.interval === 'band'},
+        {key: 'capsize', label: 'Cap size', type: 'range', min: 0, max: 5, step: .5, unit: 'pt', show: () => s.errorbar !== 'none' && s.interval === 'bars'},
+      ]],
+      ['Marks', [
+        {key: 'linewidth', label: 'Line width', type: 'range', min: .5, max: 3, step: .25, unit: 'pt'},
+        {key: 'alpha', label: 'Opacity', type: 'range', min: .1, max: 1, step: .05},
+        {key: 'dashes', label: 'Dash per group', type: 'check', show: () => s.hue, hint: 'Groups stay apart in greyscale print.'},
+        {key: 'linestyle', label: 'Line style', type: 'select', options: ['solid', 'dashed', 'dotted', 'dashdot'], show: () => !(s.hue && s.dashes)},
+        {key: 'drawstyle', label: 'Joined by', type: 'select', options: [['default', 'straight lines'], ['steps-mid', 'steps, centred'], ['steps-post', 'steps, after']]},
+        {key: 'marker', label: 'Marker', type: 'select', options: markers},
+        {key: 'markersize', label: 'Marker size', type: 'range', min: 2, max: 8, step: .5, unit: 'pt', show: () => s.marker},
+        ...colorItems(s),
+      ]],
+      legendSection(s, ['end']), textSection(),
+    ],
+    spec: (s) => {
+      const spec = {kind: 'line', x: s.x, y: s.y}, axes = {};
+      if (s.xscale === 'log') axes.x = {scale: 'log'};
+      if (s.yscale === 'log') axes.y = {scale: 'log'};
+      if (Object.keys(axes).length) spec.axes = axes;
+      return spec;
+    },
+    options: (s, put) => {
+      settle(s);
+      put('estimator', s.estimator === 'none' ? null : s.estimator);
+      put('errorbar', s.errorbar === 'none' ? null : s.errorbar);
+      if (s.errorbar === 'ci') put('confidence', s.confidence);
+      if (s.errorbar !== 'none') { put('interval', s.interval); put(s.interval === 'band' ? 'band_alpha' : 'capsize', s[s.interval === 'band' ? 'band_alpha' : 'capsize']); }
+      for (const key of ['linewidth', 'alpha', 'drawstyle']) put(key, s[key]);
+      if (s.hue) put('dashes', s.dashes);
+      if (!(s.hue && s.dashes)) put('linestyle', s.linestyle);
+      put('marker', s.marker || null);
+      if (s.marker) put('markersize', s.markersize);
+    },
+  },
+  scat: {
+    name: 'Scatter', kind: 'regs', variable: 'y',
+    initial: () => ({
+      ...common(), x: pick('population', numeric()), y: pick('gdp', numeric()), xscale: 'log', yscale: 'log',
+      draw_scatter: true, point_size: 18, alpha: .8, marker: 'o', edgecolor: 'auto', edgewidth: .3,
+      fit_reg: true, band: true, confidence: .95, fit_groups: false, linewidth: 1.25, annotate_fit: true,
+    }),
+    sections: (s) => [
+      ['Data', [
+        {key: 'x', label: 'X', type: 'select', options: numeric()},
+        {key: 'y', label: 'Y', type: 'select', options: numeric()},
+        {key: 'xscale', label: 'X scale', type: 'select', options: scales},
+        {key: 'yscale', label: 'Y scale', type: 'select', options: scales},
+        ...groupItems(s),
+      ]],
+      ['Points', [
+        {key: 'draw_scatter', label: 'Show points', type: 'check'},
+        {key: 'point_size', label: 'Size', type: 'range', min: 2, max: 60, step: 1, unit: 'pt²'},
+        {key: 'alpha', label: 'Opacity', type: 'range', min: .1, max: 1, step: .05},
+        {key: 'marker', label: 'Marker', type: 'select', options: markers.slice(1)},
+        {key: 'edgecolor', label: 'Edge colour', type: 'select', options: ['auto', ...roles]},
+        {key: 'edgewidth', label: 'Edge width', type: 'range', min: 0, max: 1.5, step: .1, unit: 'pt'},
+        ...colorItems(s),
+      ]],
+      ['Fit', [
+        {key: 'fit_reg', label: 'Least-squares line', type: 'check', hint: 'Fitted in the displayed scale: on logarithmic axes, to the log10 values.'},
+        {key: 'fit_groups', label: 'One line per group', type: 'check', show: () => s.fit_reg && s.hue},
+        {key: 'band', label: 'Confidence band', type: 'check', show: () => s.fit_reg},
+        {key: 'confidence', label: 'Confidence', type: 'range', min: .5, max: .99, step: .01, show: () => s.fit_reg && s.band},
+        {key: 'linewidth', label: 'Line width', type: 'range', min: .5, max: 3, step: .25, unit: 'pt', show: () => s.fit_reg},
+        {key: 'annotate_fit', label: 'Report r and n', type: 'check', show: () => s.fit_reg},
+      ]],
+      legendSection(s), textSection(),
+    ],
+    spec: (s) => ({...TYPES.line.spec(s), kind: 'regs'}),
+    options: (s, put) => {
+      for (const key of ['draw_scatter', 'point_size', 'alpha', 'marker', 'edgecolor', 'edgewidth', 'fit_reg']) put(key, s[key]);
+      if (s.fit_reg) {
+        put('band', s.band); put('linewidth', s.linewidth); put('annotate_fit', s.annotate_fit);
+        if (s.band) put('confidence', s.confidence);
+        if (s.hue) put('fit_groups', s.fit_groups);
+      } else put('annotate_fit', false);
+    },
+  },
+  bar: {
+    name: 'Bar', kind: 'bar', variable: 'y',
+    initial: () => ({
+      ...common(), x: pick('income_group', groupColumns()), y: pick('gdp_per_capita', numeric()), order: 'data', orient: 'v',
+      estimator: 'mean', errorbar: 'ci', confidence: .95, capsize: 2, linewidth: .8,
+      width: .8, alpha: .85, edgecolor: 'auto', edgewidth: 0, points: 'none', point_size: 8, jitter: .12,
+    }),
+    sections: (s) => [
+      ['Data', [...categoryItems(s), ...groupItems(s), {key: 'orient', label: 'Orientation', type: 'select', options: [['v', 'vertical'], ['h', 'horizontal']]}]],
+      ['Estimate', [
+        ...estimateItems(s, ['mean', 'median', 'sum']),
+        {key: 'capsize', label: 'Cap size', type: 'range', min: 0, max: 5, step: .5, unit: 'pt', show: () => s.errorbar !== 'none'},
+        {key: 'linewidth', label: 'Interval width', type: 'range', min: .3, max: 2, step: .1, unit: 'pt', show: () => s.errorbar !== 'none'},
+      ]],
+      ['Marks', [
+        {key: 'width', label: 'Bar width', type: 'range', min: .2, max: 1, step: .05},
+        {key: 'alpha', label: 'Opacity', type: 'range', min: .1, max: 1, step: .05},
+        ...colorItems(s),
+        {key: 'edgecolor', label: 'Edge colour', type: 'select', options: ['auto', ...roles]},
+        {key: 'edgewidth', label: 'Edge width', type: 'range', min: 0, max: 2, step: .1, unit: 'pt'},
+        {key: 'points', label: 'Observations', type: 'select', options: [['none', 'not shown'], ['all', 'every observation']]},
+        {key: 'point_size', label: 'Point size', type: 'range', min: 2, max: 30, step: 1, unit: 'pt²', show: () => s.points === 'all'},
+        {key: 'jitter', label: 'Spread', type: 'range', min: 0, max: .4, step: .02, show: () => s.points === 'all'},
+      ]],
+      legendSection(s), textSection(),
+    ],
+    spec: (s) => categorySpec(s, 'bar', 'linear'),
+    options: (s, put) => {
+      settle(s);
+      put('estimator', s.estimator); put('errorbar', s.errorbar === 'none' ? null : s.errorbar);
+      if (s.errorbar === 'ci') put('confidence', s.confidence);
+      if (s.errorbar !== 'none') { put('capsize', s.capsize); put('linewidth', s.linewidth); }
+      for (const key of ['orient', 'width', 'alpha', 'edgecolor', 'edgewidth', 'points']) put(key, s[key]);
+      if (s.points === 'all') { put('point_size', s.point_size); put('jitter', s.jitter); }
+    },
+  },
+  box: {
+    name: 'Box', kind: 'box', variable: 'y',
+    initial: () => ({
+      ...common(), x: pick('income_group', groupColumns()), y: pick('gdp_per_capita', numeric()), order: 'data', orient: 'v', scale: 'log',
+      whis: 1.5, width: .8, fill: true, alpha: .75, linewidth: .8, points: 'outliers', point_size: 8, jitter: .12, means: false,
+    }),
+    sections: (s) => [
+      ['Data', [...categoryItems(s), {key: 'scale', label: 'Value scale', type: 'select', options: scales}, ...groupItems(s), {key: 'orient', label: 'Orientation', type: 'select', options: [['v', 'vertical'], ['h', 'horizontal']]}]],
+      ['Marks', [
+        {key: 'whis', label: 'Whisker reach', type: 'range', min: .5, max: 3, step: .25, unit: '× IQR'},
+        {key: 'width', label: 'Box width', type: 'range', min: .2, max: 1, step: .05},
+        {key: 'fill', label: 'Filled', type: 'check'},
+        {key: 'alpha', label: 'Opacity', type: 'range', min: .1, max: 1, step: .05, show: () => s.fill},
+        {key: 'linewidth', label: 'Line width', type: 'range', min: .3, max: 2, step: .1, unit: 'pt'},
+        {key: 'points', label: 'Observations', type: 'select', options: [['outliers', 'beyond the whiskers'], ['all', 'every observation']]},
+        {key: 'point_size', label: 'Point size', type: 'range', min: 2, max: 30, step: 1, unit: 'pt²'},
+        {key: 'jitter', label: 'Spread', type: 'range', min: 0, max: .4, step: .02, show: () => s.points === 'all'},
+        {key: 'means', label: 'Mean marker', type: 'check'},
+        ...colorItems(s),
+      ]],
+      legendSection(s), textSection(),
+    ],
+    spec: (s) => categorySpec(s, 'box', s.scale),
+    options: (s, put) => {
+      for (const key of ['orient', 'whis', 'width', 'fill', 'linewidth', 'points', 'point_size', 'means']) put(key, s[key]);
+      if (s.fill) put('alpha', s.alpha);
+      if (s.points === 'all') put('jitter', s.jitter);
+    },
+  },
+  violin: {
+    name: 'Violin', kind: 'violin', variable: 'y',
+    initial: () => ({
+      ...common(), x: pick('income_group', groupColumns()), y: pick('gdp_per_capita', numeric()), order: 'data', orient: 'v', scale: 'log',
+      bw: 'scott', factor: .5, cut: 0, width: .8, fill: true, alpha: .75, linewidth: .8, inner: 'box', split: false,
+      points: 'none', point_size: 8, jitter: .12,
+    }),
+    sections: (s) => [
+      ['Data', [...categoryItems(s), {key: 'scale', label: 'Value scale', type: 'select', options: scales}, ...groupItems(s), {key: 'orient', label: 'Orientation', type: 'select', options: [['v', 'vertical'], ['h', 'horizontal']]}]],
+      ['Density', [
+        {key: 'bw', label: 'Bandwidth', type: 'select', options: ['scott', 'silverman', ['factor', 'factor']]},
+        {key: 'factor', label: 'Factor', type: 'range', min: .05, max: 2, step: .05, show: () => s.bw === 'factor'},
+        {key: 'cut', label: 'Extend past data', type: 'range', min: 0, max: 3, step: .25, unit: '× bandwidth'},
+      ]],
+      ['Marks', [
+        {key: 'width', label: 'Violin width', type: 'range', min: .2, max: 1, step: .05},
+        {key: 'split', label: 'Split two groups', type: 'check', show: () => s.hue && meta.groups[s.hue].length === 2},
+        {key: 'inner', label: 'Quartiles', type: 'select', options: [['box', 'slim box'], ['quartiles', 'lines'], ['none', 'not marked']]},
+        {key: 'fill', label: 'Filled', type: 'check'},
+        {key: 'alpha', label: 'Opacity', type: 'range', min: .1, max: 1, step: .05, show: () => s.fill},
+        {key: 'linewidth', label: 'Line width', type: 'range', min: .3, max: 2, step: .1, unit: 'pt'},
+        {key: 'points', label: 'Observations', type: 'select', options: [['none', 'not shown'], ['all', 'every observation']]},
+        {key: 'point_size', label: 'Point size', type: 'range', min: 2, max: 30, step: 1, unit: 'pt²', show: () => s.points === 'all'},
+        {key: 'jitter', label: 'Spread', type: 'range', min: 0, max: .4, step: .02, show: () => s.points === 'all'},
+        ...colorItems(s),
+      ]],
+      legendSection(s), textSection(),
+    ],
+    spec: (s) => categorySpec(s, 'violin', s.scale),
+    options: (s, put) => {
+      put('bw_method', s.bw === 'factor' ? s.factor : s.bw);
+      for (const key of ['orient', 'cut', 'width', 'fill', 'linewidth', 'inner', 'points']) put(key, s[key]);
+      if (s.hue && meta.groups[s.hue].length === 2) put('split', s.split);
+      if (s.fill) put('alpha', s.alpha);
+      if (s.points === 'all') { put('point_size', s.point_size); put('jitter', s.jitter); }
+    },
+  },
+};
+const ORDER = ['hist', 'line', 'scat', 'bar', 'box', 'violin', 'grid'];
+
+const initial = () => ({
+  type: 'hist',
+  types: Object.fromEntries(Object.entries(TYPES).map(([key, type]) => [key, type.initial()])),
+  grid: {ncols: 2, labels: 'a', layout: 'double', panels: ['hist', 'scat', 'bar', 'box', 'line', 'violin'].map((type) => ({type, variable: '', title: ''}))},
+  page: {
+    layout: 'single', width_mm: 89, aspect: meta.manifest.paper.aspect, dpi: meta.manifest.paper.dpi,
+    min_fontsize: meta.manifest.paper.min_fontsize, ...meta.manifest.typography, font: undefined, font_path: undefined,
+    axis_linewidth: meta.manifest.axes.linewidth, grid: meta.manifest.axes.grid, spines: [...meta.manifest.axes.spines],
+    tick_direction: meta.manifest.axes.tick_direction, tick_length: meta.manifest.axes.tick_length,
+    paper: 'default', c_paper: '#FFFFFF', c_ink: meta.manifest.colors.ink, c_muted: meta.manifest.colors.muted,
+    c_line: meta.manifest.colors.line, c_primary: meta.manifest.colors.primary, categories: {},
+  },
+});
+
+const pageSections = () => [
+  ['Page', [
+    {key: 'layout', label: 'Layout', type: 'select', options: [['screen', 'screen draft'], ['single', 'single column'], ['double', 'double column']], show: () => state.type !== 'grid'},
+    {key: 'width_mm', label: 'Width', type: 'number', min: 40, max: 260, step: 1, unit: 'mm', show: () => state.type !== 'grid' && state.page.layout !== 'screen'},
+    {key: 'aspect', label: 'Plot aspect', type: 'range', min: .8, max: 2.4, step: .05},
+    {key: 'dpi', label: 'Raster', type: 'select', options: [[300, '300 dpi'], [600, '600 dpi'], [1200, '1200 dpi']]},
+    {key: 'min_fontsize', label: 'Smallest type', type: 'number', min: 7, max: 12, step: .5, unit: 'pt'},
+  ]],
+  ['Type', [
+    {key: 'labelsize', label: 'Axis labels', type: 'number', min: 5, max: 16, step: .5, unit: 'pt'},
+    {key: 'ticksize', label: 'Tick labels', type: 'number', min: 5, max: 16, step: .5, unit: 'pt'},
+    {key: 'legendsize', label: 'Legend', type: 'number', min: 5, max: 16, step: .5, unit: 'pt'},
+    {key: 'titlesize', label: 'Titles', type: 'number', min: 5, max: 20, step: .5, unit: 'pt'},
+    {key: 'fontsize', label: 'Other text', type: 'number', min: 5, max: 16, step: .5, unit: 'pt'},
+  ]],
+  ['Axes', [
+    {key: 'spines', label: 'Spines', type: 'checks', options: ['left', 'bottom', 'right', 'top']},
+    {key: 'axis_linewidth', label: 'Line width', type: 'range', min: .2, max: 1.6, step: .1, unit: 'pt'},
+    {key: 'grid', label: 'Grid', type: 'check'},
+    {key: 'tick_direction', label: 'Ticks', type: 'select', options: ['out', 'in', 'inout']},
+    {key: 'tick_length', label: 'Tick length', type: 'range', min: 0, max: 6, step: .5, unit: 'pt'},
+  ]],
+  ['Colours', [
+    {key: 'paper', label: 'Paper', type: 'select', options: [['default', 'white page; site paper on screen'], ['#FFFFFF', 'white'], ['#F7F7F2', 'Autonomio paper'], ['custom', 'custom']]},
+    {key: 'c_paper', label: 'Custom paper', type: 'color', show: () => state.page.paper === 'custom'},
+    {key: 'c_ink', label: 'Ink', type: 'color'},
+    {key: 'c_muted', label: 'Muted', type: 'color'},
+    {key: 'c_line', label: 'Line', type: 'color'},
+    {key: 'c_primary', label: 'Primary', type: 'color'},
+  ]],
+];
+
+function field(item, target) {
+  const set = (value) => { target[item.key] = value; changed(); };
+  const value = target[item.key];
+  if (item.type === 'select') {
+    const node = el('select');
+    for (const option of item.options) {
+      const [raw, text] = Array.isArray(option) ? option : [option, option];
+      node.append(el('option', {value: String(raw), textContent: String(text).replace(/_/g, ' '), selected: String(raw) === String(value)}));
+    }
+    node.onchange = () => set(typeof value === 'number' ? Number(node.value) : node.value);
+    return [node];
+  }
+  if (item.type === 'check') {
+    const node = el('input', {type: 'checkbox', checked: Boolean(value)});
+    node.onchange = () => set(node.checked);
+    return [node];
+  }
+  if (item.type === 'checks') {
+    return [el('div', {className: 'checks'}, ...item.options.map((name) => {
+      const box = el('input', {type: 'checkbox', checked: value.includes(name)});
+      box.onchange = () => set(item.options.filter((n) => (n === name ? box.checked : value.includes(n))));
+      return el('label', {}, box, name);
+    }))];
+  }
+  if (item.type === 'range') {
+    const out = el('output', {textContent: value});
+    const node = el('input', {type: 'range', min: item.min, max: item.max, step: item.step, value});
+    node.oninput = () => { out.textContent = node.value; target[item.key] = Number(node.value); changed(false); };
+    return [node, out];
+  }
+  if (item.type === 'color') {
+    const text = el('span', {className: 'swatch', textContent: value});
+    const node = el('input', {type: 'color', value});
+    node.oninput = () => { text.textContent = node.value.toUpperCase(); target[item.key] = node.value.toUpperCase(); changed(false); };
+    return [node, text];
+  }
+  const node = el('input', {type: item.type, value: value ?? '', placeholder: item.placeholder || ''});
+  for (const name of ['min', 'max', 'step']) if (item[name] !== undefined) node[name] = item[name];
+  node.oninput = () => { target[item.key] = item.type === 'number' ? Number(node.value) : node.value; changed(false); };
+  return [node];
+}
+
+function block(root, title, items, target) {
+  const box = el('section', {}, el('h3', {textContent: title}));
+  for (const item of items) {
+    if (item.show && !item.show()) continue;
+    const nodes = field(item, target);
+    nodes[0].dataset.key = `${title}/${item.key}`;
+    box.append(el('div', {className: 'row'}, el('label', {textContent: item.label + (item.unit ? ` (${item.unit})` : '')}), el('div', {className: 'field'}, ...nodes)));
+    if (item.hint) box.append(el('p', {className: 'hint', textContent: item.hint}));
+  }
+  root.append(box);
+  return box;
+}
+
+function gridControls(root) {
+  const grid = state.grid;
+  block(root, 'Layout', [
+    {key: 'layout', label: 'Page', type: 'select', options: [['screen', 'screen draft'], ['single', 'single column'], ['double', 'double column']]},
+    {key: 'ncols', label: 'Panels per row', type: 'number', min: 1, max: 4, step: 1},
+    {key: 'labels', label: 'Panel letters', type: 'select', options: [['a', 'a, b, c'], ['A', 'A, B, C'], ['(a)', '(a), (b), (c)'], ['', 'none']]},
+  ], grid);
+  const box = el('section', {}, el('h3', {textContent: 'Panels'}));
+  box.append(el('p', {className: 'hint', textContent: 'Each panel is drawn with the settings of its type’s tab. Choose another variable here to repeat a type; panel titles come from each tab’s Text section.'}));
+  grid.panels.forEach((panel, index) => {
+    const kind = el('select');
+    for (const key of ORDER.slice(0, -1)) kind.append(el('option', {value: key, textContent: TYPES[key].name, selected: key === panel.type}));
+    kind.onchange = () => { panel.type = kind.value; panel.variable = ''; changed(); };
+    const variable = el('select');
+    for (const [raw, text] of [['', 'variable from tab'], ...numeric().map((n) => [n, n])]) variable.append(el('option', {value: raw, textContent: text.replace(/_/g, ' '), selected: raw === panel.variable}));
+    variable.onchange = () => { panel.variable = variable.value; changed(); };
+    const remove = el('button', {className: 'link', textContent: 'Remove'});
+    remove.onclick = () => { grid.panels.splice(index, 1); changed(); };
+    box.append(el('div', {className: 'panel'}, el('span', {textContent: String.fromCharCode(97 + index)}), kind, variable, remove));
+  });
+  const add = el('button', {className: 'link', textContent: 'Add a panel'});
+  add.onclick = () => { grid.panels.push({type: 'hist', variable: '', title: ''}); changed(); };
+  box.append(el('p', {className: 'hint'}, add));
+  root.append(box);
+}
+
+function usedHues() {
+  const types = state.type === 'grid' ? state.grid.panels.map((p) => p.type) : [state.type];
+  return [...new Set(types.map((t) => state.types[t].hue).filter(Boolean))];
+}
+
+// Groups of every column in the figure share one manifest, so each takes its own palette colours.
+function categoryColors(column) {
+  const result = {}, hues = usedHues();
+  const offset = hues.slice(0, Math.max(0, hues.indexOf(column))).reduce((sum, other) => sum + meta.groups[other].length, 0);
+  meta.groups[column].forEach((name, index) => {
+    result[name] = state.page.categories[column + '/' + name] || meta.palette[(offset + index) % meta.palette.length];
+  });
+  return result;
+}
+
+function draw() {
+  const root = $('controls');
+  const focused = document.activeElement && document.activeElement.dataset.key;
+  root.replaceChildren();
+  $('heading').textContent = state.type === 'grid' ? 'Grid' : TYPES[state.type].name;
+  $('tabs').replaceChildren(...ORDER.map((key) => {
+    const tab = el('button', {className: 'link', textContent: key === 'grid' ? 'Grid' : TYPES[key].name});
+    if (key === state.type) tab.setAttribute('aria-current', 'page');
+    tab.onclick = () => { state.type = key; changed(); };
+    return tab;
+  }));
+  if (state.type === 'grid') gridControls(root);
+  else for (const [title, items] of TYPES[state.type].sections(state.types[state.type])) block(root, title, items, state.types[state.type]);
+  for (const [title, items] of pageSections()) {
+    const box = block(root, title, items, state.page);
+    if (title !== 'Colours') continue;
+    for (const column of usedHues()) {
+      box.append(el('p', {className: 'hint', textContent: `Paper figures require an explicit colour for every group of ${column.replace(/_/g, ' ')}.`}));
+      for (const name of meta.groups[column]) {
+        const node = el('input', {type: 'color', value: categoryColors(column)[name]});
+        node.oninput = () => { state.page.categories[column + '/' + name] = node.value.toUpperCase(); changed(false); };
+        box.append(el('div', {className: 'row'}, el('label', {textContent: name}), el('div', {className: 'field'}, node)));
+      }
+    }
+  }
+  if (focused) { const again = root.querySelector(`[data-key="${CSS.escape(focused)}"]`); if (again) again.focus(); }
+}
+
+// One panel's specification from its type's tab; `variable` swaps the measured column.
+function panelSpec(key, variable) {
+  const type = TYPES[key], s = variable ? {...state.types[key], [type.variable]: variable} : state.types[key];
+  const spec = type.spec(s), defaults = meta.defaults[type.kind], options = {};
+  const put = (name, value) => { if (value !== undefined && JSON.stringify(value) !== JSON.stringify(defaults[name])) options[name] = value; };
+  type.options(s, put);
+  put('color', colorOption(s)); put('annotate_n', s.annotate_n); put('legend_loc', s.legend_loc);
+  if (s.hue) { spec.hue = s.hue; const order = sorted(s.hue, s.hue_sort); if (order) spec.hue_order = order; }
+  const labels = {};
+  if (s.xlabel) labels.x = s.xlabel;
+  if (s.ylabel) labels.y = s.ylabel;
+  if (Object.keys(labels).length) spec.labels = labels;
+  if (!s.legend) spec.legend = false;
+  if (s.title) spec.title = s.title;
+  if (Object.keys(options).length) spec.options = options;
+  return {spec, state: s};
+}
+
+function build() {
+  const page = state.page, grid = state.type === 'grid';
+  const layout = grid ? state.grid.layout : page.layout;
+  const custom = !grid && layout !== 'screen' && page.width_mm !== (layout === 'double' ? 178 : 89);
+  let spec;
+  if (grid) {
+    const options = {ncols: state.grid.ncols};
+    if (state.grid.labels !== 'a') options.labels = state.grid.labels || null;
+    spec = {kind: 'panels', panels: state.grid.panels.map((p) => panelSpec(p.type, p.variable).spec)};
+    if (Object.keys(options).length) spec.options = options;
+  } else {
+    const panel = panelSpec(state.type, '');
+    spec = panel.spec;
+    if (panel.state.subtitle) spec.subtitle = panel.state.subtitle;
+    if (panel.state.col) { spec.col = panel.state.col; spec.options = {...spec.options, col_wrap: panel.state.col_wrap}; }
+  }
+  spec.paper = layout === 'screen' ? false : custom ? true : layout;
+  if (meta.key.length) spec.key = meta.key;
+  const used = new Set();
+  for (const part of spec.panels || [spec]) for (const name of [part.x, part.y, part.hue, spec.col]) if (name) used.add(name);
+  for (const name of ['units', 'descriptions']) {
+    const entries = [...used].filter((column) => meta[name][column]).map((column) => [column, meta[name][column]]);
+    if (entries.length) spec[name] = Object.fromEntries(entries);
+  }
+  const base = meta.manifest, manifest = {};
+  const section = (name, values) => {
+    const changedValues = Object.fromEntries(Object.entries(values).filter(([key, value]) => JSON.stringify(value) !== JSON.stringify(base[name][key])));
+    if (Object.keys(changedValues).length) manifest[name] = changedValues;
+  };
+  section('colors', {ink: page.c_ink, muted: page.c_muted, line: page.c_line, primary: page.c_primary});
+  if (page.c_primary !== base.colors.primary) manifest.colors.positive = page.c_primary;
+  if (page.paper !== 'default') manifest.colors = {...manifest.colors, paper: page.paper === 'custom' ? page.c_paper : page.paper};
+  section('typography', {fontsize: page.fontsize, labelsize: page.labelsize, titlesize: page.titlesize, ticksize: page.ticksize, legendsize: page.legendsize});
+  const paper = {aspect: page.aspect, dpi: page.dpi, min_fontsize: page.min_fontsize};
+  if (custom) Object.assign(paper, {preset: layout, width_mm: page.width_mm});
+  section('paper', paper);
+  section('axes', {linewidth: page.axis_linewidth, grid: page.grid, spines: page.spines, tick_direction: page.tick_direction, tick_length: page.tick_length});
+  const categories = Object.assign({}, ...usedHues().map(categoryColors));
+  if (Object.keys(categories).length) manifest.categories = categories;
+  return {spec, manifest: Object.keys(manifest).length ? manifest : null};
+}
+
+const python = (value, depth = 0) => {
+  const pad = '    '.repeat(depth + 1), end = '    '.repeat(depth);
+  if (value === null) return 'None';
+  if (value === true) return 'True';
+  if (value === false) return 'False';
+  if (typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) {
+    if (value.every((v) => typeof v !== 'object' || v === null)) return '[' + value.map((v) => python(v, depth)).join(', ') + ']';
+    return `[\n${value.map((v) => pad + python(v, depth + 1) + ',').join('\n')}\n${end}]`;
+  }
+  const body = Object.entries(value).map(([k, v]) => `${pad}${JSON.stringify(k)}: ${python(v, depth + 1)},`);
+  return body.length ? `{\n${body.join('\n')}\n${end}}` : '{}';
+};
+
+function show(call) {
+  const lines = ['import astetik as ast', '', `spec = ${python(call.spec)}`];
+  if (call.manifest) lines.push(`manifest = ${python(call.manifest)}`);
+  lines.push('', `result = ast.render(data, spec${call.manifest ? ', manifest' : ''})`, 'result.write("figure-1")  # figure.svg, figure.pdf, figure.png, receipt.json');
+  $('call').textContent = lines.join('\n');
+}
+
+async function post(body) {
+  try {
+    const response = await fetch('/api/render', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+    return await response.json();
+  } catch (error) {
+    return {error: {code: 'STUDIO_UNREACHABLE', message: `${error}. The traceback, if any, is in the terminal running scripts/studio.py.`, details: {}}};
+  }
+}
+
+async function render() {
+  const call = build(), mine = ++sequence;
+  show(call);
+  history.replaceState(null, '', '#' + btoa(unescape(encodeURIComponent(JSON.stringify(state)))));
+  $('stage').classList.add('busy');
+  const result = await post({...call, format: 'svg'});
+  if (mine !== sequence) return;
+  $('stage').classList.remove('busy');
+  const problem = $('problem'), status = $('status');
+  if (result.error) {
+    const details = result.error.details || {};
+    const failed = (details.report ? details.report.checks : []).filter((c) => !c.passed).map((c) => `${c.check}: ${JSON.stringify(c.issues || c)}`);
+    problem.replaceChildren(el('b', {textContent: `Refused · ${result.error.code}`}), el('div', {textContent: details.reason || result.error.message}),
+      el('pre', {textContent: failed.length ? failed.join('\n') : details.reason ? '' : JSON.stringify(details, null, 1)}));
+    problem.style.display = 'block';
+    status.className = '';
+    status.textContent = 'Astetik refused this call; the figure above is the last accepted one.';
+    return;
+  }
+  problem.style.display = 'none';
+  currentSvg = result.svg;
+  sizeMm = result.size_mm;
+  $('figure').src = URL.createObjectURL(new Blob([result.svg], {type: 'image/svg+xml'}));
+  scale();
+  const passed = result.checks.filter((c) => c.passed).length;
+  const failed = result.checks.filter((c) => !c.passed).map((c) => c.check.replace(/_/g, ' '));
+  status.className = failed.length ? '' : 'ok';
+  status.textContent = `${passed} of ${result.checks.length} publication checks passed` + (failed.length ? ` (failing: ${failed.join(', ')})` : '') +
+    ` · ${result.observations.used} observations` + (result.bins > 0 ? ` · ${result.bins} bins` : '') + ` · ${sizeMm[0]} × ${sizeMm[1]} mm · ${result.milliseconds} ms`;
+}
+
+function scale() {
+  const figure = $('figure');
+  figure.style.width = zoom === 'print' ? `${sizeMm[0]}mm` : `min(100%, ${Math.round(sizeMm[0] * (sizeMm[0] > 120 ? 5.4 : 8.2))}px)`;
+}
+
+function changed(redraw = true) {
+  if (redraw) draw();
+  clearTimeout(timer);
+  timer = setTimeout(render, 140);
+}
+
+async function download(format) {
+  let href;
+  if (format === 'svg') href = URL.createObjectURL(new Blob([currentSvg], {type: 'image/svg+xml'}));
+  else {
+    const result = await post({...build(), format});
+    if (result.error) return render();
+    href = `data:${result.media_type};base64,${result.file}`;
+  }
+  el('a', {href, download: `${state.type}.${format}`}).click();
+}
+
+// A saved link may predate a control; anything it lacks keeps this version's default.
+function restore(saved) {
+  const fresh = initial();
+  if (!saved || typeof saved !== 'object') return fresh;
+  if (ORDER.includes(saved.type)) fresh.type = saved.type;
+  for (const key of Object.keys(TYPES)) Object.assign(fresh.types[key], (saved.types || {})[key]);
+  Object.assign(fresh.page, saved.page);
+  if (saved.grid && Array.isArray(saved.grid.panels)) Object.assign(fresh.grid, saved.grid, {panels: saved.grid.panels.filter((p) => TYPES[p.type])});
+  for (const [key, type] of Object.entries(TYPES)) {
+    const s = fresh.types[key];
+    for (const name of ['hue', 'col']) if (s[name] && !meta.groups[s[name]]) s[name] = '';
+    for (const name of ['x', 'y']) if (s[name] !== undefined && ![...numeric(), ...groupColumns()].includes(s[name])) s[name] = type.initial()[name];
+  }
+  return fresh;
+}
+
+async function start() {
+  meta = await (await fetch('/api/meta')).json();
+  $('about').textContent = `Astetik ${meta.version} · ${meta.rows} observations`;
+  $('source').textContent = `Data: ${meta.source}. ${meta.note}`;
+  let saved = null;
+  try { if (location.hash.length > 1) saved = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(1))))); }
+  catch (error) { console.warn('Ignored an unreadable link state.', error); }
+  state = restore(saved);
+  document.querySelectorAll('[data-zoom]').forEach((b) => (b.onclick = () => { zoom = b.dataset.zoom; scale(); }));
+  document.querySelectorAll('[data-format]').forEach((b) => (b.onclick = () => download(b.dataset.format)));
+  $('backdrop').onclick = () => { const site = $('stage').classList.toggle('site'); $('backdrop').textContent = site ? 'White page' : 'Site paper'; };
+  $('copy').onclick = () => navigator.clipboard.writeText($('call').textContent);
+  $('share').onclick = () => navigator.clipboard.writeText(location.href);
+  $('reset').onclick = () => { const type = state.type; state = initial(); state.type = type; changed(); };
+  draw();
+  render();
+}
+start();
+</script>
+</body>
+</html>
