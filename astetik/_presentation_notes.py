@@ -70,10 +70,15 @@ def _named(ax: Axes) -> bool:
 
 def _wrap(ax: Axes) -> None:
     positions = np.asarray(ax.get_xticks(), dtype=float)
+    labels = ax.get_xticklabels()
+    if len(labels) != len(positions):
+        # Shared facets show the names on one row only; an axes that hides them has none to wrap,
+        # and writing its empty list back would erase the names every sharing facet shows.
+        return
     pixels = ax.transData.transform(np.column_stack([positions, np.zeros(len(positions))]))[:, 0]
     slot = float(np.diff(pixels).min()) * 0.94
     names: list[str] = []
-    for label in ax.get_xticklabels():
+    for label in labels:
         text, width = label.get_text(), label.get_window_extent().width
         longest = max((len(line) for line in text.split('\n')), default=0)
         if width > slot and longest:
@@ -82,7 +87,8 @@ def _wrap(ax: Axes) -> None:
                 textwrap.fill(line, fit, break_long_words=False) for line in text.split('\n')
             )
         names.append(text)
-    drawing(ax).set_xticks(positions, names)
+    if names != [label.get_text() for label in labels]:
+        drawing(ax).set_xticks(positions, names)
 
 
 def wrap_category_labels(figure: Figure) -> None:

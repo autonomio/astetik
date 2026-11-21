@@ -328,6 +328,7 @@ def test_violin_density_is_estimated_in_the_displayed_scale_with_quartiles_insid
         ('violin', {'options': {'inner': 'stick'}}, 'inner must be one of'),
         ('violin', {'hue': 'income', 'options': {'split': True}}, 'exactly two hue categories'),
         ('box', {'hue': 'income', 'options': {'color': 'ink'}}, 'applies to one series'),
+        ('bar', {'col': 'income', 'options': {'annotate_n': True}}, 'facets share those names'),
     ],
 )
 def test_category_orders_with_no_single_reading_are_refused(country_estimates, kind, fields, reason):

@@ -55,6 +55,11 @@ def category_notes(
         ]
         loc = options.get('legend_loc', 'best')
         place_legend(context.ax, Placement(loc, handles, legend_size(context), False))
+    if annotate and not grouped and context.facet:
+        raise ValueError(
+            "annotate_n writes each category's sample size under its name; facets share those "
+            'names. Declare hue to count the groups in each legend, or compose separate panels.'
+        )
     if annotate and not grouped:
         sizes = {group.category: len(group.rows) for group in members}
         labels = [f'{value}\nn = {count_text(sizes.get(value, 0))}' for value in categories]

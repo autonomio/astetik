@@ -74,7 +74,7 @@ All seven accept `color` for a single series (a manifest role or `#RRGGBB`), `an
 
 A fit is a straight line in the displayed scale: on a logarithmic axis it is fitted to the log10 values, and the receipt records the scale, slope, intercept, r, p-value, and n. A `symlog` axis has no such line, so a fit on one is refused. Its band bounds the mean response at the declared confidence. Category names wider than their slot break between words.
 
-Facets (`row`, `col`) repeat one kind over the levels of a column with shared axes; each axis is labelled once and one legend keys every group. This example composes three kinds from the Natural Earth estimates shipped for the `world` kind:
+Facets (`row`, `col`) repeat one kind over the levels of a column with shared axes; each axis is labelled once and one legend keys every group. Because facets share their category names, `annotate_n` without `hue` is refused there. This example composes three kinds from the Natural Earth estimates shipped for the `world` kind:
 
 ```python
 from importlib.resources import as_file, files

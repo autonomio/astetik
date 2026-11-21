@@ -225,6 +225,9 @@ def test_an_empty_facet_cell_does_not_take_the_axis_labels_of_the_plot_above(cou
     assert lowest.get_xlabel() == 'wealth (USD)'
     assert any(tick.get_visible() and tick.get_text() for tick in lowest.get_xticklabels())
     assert drawn['Low income \N{MIDDLE DOT} Other'].get_xlabel() == ''
+    alone_in_row = drawn['Low income \N{MIDDLE DOT} Other']
+    assert alone_in_row.get_ylabel() == 'Count'
+    assert any(tick.get_visible() and tick.get_text() for tick in alone_in_row.get_yticklabels())
 
 
 def test_end_labels_name_the_lines_of_every_facet(country_estimates):
@@ -236,3 +239,16 @@ def test_end_labels_name_the_lines_of_every_facet(country_estimates):
         {'High income: nonOECD', 'High income: OECD'},
         {'Low income', 'Upper middle income', 'Lower middle income'},
     ]
+
+
+def test_category_names_survive_rows_of_shared_facets(country_estimates):
+    spec = {'kind': 'bar', 'x': 'income', 'y': 'wealth', 'col': 'tier', 'key': ['iso3'],
+            'paper': 'single', 'units': UNITS, 'options': {'estimator': 'median'}}
+    result = ast.render(country_estimates, spec)
+    upper, lower = result.figure.axes
+    assert upper.get_subplotspec().rowspan.start < lower.get_subplotspec().rowspan.start
+    names = [' '.join(tick.get_text().split()) for tick in lower.get_xticklabels()]
+    assert names == list(dict.fromkeys(country_estimates['income']))
+    assert any(chr(10) in tick.get_text() for tick in lower.get_xticklabels())
+    assert not upper.get_xticklabels()
+    assert result.verify()['passed']

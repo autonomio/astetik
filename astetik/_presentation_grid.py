@@ -16,8 +16,9 @@ SHARED = '_astetik_shared_axes'
 BAND = '_astetik_legend_band'
 
 
-class _Shown(TypedDict):
+class _Shown(TypedDict, total=False):
     labelbottom: bool
+    labelleft: bool
 
 
 class _TickLabels(Protocol):
@@ -34,7 +35,7 @@ def plot_axes(figure: Figure) -> list[Axes]:
 
 
 def outer_labels(figure: Figure) -> None:
-    """Panels sharing their axes state each axis once: at the bottom of a column, left of a row."""
+    """State each shared axis once: on the lowest plot of a column, the leftmost of a row."""
     plots = plot_axes(figure)
     if not getattr(figure, SHARED, False) or len(plots) < 2:
         return
@@ -42,16 +43,20 @@ def outer_labels(figure: Figure) -> None:
     for ax, cell in cells.items():
         if cell is None:
             continue
+        others = [other for other in cells.values() if other is not None]
         below = any(
-            other is not None
-            and other.colspan.start == cell.colspan.start
-            and other.rowspan.start > cell.rowspan.start
-            for other in cells.values()
+            other.colspan.start == cell.colspan.start and other.rowspan.start > cell.rowspan.start
+            for other in others
+        )
+        beside = any(
+            other.rowspan.start == cell.rowspan.start and other.colspan.start < cell.colspan.start
+            for other in others
         )
         cast(_TickLabels, ax.xaxis).set_tick_params(labelbottom=not below)
+        cast(_TickLabels, ax.yaxis).set_tick_params(labelleft=not beside)
         if below:
             drawing(ax).set_xlabel('')
-        if cell.colspan.start:
+        if beside:
             drawing(ax).set_ylabel('')
 
 
