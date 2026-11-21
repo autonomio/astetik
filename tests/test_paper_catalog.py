@@ -62,6 +62,7 @@ CATALOGUE_CASES = {
     'animate': {'x': 'x', 'y': 'y', 'options': {'frame': 2, 'plot_type': 'bar'}},
     'table': {'columns': ['x', 'y']},
     'text': {'columns': ['x', 'y']},
+    'panels': {'panels': [{'kind': 'hist', 'x': 'x'}, {'kind': 'regs', 'x': 'x', 'y': 'y'}]},
 }
 for _kind in (
     'swarm',
@@ -147,19 +148,28 @@ def test_paper_facets_share_scales_and_use_manifest_panel_aspect(
     assert len(axes) == 2
     assert axes[0].get_xlim() == axes[1].get_xlim()
     assert axes[0].get_ylim() == axes[1].get_ylim()
-    width, height = publication_manifest.dimensions(True)
+    width, _ = publication_manifest.dimensions(True)
     assert result.figure.get_figwidth() == pytest.approx(width)
-    assert result.figure.get_figheight() == pytest.approx(height * 2)
-    assert axes[0].get_xlabel() == 'x (kg)'
+    for axis in axes:
+        frame = axis.get_window_extent()
+        assert frame.width / frame.height == pytest.approx(
+            publication_manifest.paper['aspect'], rel=0.01
+        )
+    assert [axis.get_xlabel() for axis in axes] == ['', 'x (kg)']
     assert axes[0].get_ylabel() == 'y (kg)'
 
 
 def test_double_column_facets_wrap_at_manifest_columns(publication_data):
     manifest = ast.Manifest(paper={'preset': 'double'})
     result = ast.render(publication_data, _spec('scat', x='x', y='y', col='group'), manifest)
-    width, height = manifest.dimensions(True)
+    width, _ = manifest.dimensions(True)
     assert result.figure.get_figwidth() == pytest.approx(width)
-    assert result.figure.get_figheight() == pytest.approx(height / 2)
+    frames = [axis.get_window_extent() for axis in result.figure.axes]
+    assert frames[0].y0 == pytest.approx(frames[1].y0)
+    assert all(
+        frame.width / frame.height == pytest.approx(manifest.paper['aspect'], rel=0.01)
+        for frame in frames
+    )
     assert result.verify()['passed']
 
 

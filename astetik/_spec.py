@@ -6,6 +6,7 @@ from collections.abc import Mapping
 from typing import NoReturn, cast
 
 from ._errors import AstetikError
+from ._figure_panels import resolve_panels
 from ._spec_json import json_object
 from ._spec_types import PlotSpec
 from ._types import JsonObject, JsonValue
@@ -33,6 +34,8 @@ FIELDS = {
     'analysis',
     'axes',
     'legend',
+    'panels',
+    'hue_order',
 }
 
 
@@ -144,8 +147,6 @@ def resolve(
         result = json_object(cast(object, spec))
     except (TypeError, ValueError) as error:
         fail('SPEC_SCHEMA', 'Specifications contain JSON data only.', reason=str(error))
-    if 'order' in result:
-        _order(result['order'])
     unknown = set(result) - FIELDS
     if unknown:
         fail('SPEC_SCHEMA', 'Unknown specification fields.', fields=sorted(unknown))
@@ -168,6 +169,9 @@ def resolve(
         )
     result['options'] = {**json_object(defaults[kind]), **options}
     _policies(result)
-    _axes(result)
-    _columns(result)
+    for part in (result, *resolve_panels(result, defaults, supported)):
+        _axes(part)
+        _columns(part)
+        _order(part.get('order'))
+        _order(part.get('hue_order'))
     return cast(PlotSpec, result)

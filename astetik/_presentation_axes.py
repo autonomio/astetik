@@ -6,12 +6,13 @@ from collections.abc import Mapping
 from typing import Protocol, Unpack, cast
 
 from matplotlib.axes import Axes
-from matplotlib.ticker import MaxNLocator, ScalarFormatter
+from matplotlib.ticker import ScalarFormatter
 
 from ._manifest import Manifest
 from ._plot_backend import ScaleAxes, disable_grid, drawing
 from ._plot_styles import GridStyle, TickStyle
 from ._presentation_labels import label, value_label
+from ._presentation_ticks import counted, log_ticks, plain_ticks, value_locator
 from ._spec_types import PlotSpec
 
 
@@ -87,26 +88,17 @@ def apply_domains(ax: Axes, spec: PlotSpec, horizontal: bool) -> None:
         axis = ax.xaxis if dimension == 'x' else ax.yaxis
         current = ax.get_xscale() if dimension == 'x' else ax.get_yscale()
         if scale != current:
-            (
-                cast(ScaleAxes, ax).set_xscale
-                if dimension == 'x'
-                else cast(ScaleAxes, ax).set_yscale
-            )(scale)
+            scaled = cast(ScaleAxes, ax)
+            (scaled.set_xscale if dimension == 'x' else scaled.set_yscale)(scale)
+        if scale != 'linear':
+            log_ticks(axis)
         limits = policy.get('limits')
         if limits is not None:
             (ax.set_xlim if dimension == 'x' else ax.set_ylim)(*limits)
         formatter = axis.get_major_formatter()
         if scale == 'linear' and isinstance(formatter, ScalarFormatter):
-            formatter.set_useOffset(False)
-            axis.set_major_locator(
-                MaxNLocator(
-                    nbins=5,
-                    integer=(
-                        kind in {'count', 'multicount'}
-                        and dimension == ('x' if horizontal else 'y')
-                    ),
-                )
-            )
+            plain_ticks(axis)
+            axis.set_major_locator(value_locator(counted(spec, dimension, horizontal)))
     if kind in {'bar', 'bartwo', 'bargrid', 'count', 'multicount', 'hist'}:
         dimension = 'x' if horizontal else 'y'
         if spec.get('axes', {}).get(dimension, {}).get('scale', 'linear') == 'linear':

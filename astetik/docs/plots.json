@@ -23,14 +23,24 @@
     "association": {
       "defaults": {
         "alpha": 0.85,
+        "annotate_n": false,
+        "color": null,
+        "edgecolor": "auto",
+        "edgewidth": 0.3,
         "hue_mode": "auto",
+        "legend_loc": "best",
         "marker": "o",
         "point_size": 18.0
       },
       "options": [
         "alpha",
+        "annotate_n",
         "col_wrap",
+        "color",
+        "edgecolor",
+        "edgewidth",
         "hue_mode",
+        "legend_loc",
         "marker",
         "point_size"
       ],
@@ -39,16 +49,40 @@
     "bar": {
       "defaults": {
         "alpha": 0.85,
+        "annotate_n": false,
+        "capsize": 2.0,
+        "color": null,
+        "confidence": 0.95,
+        "edgecolor": "auto",
+        "edgewidth": 0.0,
         "errorbar": null,
         "estimator": "sum",
-        "orient": "v"
+        "jitter": 0.12,
+        "legend_loc": "best",
+        "linewidth": 0.8,
+        "orient": "v",
+        "point_size": 8.0,
+        "points": "none",
+        "width": 0.8
       },
       "options": [
         "alpha",
+        "annotate_n",
+        "capsize",
         "col_wrap",
+        "color",
+        "confidence",
+        "edgecolor",
+        "edgewidth",
         "errorbar",
         "estimator",
-        "orient"
+        "jitter",
+        "legend_loc",
+        "linewidth",
+        "orient",
+        "point_size",
+        "points",
+        "width"
       ],
       "paper": true
     },
@@ -87,14 +121,32 @@
     "box": {
       "defaults": {
         "alpha": 0.75,
+        "annotate_n": false,
+        "color": null,
+        "fill": true,
+        "jitter": 0.12,
+        "legend_loc": "best",
+        "linewidth": 0.8,
+        "means": false,
         "orient": "v",
+        "point_size": 8.0,
+        "points": "outliers",
         "whis": 1.5,
         "width": 0.8
       },
       "options": [
         "alpha",
+        "annotate_n",
         "col_wrap",
+        "color",
+        "fill",
+        "jitter",
+        "legend_loc",
+        "linewidth",
+        "means",
         "orient",
+        "point_size",
+        "points",
         "whis",
         "width"
       ],
@@ -173,18 +225,52 @@
     "hist": {
       "defaults": {
         "alpha": 0.85,
+        "annotate_n": false,
         "bins": "auto",
+        "binwidth": null,
+        "bw_method": "scott",
+        "color": null,
+        "common_norm": false,
+        "cumulative": false,
         "density": false,
+        "edgecolor": "auto",
+        "edgewidth": 0.4,
+        "element": "bars",
+        "fill": true,
         "kde": false,
-        "orient": "v"
+        "legend_loc": "best",
+        "linewidth": 1.25,
+        "multiple": "layer",
+        "orient": "v",
+        "reference": [],
+        "rug": false,
+        "shrink": 1.0,
+        "stat": "count"
       },
       "options": [
         "alpha",
+        "annotate_n",
         "bins",
+        "binwidth",
+        "bw_method",
         "col_wrap",
+        "color",
+        "common_norm",
+        "cumulative",
         "density",
+        "edgecolor",
+        "edgewidth",
+        "element",
+        "fill",
         "kde",
-        "orient"
+        "legend_loc",
+        "linewidth",
+        "multiple",
+        "orient",
+        "reference",
+        "rug",
+        "shrink",
+        "stat"
       ],
       "paper": true
     },
@@ -211,19 +297,41 @@
     "line": {
       "defaults": {
         "alpha": 1.0,
+        "annotate_n": false,
+        "band_alpha": 0.2,
+        "capsize": 2.0,
+        "color": null,
+        "confidence": 0.95,
+        "dashes": false,
         "drawstyle": "default",
+        "errorbar": null,
+        "estimator": null,
+        "interval": "band",
+        "legend_loc": "best",
         "linestyle": "solid",
         "linewidth": 1.25,
         "marker": null,
+        "markersize": 4.0,
         "sort": true
       },
       "options": [
         "alpha",
+        "annotate_n",
+        "band_alpha",
+        "capsize",
         "col_wrap",
+        "color",
+        "confidence",
+        "dashes",
         "drawstyle",
+        "errorbar",
+        "estimator",
+        "interval",
+        "legend_loc",
         "linestyle",
         "linewidth",
         "marker",
+        "markersize",
         "sort"
       ],
       "paper": true
@@ -231,19 +339,41 @@
     "longitudinal": {
       "defaults": {
         "alpha": 1.0,
+        "annotate_n": false,
+        "band_alpha": 0.2,
+        "capsize": 2.0,
+        "color": null,
+        "confidence": 0.95,
+        "dashes": false,
         "drawstyle": "default",
+        "errorbar": null,
+        "estimator": null,
+        "interval": "band",
+        "legend_loc": "best",
         "linestyle": "solid",
         "linewidth": 1.25,
         "marker": null,
+        "markersize": 4.0,
         "sort": true
       },
       "options": [
         "alpha",
+        "annotate_n",
+        "band_alpha",
+        "capsize",
         "col_wrap",
+        "color",
+        "confidence",
+        "dashes",
         "drawstyle",
+        "errorbar",
+        "estimator",
+        "interval",
+        "legend_loc",
         "linestyle",
         "linewidth",
         "marker",
+        "markersize",
         "sort"
       ],
       "paper": true
@@ -304,6 +434,18 @@
       ],
       "paper": true
     },
+    "panels": {
+      "defaults": {
+        "labels": "a",
+        "ncols": null
+      },
+      "options": [
+        "col_wrap",
+        "labels",
+        "ncols"
+      ],
+      "paper": true
+    },
     "pie": {
       "defaults": {
         "percent": true,
@@ -319,19 +461,37 @@
     "regs": {
       "defaults": {
         "alpha": 0.8,
+        "annotate_fit": false,
+        "annotate_n": false,
+        "band": true,
+        "color": null,
+        "confidence": 0.95,
         "draw_scatter": true,
+        "edgecolor": "auto",
+        "edgewidth": 0.3,
+        "fit_groups": false,
         "fit_reg": true,
         "hue_mode": "auto",
+        "legend_loc": "best",
         "linewidth": 1.25,
         "marker": "o",
         "point_size": 18.0
       },
       "options": [
         "alpha",
+        "annotate_fit",
+        "annotate_n",
+        "band",
         "col_wrap",
+        "color",
+        "confidence",
         "draw_scatter",
+        "edgecolor",
+        "edgewidth",
+        "fit_groups",
         "fit_reg",
         "hue_mode",
+        "legend_loc",
         "linewidth",
         "marker",
         "point_size"
@@ -353,14 +513,24 @@
     "scat": {
       "defaults": {
         "alpha": 0.85,
+        "annotate_n": false,
+        "color": null,
+        "edgecolor": "auto",
+        "edgewidth": 0.3,
         "hue_mode": "auto",
+        "legend_loc": "best",
         "marker": "o",
         "point_size": 18.0
       },
       "options": [
         "alpha",
+        "annotate_n",
         "col_wrap",
+        "color",
+        "edgecolor",
+        "edgewidth",
         "hue_mode",
+        "legend_loc",
         "marker",
         "point_size"
       ],
@@ -423,14 +593,24 @@
     "twod": {
       "defaults": {
         "alpha": 0.85,
+        "annotate_n": false,
+        "color": null,
+        "edgecolor": "auto",
+        "edgewidth": 0.3,
         "hue_mode": "auto",
+        "legend_loc": "best",
         "marker": "o",
         "point_size": 18.0
       },
       "options": [
         "alpha",
+        "annotate_n",
         "col_wrap",
+        "color",
+        "edgecolor",
+        "edgewidth",
         "hue_mode",
+        "legend_loc",
         "marker",
         "point_size"
       ],
@@ -439,20 +619,38 @@
     "violin": {
       "defaults": {
         "alpha": 0.75,
+        "annotate_n": false,
         "bw_method": "scott",
+        "color": null,
         "cut": 0.0,
+        "fill": true,
         "gridsize": 128,
+        "inner": "box",
+        "jitter": 0.12,
+        "legend_loc": "best",
+        "linewidth": 0.8,
         "orient": "v",
+        "point_size": 8.0,
+        "points": "none",
         "split": false,
         "width": 0.8
       },
       "options": [
         "alpha",
+        "annotate_n",
         "bw_method",
         "col_wrap",
+        "color",
         "cut",
+        "fill",
         "gridsize",
+        "inner",
+        "jitter",
+        "legend_loc",
+        "linewidth",
         "orient",
+        "point_size",
+        "points",
         "split",
         "width"
       ],
@@ -477,6 +675,7 @@
     "columns",
     "descriptions",
     "hue",
+    "hue_order",
     "key",
     "kind",
     "labels",
@@ -485,6 +684,7 @@
     "missing_reason",
     "options",
     "order",
+    "panels",
     "paper",
     "row",
     "schema_version",

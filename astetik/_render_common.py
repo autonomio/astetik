@@ -16,6 +16,7 @@ from numpy.typing import NDArray
 from ._colors import ColorSystem
 from ._manifest import Manifest
 from ._plot_backend import FileFontProperties, SharingAxes, disable_grid, drawing
+from ._presentation_ticks import value_locator
 from ._render_context import ColorMapping, RendererSpec, RowArray
 from ._render_scalar import scalar
 from ._types import FloatArray, JsonScalar
@@ -61,12 +62,12 @@ def color_mapping(manifest: Manifest, labels: Iterable[object], paper: bool) -> 
 
 
 def groups(
-    data: pd.DataFrame, rows: RowArray, hue: str | None
+    data: pd.DataFrame, rows: RowArray, hue: str | None, order: Iterable[JsonScalar] = ()
 ) -> list[tuple[JsonScalar, RowArray]]:
     if hue is None:
         return [(None, rows)]
     result: list[tuple[JsonScalar, RowArray]] = []
-    for label in levels(data[hue]):
+    for label in list(order) or levels(data[hue]):
         positions = rows[equal(data.iloc[rows][hue], label)]
         if len(positions):
             result.append((label, positions))
@@ -86,6 +87,9 @@ def zero_baseline(ax: Axes, horizontal: bool, values: Iterable[float]) -> None:
     low, high = min([0.0, *resolved]), max([0.0, *resolved])
     if low == high:
         low, high = 0.0, 1.0
+    # The value axis ends on labelled ticks that enclose every bar and interval.
+    ticks = value_locator().tick_values(low, high)
+    low, high = float(ticks[0]), float(ticks[-1])
     if horizontal:
         ax.set_xlim(low, high)
         disable_grid(ax.yaxis)

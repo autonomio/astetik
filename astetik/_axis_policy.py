@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import cast
 
 import numpy as np
 import pandas as pd
-from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 from pandas.api.types import is_numeric_dtype
 
 from ._measurements import y_fields
@@ -121,13 +122,13 @@ def validate(data: pd.DataFrame, spec: PlotSpec) -> None:
             )
 
 
-def validate_rendered(figure: Figure, spec: PlotSpec) -> None:
+def validate_rendered(axes: Sequence[Axes], spec: PlotSpec) -> None:
     """Include computed intervals, fitted values, density support and baselines."""
     for dimension, policy in spec.get('axes', {}).items():
         limits = policy.get('limits')
         if limits is None and policy.get('scale') != 'log':
             continue
-        for axis in figure.axes:
+        for axis in axes:
             if not axis.get_visible() or hasattr(axis, '_colorbar'):
                 continue
             bounds = cast(

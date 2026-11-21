@@ -4,32 +4,43 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 
+from ._category_notes import AGGREGATES, category_notes
+from ._mark_colors import resolve_color
 from ._plot_backend import draw_canvas, drawing
+from ._render_bars import aggregate
 from ._render_category_types import CategoryGroup
 from ._render_common import (
     category_axes,
     equal,
     figure_for,
     finalize_font,
-    legend,
     levels,
     numerical,
     scalar,
     zero_baseline,
 )
 from ._render_context import RenderContext
-from ._render_groups import aggregate, observations
-from ._render_shapes import box, violin
+from ._render_groups import observations
+from ._render_shapes import box
+from ._render_violin import violin
 from ._types import JsonScalar
 
-_AGGREGATES = ('count', 'multicount', 'bar', 'bartwo', 'bargrid')
+
+def _base_color(context: RenderContext) -> str:
+    """One declared colour restyles ungrouped marks; groups keep their manifest bindings."""
+    color = context.options.get('color')
+    if color is None:
+        return context.colors.primary
+    if context.spec.get('hue'):
+        raise ValueError('color applies to one series; bind groups in manifest.categories.')
+    return resolve_color(context.spec['_manifest'], color, 'color')
 
 
 def _groups(context: RenderContext, categories: list[JsonScalar]) -> Iterator[CategoryGroup]:
     spec, data, options = context.spec, context.data, context.options
     category, hue = context.column('x'), spec.get('hue')
-    hlevels = levels(data[hue]) if hue else [None]
-    width = options.get('width', 0.8) / len(hlevels)
+    hlevels = list(spec['_hue_colors']) if hue else [None]
+    width, base = options.get('width', 0.8) / len(hlevels), _base_color(context)
     for ci, cat in enumerate(categories):
         cr = context.rows[equal(data.iloc[context.rows][category], cat)]
         for hi, label in enumerate(hlevels):
@@ -50,7 +61,7 @@ def _groups(context: RenderContext, categories: list[JsonScalar]) -> Iterator[Ca
                 numbers,
                 ci + (hi - (len(hlevels) - 1) / 2) * width,
                 width,
-                spec['_hue_colors'].get(label, context.colors.primary),
+                spec['_hue_colors'].get(label, base),
                 options.get('orient', 'v') == 'h',
                 ci,
                 hi,
@@ -79,25 +90,19 @@ def categorical(context: RenderContext) -> None:
     if context.kind == 'swarm':
         _prepare_swarm(context)
     baseline: list[float] = []
-    for group in _groups(context, categories):
-        if context.kind in _AGGREGATES:
+    members = list(_groups(context, categories))
+    for group in members:
+        if context.kind in AGGREGATES:
             baseline.extend(aggregate(group))
         else:
             {'box': box, 'violin': violin}.get(context.kind, observations)(group)
     category_axes(context.ax, categories, horizontal)
-    if baseline:
-        zero_baseline(context.ax, horizontal, baseline)
-    elif context.kind in _AGGREGATES:
-        zero_baseline(context.ax, horizontal, [0.0])
-    value = context.spec.get('y')
-    x_label, y_label = (
-        (str(value) if value else 'Count', category)
-        if horizontal
-        else (category, str(value) if value else 'Count')
-    )
-    drawing(context.ax).set_xlabel(x_label)
-    drawing(context.ax).set_ylabel(y_label)
-    legend(context.ax, context.spec, context.spec['_hue_colors'])
+    if context.kind in AGGREGATES:
+        zero_baseline(context.ax, horizontal, baseline or [0.0])
+    measure = str(context.spec.get('y') or 'Count')
+    drawing(context.ax).set_xlabel(measure if horizontal else category)
+    drawing(context.ax).set_ylabel(category if horizontal else measure)
+    category_notes(context, members, categories)
     context.rec.methods['categorical'] = dict(
         order=[scalar(v) for v in categories], orient=context.options.get('orient', 'v')
     )

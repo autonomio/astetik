@@ -51,7 +51,7 @@ def kde(context: RenderContext) -> None:
     x, hue = context.column('x'), context.spec.get('hue')
     options, colors, rec = context.options, context.colors, context.rec
     mapping = context.spec['_hue_colors']
-    for label, rows in groups(context.data, context.rows, hue):
+    for label, rows in groups(context.data, context.rows, hue, context.spec['_hue_colors']):
         values = numerical(context.data.iloc[rows][x], x)
         support, density, bandwidth = calculate_density(values, options, x)
         color = mapping.get(label, colors.primary)

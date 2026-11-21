@@ -14,7 +14,9 @@ from numpy.typing import NDArray
 from scipy.stats import gaussian_kde
 
 from ._colors import ColorSystem
+from ._histogram_options import HistogramOptions
 from ._manifest import Manifest
+from ._mark_options import MarkOptions
 from ._types import FloatArray, JsonObject, JsonScalar
 
 RowArray: TypeAlias = NDArray[np.intp]
@@ -23,17 +25,10 @@ Facet: TypeAlias = dict[str, JsonScalar]
 FacetPlan: TypeAlias = list[tuple[int, RowArray, Facet]]
 
 
-class RendererOptions(TypedDict, total=False):
+class RendererOptions(HistogramOptions, MarkOptions, total=False):
     method: Literal['pearson', 'spearman', 'kendall']
     annot: bool
     mask: bool
-    bins: (
-        int
-        | Literal['auto', 'fd', 'doane', 'scott', 'stone', 'rice', 'sturges', 'sqrt']
-        | list[float]
-    )
-    density: bool
-    kde: bool
     alpha: float
     orient: Literal['v', 'h']
     bw_method: Literal['scott', 'silverman'] | float
@@ -57,8 +52,8 @@ class RendererOptions(TypedDict, total=False):
     jitter: float
     whis: float
     split: bool
-    estimator: Literal['mean', 'median', 'sum']
-    errorbar: Literal['sd', 'se'] | None
+    estimator: Literal['mean', 'median', 'sum'] | None
+    errorbar: Literal['sd', 'se', 'ci', 'iqr'] | None
     log: bool
     fit_reg: bool
     draw_scatter: bool
@@ -83,10 +78,13 @@ class RendererSpec(TypedDict):
     col: NotRequired[str | None]
     columns: NotRequired[list[str] | None]
     order: NotRequired[list[JsonScalar] | None]
+    hue_order: NotRequired[list[JsonScalar] | None]
     options: NotRequired[RendererOptions]
     key: NotRequired[list[str]]
     legend: NotRequired[bool]
     label_col: NotRequired[str | None]
+    panels: NotRequired[list[Mapping[str, object]]]
+    axes: NotRequired[Mapping[str, Mapping[str, object]]]
     _manifest: Manifest
     _paper: bool
     _hue_colors: ColorMapping
@@ -103,6 +101,7 @@ class Recorder:
             'source_rows': 'zero-based input positions',
         }
     )
+    panel: Facet = field(default_factory=lambda: dict[str, JsonScalar]())
 
     def mark(
         self,
@@ -114,6 +113,7 @@ class Recorder:
     ) -> JsonObject:
         from ._render_scalar import scalar
 
+        facet = facet or self.panel
         item: JsonObject = {
             'id': f'm{len(self.marks):06d}',
             'kind': kind,
@@ -163,6 +163,7 @@ class RenderContext:
     facet: Facet
     kind: str
     analysis: JsonObject | None = None
+    lead: bool = True
 
     def column(self, axis: Literal['x', 'y']) -> str:
         value = self.spec.get(axis)

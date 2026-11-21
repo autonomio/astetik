@@ -13,11 +13,13 @@ from ._axis_policy import validate as validate_axes
 from ._axis_policy import validate_rendered
 from ._data import Normalized, normalize
 from ._errors import AstetikError
+from ._figure_panels import panel_axes, views
 from ._manifest import Manifest
 from ._measurements import validate as validate_measurements
 from ._observation import Observations, marks_from, prepare, remap
 from ._poster import render_poster
 from ._presentation import finish
+from ._presentation_grid import BAND
 from ._render_context import Rendered
 from ._renderers import render_plot
 from ._result import EvidenceResult
@@ -35,24 +37,26 @@ def design_from(value: object, paper: object) -> Manifest:
     if value is None:
         manifest = Manifest()
     elif isinstance(value, Manifest):
-        manifest = Manifest.from_dict(value.to_dict(), font_source=value.font_info)
+        manifest = value
     elif isinstance(value, dict):
         manifest = Manifest.from_dict(cast(object, value))
     elif isinstance(value, (str, Path)):
         manifest = Manifest.load(value)
     else:
         fail('MANIFEST_TYPE', 'Use a Manifest, document, or local manifest path.')
+    if not isinstance(paper, (bool, str)) or paper not in {True, False, 'single', 'double'}:
+        fail('PAPER_PRESET', 'paper must be a boolean or single/double preset.')
+    document, changed = manifest.to_dict(), isinstance(value, Manifest)
     if isinstance(paper, str):
-        if paper not in {'single', 'double'}:
-            fail('PAPER_PRESET', 'paper must be a boolean or single/double preset.')
-        document = manifest.to_dict()
         document['paper'].update(
             preset=cast(Literal['single', 'double'], paper),
             width_mm=89 if paper == 'single' else 178,
         )
+    if paper and not manifest.page_declared:
+        # A paper figure sits on a white page unless the manifest declares its own.
+        document['colors']['paper'] = '#FFFFFF'
+    if changed or (paper and (isinstance(paper, str) or not manifest.page_declared)):
         manifest = Manifest.from_dict(document, font_source=manifest.font_info)
-    elif not isinstance(paper, bool):
-        fail('PAPER_PRESET', 'paper must be a boolean or single/double preset.')
     return manifest
 
 
@@ -67,10 +71,14 @@ def _render(
                 rendered = render_poster(frame, spec, design, bool(spec['paper']))
             else:
                 rendered = render_plot(frame, spec, design, bool(spec['paper']), analysis=analysis)
-            validate_rendered(rendered.figure, spec)
+            for view, axes in panel_axes(rendered.figure, spec):
+                validate_rendered(axes, view)
             finish(
                 rendered.figure, spec, design, spec.get('units', {}), spec.get('descriptions', {})
             )
+            band = float(getattr(rendered.figure, BAND, 0.0))
+            if band:
+                rendered.methods['legend_band_mm'] = round(band * 25.4, 4)
         except AstetikError:
             raise
         except (ValueError, TypeError) as error:
@@ -174,8 +182,9 @@ def compile_normalized(
         fail('MANIFEST_CONTRACT', 'The design manifest is invalid.', reason=str(error))
     spec['paper'] = bool(spec['paper'])
     observations = prepare(normalized, spec, inherited_key=inherited_key)
-    validate_measurements(observations, spec, design)
-    validate_axes(observations.frame, spec)
+    for view in views(spec):
+        validate_measurements(observations, view, design)
+        validate_axes(observations.frame, view)
     analysis = cast(JsonObject | None, analyze(observations.frame, spec))
     rendered = _render(observations.frame, spec, design, analysis)
     receipt = _receipt(normalized, observations, spec, rendered, analysis)

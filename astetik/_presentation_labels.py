@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
+from ._histogram_options import stat_label
 from ._spec_types import PlotSpec
 
 _HORIZONTAL = {
@@ -48,7 +49,7 @@ def axis_labels(
     if kind in {'count', 'multicount'}:
         y = labels.get('y', 'Count')
     elif kind == 'hist':
-        y = labels.get('y', density_label(spec, units) if options.get('density') else 'Count')
+        y = labels.get('y', stat_label(options, density_label(spec, units)))
     elif kind in {'kde', 'multikde'} and not spec.get('y'):
         y = labels.get(
             'y',

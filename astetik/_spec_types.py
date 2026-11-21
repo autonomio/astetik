@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Literal, NotRequired, TypedDict
 
 from ._render_context import RendererOptions
-from ._types import JsonScalar
+from ._types import JsonObject, JsonScalar
 
 PaperChoice = bool | Literal['single', 'double']
 Dimension = Literal['x', 'y']
@@ -47,9 +47,11 @@ class PlotSpec(TypedDict):
     col: NotRequired[str | None]
     columns: NotRequired[list[str] | None]
     order: NotRequired[list[JsonScalar] | None]
+    hue_order: NotRequired[list[JsonScalar] | None]
     units: NotRequired[dict[str, str]]
     descriptions: NotRequired[dict[str, str]]
     labels: NotRequired[dict[Dimension, str]]
     axes: NotRequired[dict[Dimension, AxisPolicy]]
     analysis: NotRequired[AnalysisPlan | None]
     missing_reason: NotRequired[str | None]
+    panels: NotRequired[list[JsonObject]]

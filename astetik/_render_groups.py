@@ -4,64 +4,33 @@ from __future__ import annotations
 
 import numpy as np
 
+from ._mark_backend import marks
 from ._plot_backend import drawing
 from ._render_category_types import CategoryGroup
 from ._render_positions import SwarmLayout, swarm_offsets, van_der_corput
 
 
-def aggregate(group: CategoryGroup) -> list[float]:
-    context = group.context
-    options, rec = context.options, context.rec
-    if group.values is None:
-        estimate, error = float(len(group.rows)), None
-        computation = 'row count'
-    else:
-        estimator, err = options.get('estimator', 'mean'), options.get('errorbar')
-        estimate = float(
-            {'mean': np.mean, 'median': np.median, 'sum': np.sum}[estimator](group.values)
-        )
-        if err and len(group.values) < 2:
-            raise ValueError('SD/SE error bars require at least two observations per group.')
-        error = (
-            float(np.std(group.values, ddof=1) / (np.sqrt(len(group.values)) if err == 'se' else 1))
-            if err
-            else None
-        )
-        computation = f'{estimator}; errorbar={err}; ddof=1'
-    if group.horizontal:
-        drawing(context.ax).barh(
-            group.position,
-            estimate,
-            height=group.width * 0.88,
-            xerr=error,
-            color=group.color,
-            alpha=options.get('alpha', 0.85),
-            linewidth=0,
-        )
-    else:
-        drawing(context.ax).bar(
-            group.position,
-            estimate,
-            width=group.width * 0.88,
-            yerr=error,
-            color=group.color,
-            alpha=options.get('alpha', 0.85),
-            linewidth=0,
-        )
-    rec.mark(
-        'aggregate',
-        dict(
-            category=group.category,
-            series=group.label,
-            estimate=estimate,
-            n=len(group.rows),
-            error=error,
-        ),
-        group.rows,
-        computation,
-        context.facet,
+def overlay(group: CategoryGroup, color: str) -> list[float]:
+    """Show every observation over its summary mark, spread by a deterministic jitter."""
+    context, values = group.context, group.numbers
+    options = context.options
+    reach = options.get('jitter', 0.12) * group.width * 2
+    offsets = np.asarray([van_der_corput(i + 1) - 0.5 for i in range(len(values))]) * reach
+    positions = group.position + offsets
+    x, y = (values, positions) if group.horizontal else (positions, values)
+    marks(context.ax).scatter(
+        x, y, color=color, s=options.get('point_size', 8.0), alpha=0.6,
+        edgecolors=context.spec['_manifest'].colors['paper'], linewidths=0.3, zorder=3.0,
     )
-    return [estimate] if error is None else [estimate - error, estimate + error]
+    for row, value, offset in zip(group.rows, values, offsets):
+        context.rec.mark(
+            'observation',
+            dict(category=group.category, series=group.label, value=value, display_offset=offset),
+            [int(row)],
+            'identity; deterministic van der Corput categorical jitter',
+            context.facet,
+        )
+    return [float(values.min()), float(values.max())]
 
 
 def observations(group: CategoryGroup) -> None:

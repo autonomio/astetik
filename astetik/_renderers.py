@@ -5,26 +5,38 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import cast
 
+import numpy as np
 import pandas as pd
+from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 
-from ._analysis_groups import validate_order as validate_comparison_order
 from ._colors import ColorSystem
 from ._manifest import Manifest
 from ._plot_backend import drawing, scoped_rc
+from ._presentation_grid import SHARED
+from ._presentation_headings import heading
 from ._render_categorical import categorical
 from ._render_common import color_mapping, finalize_font, levels, numerical, scalar
 from ._render_comparison import comparison
-from ._render_context import Recorder, RenderContext, Rendered, RendererOptions, RendererSpec
+from ._render_context import (
+    Recorder,
+    RenderContext,
+    Rendered,
+    RendererOptions,
+    RendererSpec,
+)
 from ._render_correlation import corr
 from ._render_density import kde, prepare_kde2d
+from ._render_fields import validate_fields
+from ._render_figure import compose
 from ._render_histogram import hist
 from ._render_layout import facet_plan, figure_dimensions
+from ._render_line import line
 from ._render_options import DEFAULT_OPTIONS, KINDS, SUPPORTED_OPTIONS, validate_options
 from ._render_panels import compare_panels, overlap
+from ._render_scatter import numeric_hue, scatter
 from ._render_sectors import pie, roc
-from ._render_series import line, numeric_hue, scatter
 from ._render_world import world
 from ._spec_types import PlotSpec
 from ._types import JsonObject
@@ -45,32 +57,14 @@ def _event(context: RenderContext) -> None:
         )
 
 
-def _scatter_panel(context: RenderContext) -> None:
-    scatter(context)
-    if context.kind == 'regs' and not context.options.get('draw_scatter', True):
-        for collection in list(context.ax.collections):
-            collection.remove()
-
-
+_CATEGORICAL = (
+    'count', 'multicount', 'bar', 'bartwo', 'bargrid', 'box', 'violin', 'strip', 'swarm', 'grid'
+)
 _HANDLERS: dict[str, Callable[[RenderContext], None]] = {
-    **dict.fromkeys(('scat', 'twod', 'regs', 'association'), _scatter_panel),
+    **dict.fromkeys(('scat', 'twod', 'regs', 'association'), scatter),
     **dict.fromkeys(('line', 'longitudinal'), line),
     **dict.fromkeys(('kde', 'multikde'), kde),
-    **dict.fromkeys(
-        (
-            'count',
-            'multicount',
-            'bar',
-            'bartwo',
-            'bargrid',
-            'box',
-            'violin',
-            'strip',
-            'swarm',
-            'grid',
-        ),
-        categorical,
-    ),
+    **dict.fromkeys(_CATEGORICAL, categorical),
     'hist': hist,
     'corr': corr,
     'pie': pie,
@@ -80,62 +74,6 @@ _HANDLERS: dict[str, Callable[[RenderContext], None]] = {
     'oned': _event,
     'comparison': comparison,
 }
-
-
-def _validate_fields(data: pd.DataFrame, spec: RendererSpec, options: RendererOptions) -> None:
-    kind = spec['kind']
-    incompatible = {
-        'hue': {'corr', 'pie', 'world', 'roc', 'oned'},
-        'y': {'corr', 'hist', 'count', 'multicount', 'oned'},
-    }
-    for field, kinds in incompatible.items():
-        if spec.get(field) is not None and kind in kinds:
-            raise ValueError(f'{field} is unsupported for {kind}.')
-    if spec.get('columns') is not None and kind != 'corr':
-        raise ValueError(f'columns is unsupported for {kind}; declare x and y.')
-    if options.get('col_wrap') and not spec.get('col'):
-        raise ValueError('col_wrap requires a col facet.')
-    if kind == 'regs' and not options.get('draw_scatter', True) and spec.get('hue'):
-        raise ValueError('A hue encoding requires displayed observations in regs.')
-    if kind in ('compare', 'comparison') and (spec.get('row') or spec.get('col')):
-        raise ValueError(f'{kind} does not support additional facets.')
-    _validate_order(data, spec)
-
-
-def _validate_order(data: pd.DataFrame, spec: RendererSpec) -> None:
-    order = spec.get('order')
-    if order is None:
-        return
-    kind = spec['kind']
-    ordered = {
-        'count',
-        'multicount',
-        'bar',
-        'bartwo',
-        'bargrid',
-        'box',
-        'violin',
-        'strip',
-        'swarm',
-        'grid',
-        'pie',
-        'comparison',
-        'compare',
-        'overlap',
-    }
-    if kind not in ordered:
-        raise ValueError(f'Category order does not apply to {kind}.')
-    category = (
-        (spec.get('label_col') or spec.get('hue'))
-        if kind in ('compare', 'overlap')
-        else spec.get('x')
-    )
-    if kind == 'comparison' and isinstance(category, str):
-        validate_comparison_order(data[category], order)
-    elif len(order) != len(set(order)):
-        raise ValueError('order must list distinct category labels.')
-    elif not isinstance(category, str) or set(order) != set(levels(data[category])):
-        raise ValueError('order must include every observed category exactly once.')
 
 
 def _prepare_spec(
@@ -148,10 +86,26 @@ def _prepare_spec(
     spec['_hue_colors'] = (
         color_mapping(manifest, levels(data[hue]), spec['_paper']) if hue and not continuous else {}
     )
+    order = spec.get('hue_order')
+    if order is not None:
+        if not spec['_hue_colors']:
+            raise ValueError('hue_order applies to categorical hue groups.')
+        spec['_hue_colors'] = {label: spec['_hue_colors'][label] for label in order}
     if spec['_hue_colors']:
         rec.methods['category_colours'] = {str(k): v for k, v in spec['_hue_colors'].items()}
     if kind == 'multikde' and not spec.get('row') and (spec.get('label_col') or hue):
         spec['row'] = spec.get('label_col') or hue
+
+
+def _draw_panel(data: pd.DataFrame, view: RendererSpec, ax: Axes, rec: Recorder) -> None:
+    """Draw one complete specification on one axes of a composed figure."""
+    kind = view['kind']
+    options = validate_options(kind, cast(JsonObject, view.get('options', {})))
+    validate_fields(data, view, options)
+    rec.methods['options'] = scalar(options)
+    _prepare_spec(data, view, options, rec)
+    colors, rows = ColorSystem(view['_manifest']), np.arange(len(data))
+    _HANDLERS[kind](RenderContext(ax, data, rows, view, options, colors, rec, {}, kind))
 
 
 def render_plot(
@@ -170,16 +124,19 @@ def render_plot(
     data = data.reset_index(drop=True)
     if data.empty:
         raise ValueError('Rendering requires at least one observation.')
-    _validate_fields(data, resolved, options)
+    validate_fields(data, resolved, options)
     rec = Recorder()
     rec.methods['options'] = scalar(options)
     if analysis and kind in ('association', 'longitudinal'):
         rec.methods['analysis'] = analysis.get('methods', {})
     with scoped_rc(manifest.rc(paper)):
-        _prepare_spec(data, resolved, options, rec)
-        if kind == 'compare':
+        if kind == 'panels':
+            figure = compose(data, resolved, options, rec, _draw_panel)
+        elif kind == 'compare':
+            _prepare_spec(data, resolved, options, rec)
             figure = compare_panels(data, resolved, manifest, paper, options, rec)
         else:
+            _prepare_spec(data, resolved, options, rec)
             figure = _render_facets(data, resolved, options, rec, analysis)
         finalize_font(figure, manifest)
         return Rendered(figure, rec.table(), rec.marks, rec.methods)
@@ -200,21 +157,24 @@ def _render_facets(
     FigureCanvasAgg(figure)
     setattr(figure, '_astetik_font_size', manifest.rc(paper).get('font.size', 9))
     axes = figure.subplots(nrows, ncols, squeeze=False, sharex=True, sharey=True)
+    setattr(figure, SHARED, True)
     active: set[int] = set()
+    colors = ColorSystem(manifest)
     for slot, rows, facet in facets:
         ax = axes.flat[slot]
-        active.add(slot)
         if not len(rows):
+            active.add(slot)
             ax.text(0.5, 0.5, 'No observations', transform=ax.transAxes, ha='center', va='center')
             ax.set_axis_off()
             continue
         if facet:
-            ax.set_title(' · '.join(f'{k}: {v}' for k, v in facet.items()), loc='left')
+            heading(ax, ' \N{MIDDLE DOT} '.join(str(value) for value in facet.values()))
         _HANDLERS[kind](
             RenderContext(
-                ax, data, rows, spec, options, ColorSystem(manifest), rec, facet, kind, analysis
+                ax, data, rows, spec, options, colors, rec, facet, kind, analysis, not active
             )
         )
+        active.add(slot)
     for slot, ax in enumerate(axes.flat):
         if slot not in active:
             ax.set_visible(False)
