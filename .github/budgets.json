@@ -270,8 +270,8 @@
     "governance/coverage_evidence.py": 54
   },
   "coverage": {
-    "line": 87,
-    "branch": 79
+    "line": 90,
+    "branch": 83
   },
   "runtime": {
     "max_total_seconds": 350,
