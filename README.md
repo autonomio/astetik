@@ -48,7 +48,7 @@ the declared rendering workflow.
 
 ## Capabilities
 
-The [plot catalogue](https://github.com/autonomio/astetik/blob/master/docs/Reference/Plot-Catalogue.md) covers **30 kinds**, each with
+The [plot catalogue](https://github.com/autonomio/astetik/blob/master/docs/Reference/Plot-Catalogue.md) covers **31 kinds**, each with
 a paper path, including animation posters and table/text evidence.
 
 | Research task | Supported capability |

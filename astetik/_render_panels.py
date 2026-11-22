@@ -52,7 +52,7 @@ def overlap(context: RenderContext) -> None:
             continue
         for j, column in enumerate(columns):
             values = numerical(data.iloc[r][column], column)
-            v = float(getattr(np, options.get('estimator', 'mean'))(values))
+            v = float(getattr(np, options.get('estimator') or 'mean')(values))
             (
                 drawing(ax).barh(
                     ci,
@@ -75,7 +75,7 @@ def overlap(context: RenderContext) -> None:
                 'aggregate',
                 dict(category=cat, series=column, estimate=v, n=len(r)),
                 r,
-                options.get('estimator', 'mean'),
+                options.get('estimator') or 'mean',
                 facet,
             )
     category_axes(ax, categories, horizontal)

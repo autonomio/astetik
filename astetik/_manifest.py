@@ -53,6 +53,7 @@ class Manifest:
     paper: Paper
     axes: Axes
     _font_info: FontInfo = field(repr=False, compare=False)
+    page_declared: bool = field(repr=False, compare=False)
 
     def __init__(self, schema_version: str = _SCHEMA_VERSION,
                  *positional: Mapping[str, object], font_source: FontSource | None = None, **sections: Unpack[ManifestSections]) -> None:
@@ -65,6 +66,7 @@ class Manifest:
         paper = paper_section(supplied.get('paper', {}))
         axes = axes_section(supplied.get('axes', {}))
         object.__setattr__(self, 'schema_version', schema_version)
+        object.__setattr__(self, 'page_declared', 'paper' in supplied.get('colors', {}))
         object.__setattr__(self, 'colors', MappingProxyType(colors))
         object.__setattr__(self, 'categories', MappingProxyType(categories))
         object.__setattr__(self, 'typography', freeze_mapping(typography))
@@ -111,6 +113,8 @@ class Manifest:
         if document['colors']['positive'] == document['colors']['primary']:
             document['colors']['positive'] = primary
         document['colors']['primary'] = primary
+        if not self.page_declared:
+            del document['colors']['paper']
         return self.from_dict(document, font_source=self.font_info)
 
     @property

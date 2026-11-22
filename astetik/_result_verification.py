@@ -46,7 +46,8 @@ def _dimensions(figure: Figure, manifest: Mapping[str, object], receipt: JsonObj
     expected_height = _number(dimensions.get('height_mm'))
     aspect = _number(paper.get('aspect'))
     if expected_height is None and expected_width and aspect and len(figure.axes) == 1:
-        expected_height = expected_width / aspect
+        plot = object_mapping(object_mapping(receipt.get('methods', {})).get('plot', {}))
+        expected_height = expected_width / aspect + cast(float, plot.get('legend_band_mm', 0.0))
     passed = bool(np.isfinite([width, height]).all() and width > 0 and height > 0)
     if expected_width is not None:
         passed = passed and abs(width - expected_width) <= .01

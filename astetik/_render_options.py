@@ -7,24 +7,31 @@ from typing import cast
 
 import numpy as np
 
+from ._histogram_options import HIST_DEFAULTS, validate_histogram
+from ._mark_options import (
+    BAR_DEFAULTS,
+    BOX_DEFAULTS,
+    FIT_DEFAULTS,
+    LINE_DEFAULTS,
+    PANELS_DEFAULTS,
+    SCATTER_DEFAULTS,
+    VIOLIN_DEFAULTS,
+    validate_marks,
+)
 from ._render_context import RendererOptions
 from ._types import JsonObject, JsonValue
 
 DEFAULT_OPTIONS: dict[str, JsonObject] = {
     'corr': dict(method='spearman', annot=False, mask=False),
-    'hist': dict(bins='auto', density=False, kde=False, alpha=0.85, orient='v'),
+    'hist': dict(HIST_DEFAULTS),
     'kde': dict(bw_method='scott', gridsize=128, cut=0.0, cumulative=False, fill=True, alpha=0.3),
     'pie': dict(startangle=90.0, percent=True),
     'swarm': dict(point_size=18.0, alpha=0.85, orient='v', dodge=True, width=0.8),
-    'scat': dict(point_size=18.0, alpha=0.85, marker='o', hue_mode='auto'),
-    'line': dict(
-        linewidth=1.25, alpha=1.0, marker=None, linestyle='solid', sort=True, drawstyle='default'
-    ),
+    'scat': dict(SCATTER_DEFAULTS),
+    'line': dict(LINE_DEFAULTS),
     'grid': dict(jitter=0.12, point_size=18.0, alpha=0.85, orient='v', dodge=True),
-    'box': dict(whis=1.5, width=0.8, orient='v', alpha=0.75),
-    'violin': dict(
-        bw_method='scott', gridsize=128, cut=0.0, split=False, width=0.8, alpha=0.75, orient='v'
-    ),
+    'box': dict(BOX_DEFAULTS),
+    'violin': dict(VIOLIN_DEFAULTS),
     'strip': dict(jitter=0.12, point_size=18.0, alpha=0.85, orient='v', dodge=True),
     'count': dict(orient='v', alpha=0.85),
     'bargrid': dict(estimator='mean', errorbar=None, orient='v', alpha=0.85),
@@ -34,22 +41,15 @@ DEFAULT_OPTIONS: dict[str, JsonObject] = {
     ),
     'compare': dict(point_size=24.0, alpha=0.85),
     'multicount': dict(orient='v', alpha=0.85),
-    'bar': dict(estimator='sum', errorbar=None, orient='v', alpha=0.85),
+    'bar': dict(BAR_DEFAULTS),
     'bartwo': dict(estimator='mean', errorbar=None, orient='v', alpha=0.85),
     'world': dict(log=False),
-    'regs': dict(
-        fit_reg=True,
-        draw_scatter=True,
-        marker='o',
-        point_size=18.0,
-        alpha=0.8,
-        linewidth=1.25,
-        hue_mode='auto',
-    ),
+    'regs': dict(FIT_DEFAULTS),
     'roc': dict(positive_label=1, linewidth=1.5),
     'oned': dict(linewidth=0.8),
-    'twod': dict(point_size=18.0, alpha=0.85, marker='o', hue_mode='auto'),
+    'twod': dict(SCATTER_DEFAULTS),
     'comparison': dict(point_size=18.0, alpha=0.5, linewidth=1.25),
+    'panels': dict(PANELS_DEFAULTS),
 }
 DEFAULT_OPTIONS['association'] = dict(DEFAULT_OPTIONS['scat'])
 DEFAULT_OPTIONS['longitudinal'] = dict(DEFAULT_OPTIONS['line'])
@@ -93,10 +93,13 @@ _VALIDATORS: dict[str, tuple[Callable[[object], bool], str]] = {
         'cut must be a finite nonnegative number.',
     ),
     'estimator': (
-        lambda v: v in ('mean', 'median', 'sum'),
+        lambda v: v in (None, 'mean', 'median', 'sum'),
         "estimator must be 'mean', 'median', or 'sum'.",
     ),
-    'errorbar': (lambda v: v in (None, 'sd', 'se'), "errorbar must be None, 'sd', or 'se'."),
+    'errorbar': (
+        lambda v: v in (None, 'sd', 'se', 'ci', 'iqr'),
+        "errorbar must be None, 'sd', 'se', 'ci', or 'iqr'.",
+    ),
     'jitter': (
         lambda v: not isinstance(v, bool) and isinstance(v, (int, float)) and 0 <= v <= 0.4,
         'jitter must be a number between 0 and 0.4.',
@@ -139,6 +142,10 @@ def validate_options(kind: str, options: Mapping[str, JsonValue]) -> RendererOpt
     for key in _POSITIVE_OPTIONS:
         if key in resolved and not finite_positive(resolved[key]):
             raise ValueError(f'{key} must be a finite positive number.')
+    if kind == 'hist':
+        validate_histogram(resolved)
+    else:
+        validate_marks(kind, resolved)
     if kind == 'regs' and not resolved['fit_reg'] and not resolved['draw_scatter']:
         raise ValueError('regs must display observations, regression, or both.')
     return cast(RendererOptions, resolved)

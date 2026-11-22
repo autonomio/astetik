@@ -38,7 +38,7 @@ def rc_settings(policy: RcPolicy, paper: bool = False) -> dict[str, object]:
         "figure.facecolor": colors["paper"], "axes.facecolor": colors["paper"],
         "savefig.facecolor": colors["paper"], "text.color": colors["ink"],
         "axes.labelcolor": colors["ink"], "axes.edgecolor": colors["ink"],
-        "xtick.color": colors["ink"], "ytick.color": colors["ink"],
+        "xtick.color": colors["muted"], "ytick.color": colors["muted"],
         "axes.linewidth": axes["linewidth"], "axes.grid": axes["grid"],
         "grid.color": colors["line"], "grid.linewidth": axes["linewidth"],
         "grid.alpha": 1.0, "axes.axisbelow": True,

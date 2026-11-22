@@ -38,6 +38,21 @@ Do not use an old positional example to infer the specification grammar. Consult
 
 Old unsupported options fail; they are not silently ignored. `outliers=True`, smoothing, and transformation callbacks raise a preparation requirement. File overwrite is refused. Paper and scientific declarations belong in the [manifest](Manifest.md), [protocol](Research-Protocols.md), and [evidence](Evidence-Result.md) contracts.
 
+## Changes in 3.0
+
+| 2.x behaviour | 3.0 |
+| --- | --- |
+| `errorbar="sd"` or `"se"` with a `sum` or `median` estimator | Refused; SD, SE, and CI describe `estimator="mean"`, IQR a median |
+| Paper figures on the manifest's default paper colour | White page unless the manifest declares `colors.paper` |
+| Facet figure height from the panel count alone | Each plot area keeps the manifest aspect and the figure height follows |
+| Facet titles written as `column: value`, axis labels on every panel | The value alone; each shared axis labelled once |
+| Legends where Matplotlib placed them | Measured clear of the data, set above the plot when no inside position is free |
+| `regs` drew the fitted line only | Adds a 0.95 confidence band; declare `band: false` to omit it |
+| `violin` drew the density only | Marks quartiles with an inner box; declare `inner: "none"` to omit it |
+| A layout too small for its plot was drawn with a warning | Refused with `PLOT_CONTRACT` |
+
+Bundles published by 2.x for `hist`, `line`, `scat`, `regs`, `bar`, `box`, and `violin` record the 2.x options. Recomputing them under 3.0 reports a difference; keep the recorded environment to replay them.
+
 ## Animation and exact reproduction
 
 The [animation surface](Plot-Catalogue.md#animation-surface) now exposes verified poster evidence and per-frame bundles. It supports declared bar/pie frames rather than executing arbitrary plotting callbacks or shell commands.

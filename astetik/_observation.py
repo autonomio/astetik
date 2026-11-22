@@ -12,6 +12,7 @@ import pandas as pd
 from ._cells import encode_cell
 from ._columns import columns
 from ._data_types import Normalized, RowIdentity
+from ._figure_panels import views
 from ._snapshot_types import Cell
 from ._spec import fail
 from ._spec_json import clone_json
@@ -68,7 +69,7 @@ def prepare(normalized: Normalized, spec: PlotSpec, *, inherited_key: bool) -> O
     if inherited_key:
         spec['key'] = cast(list[str], normalized.source.get('key', []))
     keys = row_keys(frame, spec['key'], normalized.row_keys)
-    fields = columns(frame, spec)
+    fields = list(dict.fromkeys(name for view in views(spec) for name in columns(frame, view)))
     units = _text_metadata({**normalized.units, **spec.get('units', {})})
     descriptions = _text_metadata({**normalized.descriptions, **spec.get('descriptions', {})})
     spec['units'], spec['descriptions'] = units, descriptions

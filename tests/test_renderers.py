@@ -48,6 +48,7 @@ CASES = {
     'comparison': {'x': 'group', 'y': 'y'},
     'association': {'x': 'x', 'y': 'y'},
     'longitudinal': {'x': 'x', 'y': 'y'},
+    'panels': {'panels': [{'kind': 'hist', 'x': 'x'}, {'kind': 'scat', 'x': 'x', 'y': 'y'}]},
 }
 for _kind in (
     'swarm',
