@@ -69,7 +69,7 @@ def resolve_panels(
         return []
     stray = sorted(name for name in _FIGURE_ONLY if spec.get(name) is not None)
     if stray:
-        _refuse('SPEC_SCHEMA', 'A panels figure declares these inside each panel.', fields=stray)
+        _refuse('SPEC_SCHEMA', 'Unsupported top-level fields for a panels figure.', fields=stray)
     if not isinstance(panels, list) or not panels:
         _refuse('SPEC_SCHEMA', 'panels must list at least one panel specification.')
     return [_resolve(index, panel, defaults, supported) for index, panel in enumerate(panels)]

@@ -84,7 +84,7 @@ def test_one_type_repeats_over_any_number_of_panels(country_estimates):
         ({'kind': 'panels', 'panels': [{'kind': 'hist', 'x': 'wealth', 'col': 'tier'}]},
          'SPEC_SCHEMA', 'A panel accepts'),
         ({'kind': 'panels', 'x': 'wealth', 'panels': [{'kind': 'hist', 'x': 'wealth'}]},
-         'SPEC_SCHEMA', 'inside each panel'),
+         'SPEC_SCHEMA', 'Unsupported top-level fields for a panels figure.'),
         ({'kind': 'panels', 'panels': [{'kind': 'hist', 'x': 'wealth', 'options': {'trim': 1}}]},
          'PLOT_OPTIONS', 'never ignored'),
         ({'kind': 'panels', 'panels': [{'kind': 'hist', 'x': 'wealth', 'title': 3}]},
@@ -104,6 +104,18 @@ def test_malformed_panel_figures_are_refused_with_a_reason(country_estimates, sp
     assert caught.value.code == code
     report = caught.value.to_dict()
     assert reason in (report['details'].get('reason') or report['message'])
+
+
+@pytest.mark.parametrize(
+    'field,value',
+    [('row', 'tier'), ('col', 'tier'), ('columns', ['wealth']), ('analysis', {})],
+)
+def test_unsupported_top_level_panel_fields_have_actionable_refusals(country_estimates, field, value):
+    with pytest.raises(ast.AstetikError) as caught:
+        ast.render(country_estimates, _spec(kind='panels', panels=[PANELS[0]], **{field: value}))
+    assert caught.value.code == 'SPEC_SCHEMA'
+    assert str(caught.value) == 'Unsupported top-level fields for a panels figure.'
+    assert caught.value.details['fields'] == [field]
 
 
 def test_a_failing_panel_is_named_in_the_refusal(country_estimates):

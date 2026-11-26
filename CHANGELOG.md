@@ -1,6 +1,10 @@
-# v3.0.1
+# v3.0.2
 
 - Correct publication figure clearance, stepped intervals, and studio controls.
+
+# v3.0.1
+
+- Preserve cumulative step histogram outlines and clarify invalid panels fields.
 
 # v3.0.0
 
