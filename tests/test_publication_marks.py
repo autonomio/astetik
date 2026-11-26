@@ -59,6 +59,18 @@ def test_line_joins_each_observation_when_no_estimate_is_declared(country_estima
     assert np.all(np.diff(result.figure.axes[0].lines[0].get_xdata()) >= 0)
 
 
+@pytest.mark.parametrize('drawstyle', ['default', 'steps', 'steps-pre', 'steps-mid', 'steps-post'])
+def test_line_interval_contains_its_displayed_estimate_between_x_values(country_estimates, drawstyle):
+    options = {'estimator': 'mean', 'errorbar': 'se', 'drawstyle': drawstyle}
+    result = ast.render(country_estimates, _spec('line', x='size_class', y='wealth', options=options))
+    axis = result.figure.axes[0]
+    vertices = axis.lines[0].get_path().vertices
+    segments = [(left, right) for left, right in pairwise(vertices) if left[0] != right[0]]
+    points = np.asarray([left + fraction * (right - left)
+                         for left, right in segments for fraction in (0.25, 0.75)])
+    assert axis.collections[0].get_paths()[0].contains_points(points).all()
+
+
 def test_line_groups_are_dashed_keyed_and_counted_exactly_as_drawn(country_estimates):
     options = {'estimator': 'median', 'errorbar': 'iqr', 'interval': 'bars', 'dashes': True,
                'annotate_n': True}

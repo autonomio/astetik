@@ -33,6 +33,8 @@ def end_labels(ax: Axes, entries: list[tuple[str, tuple[object, float], str]], s
 
 
 def _spread(labels: list[Annotation], dpi: float) -> None:
+    for label in labels:
+        label.xyann = (_OFFSET, 0.0)
     boxes = [label.get_window_extent() for label in labels]
     origin = np.asarray([(box.y0 + box.y1) / 2 for box in boxes])
     order = np.argsort(origin, kind='stable')

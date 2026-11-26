@@ -82,6 +82,7 @@ def settle_bands(figure: Figure) -> None:
     A legend above the axes takes a band of the page; each grid row's tallest band is
     added to the figure height, so the plots keep the proportions the manifest declares.
     """
+    previous = getattr(figure, BAND, 0.0)
     setattr(figure, BAND, 0.0)
     above = [placement_of(ax.get_legend()) for ax in figure.axes]
     if not any(placement is not None and placement.loc == 'outside top' for placement in above):
@@ -104,5 +105,5 @@ def settle_bands(figure: Figure) -> None:
             heading(ax, ax.get_title(loc='left'), bands[row] * 72 + 5.0)
     extra = sum(bands.values())
     setattr(figure, BAND, extra)
-    if extra:
-        figure.set_figheight(figure.get_figheight() + extra)
+    if extra != previous:
+        figure.set_figheight(figure.get_figheight() + extra - previous)

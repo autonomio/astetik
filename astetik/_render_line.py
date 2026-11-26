@@ -147,6 +147,8 @@ def _interval(context: RenderContext, item: _Series) -> None:
         marks(context.ax).fill_between(
             item.x, item.low, item.high, facecolor=color,
             alpha=options.get('band_alpha', 0.2), linewidth=0.0,
+            step={'steps': 'pre', 'steps-pre': 'pre', 'steps-mid': 'mid',
+                  'steps-post': 'post'}.get(item.paint.get('drawstyle', 'default')),
         )
         return
     width = item.paint.get('linewidth', 1.25) * 0.7

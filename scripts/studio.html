@@ -166,11 +166,14 @@ const textSection = () => ['Text', [
 const colorOption = (s) => (s.hue ? undefined : s.color === 'custom' ? s.custom : s.color || null);
 const errorbars = (s) => (s.estimator === 'mean' ? ['none', 'sd', 'se', 'ci'] : s.estimator === 'median' ? ['none', 'iqr'] : ['none']);
 const settle = (s) => { if (!errorbars(s).includes(s.errorbar)) s.errorbar = errorbars(s).at(-1); };
-const estimateItems = (s, choices) => [
-  {key: 'estimator', label: 'Estimate', type: 'select', options: choices},
-  {key: 'errorbar', label: 'Interval', type: 'select', options: errorbars(s).map((v) => [v, {none: 'none', sd: 'standard deviation', se: 'standard error', ci: 'confidence interval', iqr: 'interquartile range'}[v]]), show: () => errorbars(s).length > 1},
-  {key: 'confidence', label: 'Confidence', type: 'range', min: .5, max: .99, step: .01, show: () => s.errorbar === 'ci'},
-];
+const estimateItems = (s, choices) => {
+  settle(s);
+  return [
+    {key: 'estimator', label: 'Estimate', type: 'select', options: choices},
+    {key: 'errorbar', label: 'Interval', type: 'select', options: errorbars(s).map((v) => [v, {none: 'none', sd: 'standard deviation', se: 'standard error', ci: 'confidence interval', iqr: 'interquartile range'}[v]]), show: () => errorbars(s).length > 1},
+    {key: 'confidence', label: 'Confidence', type: 'range', min: .5, max: .99, step: .01, show: () => s.errorbar === 'ci'},
+  ];
+};
 const categoryItems = (s) => [
   {key: 'x', label: 'Categories', type: 'select', options: groupColumns()},
   {key: 'order', label: 'Category order', type: 'select', options: sorts},
@@ -459,7 +462,7 @@ const initial = () => ({
     axis_linewidth: meta.manifest.axes.linewidth, grid: meta.manifest.axes.grid, spines: [...meta.manifest.axes.spines],
     tick_direction: meta.manifest.axes.tick_direction, tick_length: meta.manifest.axes.tick_length,
     paper: 'default', c_paper: '#FFFFFF', c_ink: meta.manifest.colors.ink, c_muted: meta.manifest.colors.muted,
-    c_line: meta.manifest.colors.line, c_primary: meta.manifest.colors.primary, categories: {},
+    c_line: meta.manifest.colors.line, c_primary: meta.manifest.colors.primary, categories: {}, units: {...meta.units},
   },
 });
 
@@ -581,14 +584,10 @@ function usedHues() {
   return [...new Set(types.map((t) => state.types[t].hue).filter(Boolean))];
 }
 
-// Groups of every column in the figure share one manifest, so each takes its own palette colours.
-function categoryColors(column) {
-  const result = {}, hues = usedHues();
-  const offset = hues.slice(0, Math.max(0, hues.indexOf(column))).reduce((sum, other) => sum + meta.groups[other].length, 0);
-  meta.groups[column].forEach((name, index) => {
-    result[name] = state.page.categories[column + '/' + name] || meta.palette[(offset + index) % meta.palette.length];
-  });
-  return result;
+// One manifest binds each category label to one colour across every panel.
+function categoryColors() {
+  const names = [...new Set(usedHues().flatMap((column) => meta.groups[column]))];
+  return Object.fromEntries(names.map((name, index) => [name, state.page.categories[name] || meta.palette[index % meta.palette.length]]));
 }
 
 function draw() {
@@ -607,15 +606,13 @@ function draw() {
   for (const [title, items] of pageSections()) {
     const box = block(root, title, items, state.page);
     if (title !== 'Colours') continue;
-    for (const column of usedHues()) {
-      box.append(el('p', {className: 'hint', textContent: `Paper figures require an explicit colour for every group of ${column.replace(/_/g, ' ')}.`}));
-      for (const name of meta.groups[column]) {
-        const node = el('input', {type: 'color', value: categoryColors(column)[name]});
-        node.oninput = () => { state.page.categories[column + '/' + name] = node.value.toUpperCase(); changed(false); };
-        box.append(el('div', {className: 'row'}, el('label', {textContent: name}), el('div', {className: 'field'}, node)));
-      }
+    for (const [name, color] of Object.entries(categoryColors())) {
+      const node = el('input', {type: 'color', value: color});
+      node.oninput = () => { state.page.categories[name] = node.value.toUpperCase(); changed(false); };
+      box.append(el('div', {className: 'row'}, el('label', {textContent: name}), el('div', {className: 'field'}, node)));
     }
   }
+  block(root, 'Units', numeric().map((column) => ({key: column, label: column, type: 'text', placeholder: 'unit; 1 for dimensionless'})), state.page.units);
   if (focused) { const again = root.querySelector(`[data-key="${CSS.escape(focused)}"]`); if (again) again.focus(); }
 }
 
@@ -658,7 +655,8 @@ function build() {
   const used = new Set();
   for (const part of spec.panels || [spec]) for (const name of [part.x, part.y, part.hue, spec.col]) if (name) used.add(name);
   for (const name of ['units', 'descriptions']) {
-    const entries = [...used].filter((column) => meta[name][column]).map((column) => [column, meta[name][column]]);
+    const values = name === 'units' ? page.units : meta[name];
+    const entries = [...used].filter((column) => values[column]).map((column) => [column, values[column]]);
     if (entries.length) spec[name] = Object.fromEntries(entries);
   }
   const base = meta.manifest, manifest = {};
@@ -674,7 +672,7 @@ function build() {
   if (custom) Object.assign(paper, {preset: layout, width_mm: page.width_mm});
   section('paper', paper);
   section('axes', {linewidth: page.axis_linewidth, grid: page.grid, spines: page.spines, tick_direction: page.tick_direction, tick_length: page.tick_length});
-  const categories = Object.assign({}, ...usedHues().map(categoryColors));
+  const categories = categoryColors();
   if (Object.keys(categories).length) manifest.categories = categories;
   return {spec, manifest: Object.keys(manifest).length ? manifest : null};
 }
@@ -731,7 +729,9 @@ async function render() {
   problem.style.display = 'none';
   currentSvg = result.svg;
   sizeMm = result.size_mm;
+  const previous = $('figure').src;
   $('figure').src = URL.createObjectURL(new Blob([result.svg], {type: 'image/svg+xml'}));
+  if (previous.startsWith('blob:')) URL.revokeObjectURL(previous);
   scale();
   const passed = result.checks.filter((c) => c.passed).length;
   const failed = result.checks.filter((c) => !c.passed).map((c) => c.check.replace(/_/g, ' '));
@@ -760,6 +760,7 @@ async function download(format) {
     href = `data:${result.media_type};base64,${result.file}`;
   }
   el('a', {href, download: `${state.type}.${format}`}).click();
+  if (format === 'svg') setTimeout(() => URL.revokeObjectURL(href), 1000);
 }
 
 // A saved link may predate a control; anything it lacks keeps this version's default.

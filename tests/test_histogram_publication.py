@@ -98,6 +98,15 @@ def test_bin_width_yields_aligned_boundaries_covering_the_data(countries):
     assert edges[0] <= countries['wealth'].min() and edges[-1] >= countries['wealth'].max()
 
 
+def test_an_infinite_bin_count_is_refused_as_a_plot_contract_error():
+    with pytest.raises(ast.AstetikError) as caught:
+        ast.render(pd.DataFrame({'value': [0.0, 1.0]}),
+                   {'kind': 'hist', 'x': 'value', 'options': {'binwidth': 1e-309}})
+    assert caught.value.code == 'PLOT_CONTRACT'
+    assert 'inf bins' in caught.value.details['reason']
+    assert 'Declare coarser bins' in caught.value.details['reason']
+
+
 def test_log_axis_bins_are_even_in_the_displayed_scale(countries):
     result = ast.render(
         countries, _spec(x='population', axes={'x': {'scale': 'log'}}, options={'bins': 12})

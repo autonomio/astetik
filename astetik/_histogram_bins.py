@@ -15,7 +15,7 @@ MAX_BINS = 2000
 def _limit(count: float) -> None:
     if count > MAX_BINS:
         raise ValueError(
-            f'Histogram resolves to {int(count)} bins; more than {MAX_BINS} cannot be printed. '
+            f'Histogram resolves to {count:g} bins; more than {MAX_BINS} cannot be printed. '
             'Declare coarser bins.'
         )
 

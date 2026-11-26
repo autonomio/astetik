@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from itertools import pairwise
+
 import matplotlib.colors as mcolors
 import pytest
 
 import astetik as ast
+from astetik._presentation_clearance import covered
 
 TIERS = {'High income': '#2A4A70', 'Other': '#AC4B35'}
 INCOME = {
@@ -239,6 +242,27 @@ def test_end_labels_name_the_lines_of_every_facet(country_estimates):
         {'High income: nonOECD', 'High income: OECD'},
         {'Low income', 'Upper middle income', 'Lower middle income'},
     ]
+
+
+@pytest.mark.parametrize('aspect', [0.8, 2.4])
+def test_final_grid_geometry_keeps_legends_and_end_labels_clear(country_estimates, aspect):
+    line = {'kind': 'line', 'x': 'size_class', 'y': 'wealth', 'hue': 'income',
+            'options': {'estimator': 'median'}}
+    labelled = {**line, 'options': {**line['options'], 'legend_loc': 'end'}}
+    result = ast.render(
+        country_estimates, _spec(kind='panels', panels=[line, labelled], options={'ncols': 2}),
+        {'categories': INCOME, 'paper': {'aspect': aspect}},
+    )
+    for axis in _plots(result):
+        legend = axis.get_legend()
+        if legend is not None:
+            assert not covered(axis, legend.get_window_extent().padded(2 * result.figure.dpi / 72))
+        boxes = sorted((text.get_window_extent() for text in axis.texts if text.get_text() in INCOME),
+                       key=lambda box: box.y0)
+        assert all(lower.y1 <= upper.y0 + 0.5 for lower, upper in pairwise(boxes))
+        frame = axis.get_window_extent()
+        assert frame.width / frame.height == pytest.approx(aspect, rel=0.01)
+    assert result.verify()['passed']
 
 
 def test_category_names_survive_rows_of_shared_facets(country_estimates):
