@@ -39,6 +39,7 @@ class BandPaint(TypedDict, total=False):
     edgecolor: str
     alpha: float
     linewidth: float
+    step: str | None
     zorder: float
 
 

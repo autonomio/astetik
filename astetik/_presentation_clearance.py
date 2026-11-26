@@ -7,6 +7,7 @@ from typing import cast
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.collections import PathCollection, PolyCollection
+from matplotlib.colors import to_rgba
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox
 
@@ -16,26 +17,29 @@ from ._types import FloatArray
 _UNCONNECTED = ('None', 'none', '', ' ')
 
 
-def _outlines(ax: Axes) -> list[tuple[Path, bool]]:
-    """Every drawn outline in display space; True marks a shape whose inside is occupied.
-
-    A patch or polygon counts as occupied even when it is drawn hollow: the area a bar,
-    box, or violin encloses is that mark, and a legend set inside it would read as data.
-    """
+def _outlines(ax: Axes) -> list[tuple[Path, bool, float]]:
+    """Display-space paths, occupied interiors (even hollow), and visible stroke half-widths."""
+    scale = figure_for(ax).dpi / 144
     shapes = [
-        (patch.get_transform().transform_path(patch.get_path()), True)
+        (patch.get_transform().transform_path(patch.get_path()), True,
+         patch.get_linewidth() * scale if to_rgba(patch.get_edgecolor())[3]
+         and patch.get_linestyle() not in _UNCONNECTED else 0.0)
         for patch in ax.patches
         if patch.get_visible()
     ]
     shapes += [
-        (line.get_transform().transform_path(line.get_path()), False)
+        (line.get_transform().transform_path(line.get_path()), False, line.get_linewidth() * scale)
         for line in ax.lines
-        if line.get_visible() and line.get_linestyle() not in _UNCONNECTED
+        if line.get_visible() and line.get_alpha() != 0 and to_rgba(line.get_color())[3]
+        and line.get_linestyle() not in _UNCONNECTED
     ]
     for collection in ax.collections:
         if collection.get_visible() and not isinstance(collection, PathCollection):
             filled, transform = isinstance(collection, PolyCollection), collection.get_transform()
-            shapes += [(transform.transform_path(path), filled) for path in collection.get_paths()]
+            colors = np.asarray(collection.get_edgecolor(), dtype=float)
+            radius = float(np.max(collection.get_linewidth(), initial=0.0)) * scale if colors.size and colors[:, 3].any() else 0.0
+            shapes += [(transform.transform_path(path), filled, radius)
+                       for path in collection.get_paths()]
     return shapes
 
 
@@ -49,18 +53,22 @@ def _markers(ax: Axes) -> tuple[FloatArray, float]:
             offsets = np.asarray(collection.get_offsets(), dtype=float).reshape(-1, 2)
             centres.append(collection.get_offset_transform().transform(offsets))
             sizes = np.asarray(collection.get_sizes(), dtype=float)
-            radius = max(radius, float(np.sqrt(sizes.max(initial=0.0))) / 2 * scale)
+            colors = np.asarray(collection.get_edgecolor(), dtype=float)
+            edge = float(np.max(collection.get_linewidth(), initial=0.0)) if colors.size and colors[:, 3].any() else 0.0
+            radius = max(radius, (float(np.sqrt(sizes.max(initial=0.0))) + edge) / 2 * scale)
     for line in ax.lines:
         if line.get_visible() and line.get_marker() not in _UNCONNECTED:
             centres.append(line.get_transform().transform(line.get_xydata()))
-            radius = max(radius, float(line.get_markersize()) / 2 * scale)
+            edge = line.get_markeredgewidth() if to_rgba(line.get_markeredgecolor())[3] else 0.0
+            radius = max(radius, (float(line.get_markersize()) + edge) / 2 * scale)
     points = np.vstack(centres)
     return points[np.isfinite(points).all(axis=1)], radius
 
 
 def covered(ax: Axes, box: Bbox) -> bool:
     """Whether any mark of the axes reaches into ``box`` on the settled canvas."""
-    if any(path.intersects_bbox(box, filled=filled) for path, filled in _outlines(ax)):
+    if any(path.intersects_bbox(box.padded(radius), filled=filled)
+           for path, filled, radius in _outlines(ax)):
         return True
     points, radius = _markers(ax)
     inside = (
@@ -89,19 +97,19 @@ def required_limit(ax: Axes, box: Bbox, horizontal: bool) -> float:
     frame = ax.get_window_extent()
     swap = slice(None, None, -1) if horizontal else slice(None)
     (low, edge), (high, _) = box.get_points()[:, swap]
-    base, size = (frame.x0, frame.width) if horizontal else (frame.y0, frame.height)
+    base = frame.x0 if horizontal else frame.y0
     reaches = [
-        _reach(cast(FloatArray, polygon)[:, swap], float(low), float(high))
-        for path, _ in _outlines(ax)
+        (_reach(cast(FloatArray, polygon)[:, swap], float(low) - radius, float(high) + radius), radius)
+        for path, _, radius in _outlines(ax)
         for polygon in path.to_polygons(closed_only=False)
     ]
     points, radius = _markers(ax)
     points = points[:, swap]
     beside = points[(points[:, 0] >= low - radius) & (points[:, 0] <= high + radius)]
     if len(beside):
-        reaches.append(float(beside[:, 1].max()) + radius)
-    room = (float(edge) - base) / size
+        reaches.append((float(beside[:, 1].max()), radius))
     bottom, top = ax.get_xlim() if horizontal else ax.get_ylim()
-    if room <= 0:
-        return np.inf
-    return bottom + (top - bottom) * max(max(reaches, default=base) - base, 0.0) / size / room
+    stretch = max((max(reach - base, 0.0) / (float(edge) - base - radius)
+                   if float(edge) > base + radius else np.inf
+                   for reach, radius in reaches if np.isfinite(reach)), default=0.0)
+    return bottom + (top - bottom) * stretch

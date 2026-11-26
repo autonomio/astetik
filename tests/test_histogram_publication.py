@@ -98,6 +98,15 @@ def test_bin_width_yields_aligned_boundaries_covering_the_data(countries):
     assert edges[0] <= countries['wealth'].min() and edges[-1] >= countries['wealth'].max()
 
 
+def test_an_infinite_bin_count_is_refused_as_a_plot_contract_error():
+    with pytest.raises(ast.AstetikError) as caught:
+        ast.render(pd.DataFrame({'value': [0.0, 1.0]}),
+                   {'kind': 'hist', 'x': 'value', 'options': {'binwidth': 1e-309}})
+    assert caught.value.code == 'PLOT_CONTRACT'
+    assert 'inf bins' in caught.value.details['reason']
+    assert 'Declare coarser bins' in caught.value.details['reason']
+
+
 def test_log_axis_bins_are_even_in_the_displayed_scale(countries):
     result = ast.render(
         countries, _spec(x='population', axes={'x': {'scale': 'log'}}, options={'bins': 12})
@@ -275,3 +284,11 @@ def test_pooled_normalisation_names_every_pooled_row_as_an_origin(countries):
         countries, _spec(hue='income', options={'stat': 'proportion'}), {'categories': GROUPS}
     )
     assert all(len(rows) < len(countries) for rows in _bins(alone)['source_rows'])
+
+
+def test_extreme_integer_bin_count_is_refused_without_overflow():
+    from astetik._histogram_bins import bin_edges
+
+    for bins in (10**400, 10**5000):
+        with pytest.raises(ValueError, match='cannot be printed'):
+            bin_edges(np.array([0.0, 1.0]), {'bins': bins}, False)

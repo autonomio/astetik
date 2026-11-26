@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
+import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from matplotlib.text import Text
@@ -15,8 +16,8 @@ from ._presentation_axes import apply_domains, colorbar_label, decorate, label_a
 from ._presentation_grid import outer_labels, proportion, settle_bands
 from ._presentation_headings import figure_title, fit_headings
 from ._presentation_labels import axis_labels
-from ._presentation_layout import hold_layout
-from ._presentation_legend import clear_legends
+from ._presentation_layout import hold_layout, solve_layout
+from ._presentation_legend import clear_legends, placement_of
 from ._presentation_notes import spread_end_labels, wrap_category_labels
 from ._spec_types import PlotSpec
 
@@ -24,19 +25,14 @@ from ._spec_types import PlotSpec
 def _typography(figure: Figure, spec: PlotSpec, manifest: Manifest) -> None:
     font = FontProperties(fname=str(manifest.font_path))
     for artist in figure.findobj(match=Text):
-        size = (
-            max(artist.get_fontsize(), manifest.paper['min_fontsize'])
-            if spec['paper']
-            else artist.get_fontsize()
-        )
+        size = max(artist.get_fontsize(), manifest.paper['min_fontsize']) if spec['paper'] else artist.get_fontsize()
         artist.set_fontproperties(font)
         artist.set_fontsize(size)
         artist.set_fontweight('normal')
         artist.set_parse_math(False)
         artist.set_usetex(False)
         role = getattr(
-            artist,
-            '_astetik_text_role',
+            artist, '_astetik_text_role',
             'ink' if artist is getattr(figure, '_suptitle', None) else 'muted',
         )
         # A role names a manifest colour; a series label carries its series' own colour.
@@ -72,11 +68,20 @@ def finish(
     _typography(figure, spec, manifest)
     fit_headings(figure)
     wrap_category_labels(figure)
-    spread_end_labels(figure)
-    for view, axes, labels in panels:
-        clear_legends(axes, view, labels[2])
-    settle_bands(figure)
-    proportion(figure, manifest.paper['aspect'])
-    _typography(figure, spec, manifest)
+    notes = [ax for ax in figure.axes if ax.get_legend() or getattr(ax, '_astetik_end_labels', [])]
+    for _ in range(4):
+        before = [(ax.transData.get_matrix().copy(), placement_of(ax.get_legend())) for ax in notes]
+        settle_bands(figure)
+        proportion(figure, manifest.paper['aspect'])
+        spread_end_labels(figure)
+        for view, axes, labels in panels:
+            clear_legends(axes, view, labels[2])
+        _typography(figure, spec, manifest)
+        solve_layout(figure)
+        if all(place == placement_of(ax.get_legend()) and np.allclose(old, ax.transData.get_matrix(), atol=0)
+               for (old, place), ax in zip(before, notes)):
+            break
+    else:
+        raise ValueError('The figure cannot settle its labels and legends; use an outside legend or fewer panels.')
     hold_layout(figure)
     draw_canvas(figure)
