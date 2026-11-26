@@ -18,7 +18,7 @@ permissions:
 jobs:
   pr_checks_tests:
     name: pr_checks_tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     outputs:
       coverage_artifact: ${{ steps.coverage.outputs.artifact-id }}
