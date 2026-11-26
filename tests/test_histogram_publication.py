@@ -250,6 +250,20 @@ def test_presentation_options_reach_the_drawn_marks(countries):
     assert path.vertices[-1][1] == len(countries)
 
 
+@pytest.mark.parametrize('orient', ['v', 'h'])
+def test_filled_cumulative_step_outline_preserves_the_terminal_value(countries, orient):
+    result = ast.render(
+        countries, _spec(options={'element': 'step', 'orient': orient, 'cumulative': True})
+    )
+    area, outline = result.figure.axes[0].patches
+    value_axis = 0 if orient == 'h' else 1
+    endpoint = outline.get_path().vertices[-1]
+    assert endpoint[1 - value_axis] == _bins(result)['upper'].iloc[-1]
+    assert endpoint[value_axis] == len(countries)
+    assert area.get_fill()
+    assert area.get_path().vertices[-1][value_axis] == 0
+
+
 def test_pooled_normalisation_names_every_pooled_row_as_an_origin(countries):
     everyone = list(range(len(countries)))
     for extra in ({}, {'stat': 'density', 'kde': True}):

@@ -137,7 +137,7 @@ class Canvas:
             # A cumulative outline stays open: closing it would draw a false drop.
             cast(_Marks, self.ax).stairs(
                 bottom + heights, self.edges, fill=False, color=style.edgecolor or color,
-                baseline=None if style.cumulative and not style.fill else bottom,
+                baseline=None if style.cumulative else bottom,
                 orientation=self.orientation, linewidth=style.edgewidth, alpha=1.0,
             )
 
