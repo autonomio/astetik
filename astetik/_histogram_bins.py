@@ -12,10 +12,14 @@ from ._types import FloatArray
 MAX_BINS = 2000
 
 
-def _limit(count: float) -> None:
+def _limit(count: float | int) -> None:
     if count > MAX_BINS:
+        if isinstance(count, int):
+            label = str(count) if count.bit_length() <= 1024 else 'at least 2^1024'
+        else:
+            label = f'{count:g}'
         raise ValueError(
-            f'Histogram resolves to {count:g} bins; more than {MAX_BINS} cannot be printed. '
+            f'Histogram resolves to {label} bins; more than {MAX_BINS} cannot be printed. '
             'Declare coarser bins.'
         )
 

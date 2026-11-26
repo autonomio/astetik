@@ -270,3 +270,11 @@ def test_pooled_normalisation_names_every_pooled_row_as_an_origin(countries):
         countries, _spec(hue='income', options={'stat': 'proportion'}), {'categories': GROUPS}
     )
     assert all(len(rows) < len(countries) for rows in _bins(alone)['source_rows'])
+
+
+def test_extreme_integer_bin_count_is_refused_without_overflow():
+    from astetik._histogram_bins import bin_edges
+
+    for bins in (10**400, 10**5000):
+        with pytest.raises(ValueError, match='cannot be printed'):
+            bin_edges(np.array([0.0, 1.0]), {'bins': bins}, False)
