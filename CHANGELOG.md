@@ -1,3 +1,7 @@
+# v3.0.1
+
+- Preserve cumulative step histogram outlines and clarify invalid panels fields.
+
 # v3.0.0
 
 - Add publication options to `hist`, `line`, `scat`, `regs`, `bar`, `box`, and `violin`: declared statistics and intervals, mark styling, a single-series `color`, `annotate_n`, and `legend_loc`.
