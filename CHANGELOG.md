@@ -1,3 +1,7 @@
+# v3.0.1
+
+- Correct publication figure clearance, stepped intervals, and studio controls.
+
 # v3.0.0
 
 - Add publication options to `hist`, `line`, `scat`, `regs`, `bar`, `box`, and `violin`: declared statistics and intervals, mark styling, a single-series `color`, `annotate_n`, and `legend_loc`.
