@@ -462,7 +462,8 @@ const initial = () => ({
     axis_linewidth: meta.manifest.axes.linewidth, grid: meta.manifest.axes.grid, spines: [...meta.manifest.axes.spines],
     tick_direction: meta.manifest.axes.tick_direction, tick_length: meta.manifest.axes.tick_length,
     paper: 'default', c_paper: '#FFFFFF', c_ink: meta.manifest.colors.ink, c_muted: meta.manifest.colors.muted,
-    c_line: meta.manifest.colors.line, c_primary: meta.manifest.colors.primary, categories: {}, units: {...meta.units},
+    c_line: meta.manifest.colors.line, c_primary: meta.manifest.colors.primary, categories: Object.create(null),
+    category_format: 2, category_conflicts: Object.create(null), units: {...meta.units},
   },
 });
 
@@ -608,8 +609,17 @@ function draw() {
     if (title !== 'Colours') continue;
     for (const [name, color] of Object.entries(categoryColors())) {
       const node = el('input', {type: 'color', value: color});
-      node.oninput = () => { state.page.categories[name] = node.value.toUpperCase(); changed(false); };
+      const colors = state.page.category_conflicts[name];
+      const conflict = colors
+        ? el('p', {className: 'hint', textContent: `The saved link had different colours for ${name}: ${colors.join(', ')}. Choose one colour for all panels.`}) : null;
+      node.oninput = () => {
+        state.page.categories[name] = node.value.toUpperCase();
+        delete state.page.category_conflicts[name];
+        if (conflict) conflict.remove();
+        changed(false);
+      };
       box.append(el('div', {className: 'row'}, el('label', {textContent: name}), el('div', {className: 'field'}, node)));
+      if (conflict) box.append(conflict);
     }
   }
   block(root, 'Units', numeric().map((column) => ({key: column, label: column, type: 'text', placeholder: 'unit; 1 for dimensionless'})), state.page.units);
@@ -770,6 +780,24 @@ function restore(saved) {
   if (ORDER.includes(saved.type)) fresh.type = saved.type;
   for (const key of Object.keys(TYPES)) Object.assign(fresh.types[key], (saved.types || {})[key]);
   Object.assign(fresh.page, saved.page);
+  const oldCategories = saved.page?.categories || {};
+  fresh.page.categories = Object.assign(Object.create(null), oldCategories);
+  fresh.page.category_conflicts = Object.assign(Object.create(null), saved.page?.category_conflicts || {});
+  if (saved.page?.category_format !== 2) {
+    const groups = Object.entries(meta.groups), labels = new Set(groups.flatMap(([, names]) => names));
+    const legacyKeys = new Set(groups.flatMap(([column, names]) => names.map((name) => `${column}/${name}`)));
+    const migrated = Object.create(null);
+    for (const [name, color] of Object.entries(oldCategories)) if (!legacyKeys.has(name)) migrated[name] = color;
+    for (const name of labels) {
+      const keys = groups.filter(([, names]) => names.includes(name))
+        .map(([column]) => `${column}/${name}`).filter((key) => Object.hasOwn(oldCategories, key));
+      const colors = [...new Set(keys.map((key) => oldCategories[key]))];
+      if (colors.length) migrated[name] = colors[0];
+      if (colors.length > 1) fresh.page.category_conflicts[name] = colors;
+    }
+    fresh.page.categories = migrated;
+  }
+  fresh.page.category_format = 2;
   if (saved.grid && Array.isArray(saved.grid.panels)) Object.assign(fresh.grid, saved.grid, {panels: saved.grid.panels.filter((p) => TYPES[p.type])});
   for (const [key, type] of Object.entries(TYPES)) {
     const s = fresh.types[key];

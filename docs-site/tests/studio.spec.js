@@ -88,3 +88,62 @@ test('SVG preview replacements and consumed downloads release their object URLs'
   await expect.poll(() => page.evaluate(() => window.revoked)).toContain(download.url());
   expect(await page.evaluate(async (url) => fetch(url).then(() => false, () => true), download.url())).toBe(true);
 });
+
+test('prototype-named categories accept defaults and custom colours', async ({page}) => {
+  await page.evaluate(() => {
+    meta.groups.group = ['constructor', '__proto__'];
+    state.types.hist.hue = 'group';
+    draw();
+  });
+  let categories = JSON.parse(await page.evaluate(() => JSON.stringify(build().manifest.categories)));
+  expect(categories).toEqual({constructor: '#123456', ['__proto__']: '#234567'});
+  const row = page.locator('.row').filter({has: page.locator('label', {hasText: /^__proto__$/})});
+  await row.locator('input').fill('#abcdef');
+  categories = JSON.parse(await page.evaluate(() => JSON.stringify(build().manifest.categories)));
+  expect(categories).toEqual({constructor: '#123456', ['__proto__']: '#ABCDEF'});
+});
+
+test('legacy saved links preserve unambiguous category colours', async ({page}) => {
+  await page.evaluate(() => {
+    const saved = JSON.parse(JSON.stringify(state));
+    saved.types.hist.hue = 'group';
+    delete saved.page.category_format;
+    saved.page.categories = {'group/shared': '#AABBCC', 'group/first': '#DDEEFF'};
+    state = restore(saved); draw();
+  });
+  expect((await page.evaluate(() => build())).manifest.categories).toEqual({shared: '#AABBCC', first: '#DDEEFF'});
+});
+
+test('legacy links report conflicting shared colours and allow a choice', async ({page}) => {
+  await page.evaluate(() => {
+    const saved = JSON.parse(JSON.stringify(state));
+    saved.type = 'grid';
+    saved.grid.panels = [{type: 'hist', variable: ''}, {type: 'line', variable: ''}];
+    saved.types.hist.hue = 'group'; saved.types.line.hue = 'other_group';
+    delete saved.page.category_format;
+    saved.page.categories = {'group/shared': '#AABBCC', 'other_group/shared': '#DDEEFF'};
+    state = restore(saved); draw();
+  });
+  await expect(page.getByText(/saved link.*different colours.*shared/i)).toBeVisible();
+  await expect(page.getByText(/#AABBCC, #DDEEFF/)).toBeVisible();
+  await page.evaluate(() => { state = restore(JSON.parse(JSON.stringify(state))); draw(); });
+  await expect(page.getByText(/#AABBCC, #DDEEFF/)).toBeVisible();
+  const row = page.locator('.row').filter({has: page.locator('label', {hasText: /^shared$/})});
+  await row.locator('input').fill('#abcdef');
+  expect((await page.evaluate(() => build())).manifest.categories.shared).toBe('#ABCDEF');
+  await expect(page.getByText(/saved link.*different colours.*shared/i)).toHaveCount(0);
+});
+
+test('legacy names containing slashes migrate without losing other bindings', async ({page}) => {
+  await page.evaluate(() => {
+    meta.groups.group = ['first', 'group/first'];
+    const saved = JSON.parse(JSON.stringify(state));
+    delete saved.page.category_format;
+    saved.types.hist.hue = 'group';
+    saved.page.categories = {'group/first': '#AABBCC', 'group/group/first': '#DDEEFF'};
+    state = restore(saved); draw();
+  });
+  expect((await page.evaluate(() => build())).manifest.categories).toEqual({first: '#AABBCC', 'group/first': '#DDEEFF'});
+  await page.evaluate(() => { state = restore(JSON.parse(JSON.stringify(state))); draw(); });
+  expect((await page.evaluate(() => build())).manifest.categories).toEqual({first: '#AABBCC', 'group/first': '#DDEEFF'});
+});
