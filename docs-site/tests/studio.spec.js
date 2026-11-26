@@ -147,3 +147,18 @@ test('legacy names containing slashes migrate without losing other bindings', as
   await page.evaluate(() => { state = restore(JSON.parse(JSON.stringify(state))); draw(); });
   expect((await page.evaluate(() => build())).manifest.categories).toEqual({first: '#AABBCC', 'group/first': '#DDEEFF'});
 });
+
+test('a saved colour conflict can be resolved by keeping the displayed colour', async ({page}) => {
+  await page.evaluate(() => {
+    const saved = JSON.parse(JSON.stringify(state));
+    delete saved.page.category_format;
+    saved.type = 'grid';
+    saved.grid.panels = [{type: 'hist', variable: ''}, {type: 'line', variable: ''}];
+    saved.types.hist.hue = 'group'; saved.types.line.hue = 'other_group';
+    saved.page.categories = {'group/shared': '#AABBCC', 'other_group/shared': '#DDEEFF'};
+    state = restore(saved); draw();
+  });
+  await page.getByRole('button', {name: 'Use #AABBCC', exact: true}).click();
+  expect((await page.evaluate(() => build())).manifest.categories.shared).toBe('#AABBCC');
+  await expect(page.getByText(/saved link.*different colours.*shared/i)).toHaveCount(0);
+});

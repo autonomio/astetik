@@ -612,14 +612,23 @@ function draw() {
       const colors = state.page.category_conflicts[name];
       const conflict = colors
         ? el('p', {className: 'hint', textContent: `The saved link had different colours for ${name}: ${colors.join(', ')}. Choose one colour for all panels.`}) : null;
-      node.oninput = () => {
-        state.page.categories[name] = node.value.toUpperCase();
+      const choose = (value) => {
+        state.page.categories[name] = value.toUpperCase();
+        node.value = value;
         delete state.page.category_conflicts[name];
         if (conflict) conflict.remove();
         changed(false);
       };
+      node.oninput = () => choose(node.value);
       box.append(el('div', {className: 'row'}, el('label', {textContent: name}), el('div', {className: 'field'}, node)));
-      if (conflict) box.append(conflict);
+      if (conflict) {
+        for (const value of colors) {
+          const choice = el('button', {type: 'button', className: 'link', textContent: `Use ${value}`});
+          choice.onclick = () => choose(value);
+          conflict.append(' ', choice);
+        }
+        box.append(conflict);
+      }
     }
   }
   block(root, 'Units', numeric().map((column) => ({key: column, label: column, type: 'text', placeholder: 'unit; 1 for dimensionless'})), state.page.units);
